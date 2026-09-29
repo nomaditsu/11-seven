@@ -133,9 +133,12 @@ export class Hands {
     holder.position.set(-0.1, 0.0, -0.52);
     holder.rotation.set(0.05, GEO[sku.g].kind === 'wrap' ? 0 : -0.25, 0);
     this.root.add(holder);
-    this.inspect = { sku, holder, me, tex, mat, yaw: holder.rotation.y, pitch: 0.05, tyaw: holder.rotation.y, tpitch: 0.05, dist: 0.52, k, t: 0 };
+    this.inspect = { sku, holder, me, tex, mat, yaw: holder.rotation.y, pitch: 0.05, tyaw: holder.rotation.y, tpitch: 0.05, dist: 0.52, k, t: 0, big: big * k };
     return this.inspect;
   }
+  // Touch layouts: where the pack goes on screen. f = { x, y } centre of the free area in NDC (-1..1, y up) and
+  // { w, h } its share of the screen. null keeps the desktop placement, a little left of centre.
+  setInspectFrame(f) { this.frame = f; }
   flip() { if (this.inspect) this.inspect.tyaw += Math.PI; }
   endInspect() {
     if (!this.inspect) return;
@@ -180,7 +183,16 @@ export class Hands {
       ins.holder.rotation.set(ins.pitch, ins.yaw, 0, 'XYZ');
       ins.holder.rotation.order = 'XYZ';
       const appear = ease(clamp(ins.t / 0.25, 0, 1));
-      ins.holder.position.z = -ins.dist + (1 - appear) * 0.25;
+      let dist = ins.dist;
+      const f = this.frame;
+      if (f) {
+        // back off until the pack (any way round) fills at most 80% of the free area, then centre it there
+        const tan = Math.tan(this.camera.fov * Math.PI / 360), asp = this.camera.aspect;
+        dist = Math.max(dist, ins.big / (1.6 * tan * f.h), ins.big / (1.6 * tan * asp * f.w));
+        ins.holder.position.x = f.x * tan * asp * dist;
+        ins.holder.position.y = f.y * tan * dist;
+      }
+      ins.holder.position.z = -dist + (1 - appear) * 0.25;
       ins.holder.scale.setScalar(0.4 + 0.6 * appear);
     }
     this.dim = damp(this.dim, ins ? 1 : 0, 10, dt);

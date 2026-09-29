@@ -148,6 +148,7 @@ async function boot() {
   addEventListener('resize', () => {
     renderer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    interaction.frameInspect();
   });
 
   // ---- input wiring

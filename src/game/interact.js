@@ -222,7 +222,7 @@ export class Interaction {
     this.insp = { slot, sku, hadLang: lang.mode };
     this.hands.beginInspect(sku);
     G.mode = 'inspect'; this.player.frozen = true;
-    fillInspect(sku); $('inspect-ui').hidden = false;
+    fillInspect(sku); $('inspect-ui').hidden = false; this.frameInspect();
     showPrompt(null); setCrosshair('');
     sfx('pick'); this.discoverSku(sku);
     G.inspecting = sku;
@@ -240,7 +240,7 @@ export class Interaction {
     this.insp = { sku, owned: true, back: o.back || 'basket', hadLang: lang.mode };
     this.hands.beginInspect(sku);
     G.mode = 'inspect'; this.player.frozen = true;
-    fillInspect(sku, { owned: true }); $('inspect-ui').hidden = false;
+    fillInspect(sku, { owned: true }); $('inspect-ui').hidden = false; this.frameInspect();
     showPrompt(null); setCrosshair('');
     sfx('pick'); this.discoverSku(sku);
     G.inspecting = sku;
@@ -267,7 +267,16 @@ export class Interaction {
     G.mode = 'play'; this.player.frozen = false;
     this.take(slot, true);
   }
-  refreshInspect() { if (this.insp) fillInspect(this.insp.sku, { owned: this.insp.owned }); }
+  refreshInspect() { if (this.insp) { fillInspect(this.insp.sku, { owned: this.insp.owned }); this.frameInspect(); } }
+  // Touch: centre the inspected pack in the screen area the card and the top bar leave free (ui.css places the card:
+  // a bottom sheet on phones, a side card on wider screens). Called on open, on a language change and on resize.
+  frameInspect() {
+    if (!this.insp || !input.touch) { this.hands.setInspectFrame(null); return; }
+    const W = innerWidth, H = innerHeight, card = $('inspect-ui').getBoundingClientRect();
+    const sheet = card.width > W * 0.6;
+    const x1 = sheet ? W : card.left, y0 = $('topbar').getBoundingClientRect().bottom + 8, y1 = sheet ? card.top - 8 : H;
+    this.hands.setInspectFrame({ x: x1 / W - 1, y: 1 - (y0 + y1) / H, w: x1 / W, h: Math.max(0.2, (y1 - y0) / H) });
+  }
 
   // ------------------------------------------------------------------ objects
   activate(ob) {

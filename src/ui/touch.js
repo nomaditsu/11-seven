@@ -36,12 +36,12 @@ function btn(id, cls, icon, label) {
 function render() {
   const box = $('touch'); if (!box) return;
   box.innerHTML = `<div class="stick" id="t-stick"><span>${tp('hud.move')}</span><i></i></div>
+    ${btn('t-crouch', 'crouch', 'crouch', tp('ctl.crouch').split(' ')[0])}
     <div class="acts">
       ${btn('t-take', 'take', 'hand', tp('hud.take'))}
       ${btn('t-inspect', 'a2', 'search', tp('hud.inspect'))}
       ${btn('t-back', 'a3', 'undo', tp('tch.back'))}
       ${btn('t-basket', 'a4', S.hasBasket ? 'basket' : 'hand', tp(S.hasBasket ? 'hud.basket' : 'hud.hands'))}
-      ${btn('t-crouch', 'a5', 'crouch', tp('ctl.crouch').split(' ')[0])}
     </div>`;
   bindStick($('t-stick'));
   press('t-take', () => (G.mode === 'inspect' ? inter.inspectTake() : inter.primary()));

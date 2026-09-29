@@ -558,26 +558,70 @@ body[data-mode=ui] .hint,body[data-mode=ui] .pad kbd,body[data-mode=inspect] .hi
 .tk .choice.end{border-style:dashed}
 
 /* ---------- touch controls ---------- */
+/* Stick bottom-left with Crouch beside it (both movement); Take bottom-right with Inspect, Put back and Hands on an
+   even arc around it. --sl / --sb / --ss place the stick, --tc-band and --tc-side are the space the controls take
+   at the bottom and at each side, so cards can stay clear of them. */
+html[data-touch]{--sl:22px;--sb:26px;--ss:150px;--tc-band:212px;--tc-side:220px}
 #touch{display:none;position:absolute;inset:0;z-index:2;pointer-events:none;touch-action:none}
 html[data-touch] body[data-mode=play] #touch,html[data-touch] body[data-mode=inspect] #touch{display:block}
-#touch .stick{position:absolute;left:22px;bottom:26px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid var(--edge);backdrop-filter:blur(4px);display:grid;place-items:center;pointer-events:auto;touch-action:none}
-#touch .stick i{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.35);border:2px solid rgba(255,255,255,.7);transition:transform .05s;pointer-events:none}
-#touch .stick span{position:absolute;top:-24px;font-size:12px;color:var(--mutedl);letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
-#touch .acts{position:absolute;right:20px;bottom:24px;width:210px;height:210px;pointer-events:none}
-#touch .act{position:absolute;border-radius:50%;background:var(--glass);border:2px solid var(--edge);display:grid;place-items:center;text-align:center;line-height:1;backdrop-filter:blur(8px);color:#fff;pointer-events:auto;touch-action:none;padding:0;cursor:pointer;font:inherit}
-#touch .act svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 3px;display:block}
+#touch .stick{position:absolute;left:var(--sl);bottom:var(--sb);width:var(--ss);height:var(--ss);border-radius:50%;background:rgba(16,22,19,.34);border:2px solid rgba(255,255,255,.8);box-shadow:0 0 0 1.5px rgba(0,0,0,.3),inset 0 0 0 1.5px rgba(0,0,0,.2),0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(4px);display:grid;place-items:center;pointer-events:auto;touch-action:none}
+#touch .stick i{width:42.5%;height:42.5%;border-radius:50%;background:rgba(255,255,255,.92);border:2px solid rgba(0,0,0,.28);box-shadow:0 2px 10px rgba(0,0,0,.45);transition:transform .05s;pointer-events:none}
+#touch .stick span{position:absolute;top:-24px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 8px rgba(0,0,0,.5);letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
+#touch .acts{position:absolute;right:20px;bottom:24px;width:184px;height:184px;pointer-events:none}
+#touch .act{position:absolute;border-radius:50%;background:var(--glass);border:2px solid var(--edge);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;line-height:1;backdrop-filter:blur(8px);color:#fff;pointer-events:auto;touch-action:none;padding:0;cursor:pointer;font:inherit}
+#touch .act svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin:0;flex:none;display:block}
 #touch .act svg .f{fill:currentColor;stroke:none}
-#touch .act small{display:block;font-size:12px;font-weight:700;color:#fff;opacity:1}
+#touch .act small{display:block;font-size:12px;font-weight:700;line-height:1.05;color:#fff;opacity:1}
 #touch .act.take{right:0;bottom:0;width:104px;height:104px;background:var(--glass);transition:background .15s}
 #touch .act.take.hot{background:linear-gradient(#ffa03c,#e46c0b);border-color:#ffc98a}
 #touch .act.take svg{width:34px;height:34px}
 #touch .act.take small{font-size:15px}
-#touch .act.a2{right:112px;bottom:8px;width:70px;height:70px}
-#touch .act.a3{right:78px;bottom:96px;width:70px;height:70px}
-#touch .act.a4{right:6px;bottom:116px;width:70px;height:70px}
-#touch .act.a5{right:118px;bottom:170px;width:56px;height:56px}
+/* 66px buttons 96px from Take's centre, at 180, 135 and 90 degrees */
+#touch .act.a2{right:115px;bottom:19px;width:66px;height:66px}
+#touch .act.a3{right:87px;bottom:87px;width:66px;height:66px}
+#touch .act.a4{right:19px;bottom:115px;width:66px;height:66px}
+/* Crouch up and to the right of the stick, 8px clear of its rim */
+#touch .act.crouch{width:58px;height:58px;left:calc(var(--sl) + var(--ss) / 2 + .7071 * (var(--ss) / 2 + 37px) - 29px);bottom:calc(var(--sb) + var(--ss) / 2 + .7071 * (var(--ss) / 2 + 37px) - 29px)}
+#touch .act.crouch svg{width:22px;height:22px}
+#touch .act.crouch small{font-size:11px}
 #touch .act .l2,#touch .act .rom{display:none}
-body[data-mode=inspect] #touch .stick,body[data-mode=inspect] #touch .a3,body[data-mode=inspect] #touch .a5{display:none}
+body[data-mode=inspect] #touch .stick,body[data-mode=inspect] #touch .a3,body[data-mode=inspect] #touch .crouch{display:none}
+
+/* The hover card sits between the two control groups, or above them where the screen is too narrow */
+html[data-touch] #prompt{bottom:12px;width:min(520px,calc(100vw - 2 * var(--tc-side)))}
+
+/* Inspect on touch: the card sits above a row of Flip, Put back and Take. Phones: a bottom sheet across the screen.
+   Wider screens: a side card on the right. interact.js frameInspect() centres the pack in the space left free. */
+html[data-touch] #inspect-ui{left:auto;right:8px;top:auto;bottom:76px;transform:none;width:min(360px,44vw)}
+html[data-touch] .ins-card{max-height:calc(100vh - 76px - 64px);padding:.9em 1.1em}
+html[data-touch] .ins-desc{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+body[data-mode=inspect] #touch .acts{left:auto;right:8px;bottom:8px;width:min(360px,44vw);height:60px;display:flex;gap:8px;transform:none}
+body[data-mode=inspect] #touch .act{position:static;flex:1 1 0;width:auto;height:60px;border-radius:16px;flex-direction:row;gap:8px}
+body[data-mode=inspect] #touch .act svg{width:24px;height:24px}
+body[data-mode=inspect] #touch .act small{font-size:15px}
+body[data-mode=inspect] #touch .act.a2{order:1}
+body[data-mode=inspect] #touch .act.a4{order:2}
+body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa03c,#e46c0b);border-color:#ffc98a}
+@media (max-width:700px){
+  html[data-touch] #prompt{bottom:calc(var(--tc-band) + 8px);width:calc(100vw - 16px)}
+  html[data-touch] #inspect-ui{left:8px;width:auto}
+  html[data-touch] .ins-card{max-height:46vh}
+  html[data-touch] .ins-card h2{font-size:22px}
+  html[data-touch] .ins-row b{font-size:26px}
+  html[data-touch] .ins-desc{-webkit-line-clamp:3}
+  body[data-mode=inspect] #touch .acts{left:8px;width:auto}
+}
+@media (max-height:440px){
+  html[data-touch] .ins-card{padding:.6em .9em}
+  html[data-touch] .ins-card h2{font-size:19px}
+  html[data-touch] .ins-row{margin:.25em 0;padding:.2em 0}
+  html[data-touch] .ins-row b{font-size:21px}
+  html[data-touch] .ins-desc{-webkit-line-clamp:2;font-size:13px}
+  html[data-touch] .ins-dl{display:none}
+  body[data-mode=inspect] #touch .acts{height:52px}
+  body[data-mode=inspect] #touch .act{height:52px}
+  html[data-touch] #inspect-ui{bottom:66px}
+}
 
 /* ---------- responsive ---------- */
 @media (max-width:1099px){.brand .bt{display:none}.brand{padding:6px 10px}#hud-temp{display:none}}
@@ -604,14 +648,14 @@ body[data-mode=inspect] #touch .stick,body[data-mode=inspect] #touch .a3,body[da
   .tracks{grid-template-columns:1fr}
   .trio{grid-template-columns:1fr 1fr}.trio>:last-child:nth-child(odd){grid-column:1/-1}
   .vol{grid-template-columns:100px 1fr}
-  #touch .stick{width:132px;height:132px;left:16px;bottom:22px}#touch .stick i{width:56px;height:56px}
+  html[data-touch]{--sl:16px;--sb:22px;--ss:132px;--tc-band:204px;--tc-side:208px}
   #touch .acts{right:12px;bottom:20px}
   .tk .face{width:52px;height:52px}.tk .who b{font-size:19px}.tk .tbtn span{display:none}.tk .say{font-size:19px}.tk .choice{font-size:17px}
   .nowplaying{top:70px}
 }
 @media (max-height:440px){
   #topbar{top:8px}.ib{width:42px;height:42px}
-  #touch .stick{width:112px;height:112px;bottom:14px}#touch .stick i{width:48px;height:48px}
+  html[data-touch]{--sl:16px;--sb:14px;--ss:112px;--tc-band:160px;--tc-side:170px}
   #touch .acts{transform:scale(.8);transform-origin:100% 100%;bottom:8px;right:8px}
   .panel.dark header{padding:8px 14px}.panel.dark h2{font-size:20px}
   .panel.dark .pbody{padding:12px 14px}
@@ -36487,8 +36531,13 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       holder.position.set(-0.1, 0, -0.52);
       holder.rotation.set(0.05, GEO[sku.g].kind === "wrap" ? 0 : -0.25, 0);
       this.root.add(holder);
-      this.inspect = { sku, holder, me, tex, mat, yaw: holder.rotation.y, pitch: 0.05, tyaw: holder.rotation.y, tpitch: 0.05, dist: 0.52, k, t: 0 };
+      this.inspect = { sku, holder, me, tex, mat, yaw: holder.rotation.y, pitch: 0.05, tyaw: holder.rotation.y, tpitch: 0.05, dist: 0.52, k, t: 0, big: big * k };
       return this.inspect;
+    }
+    // Touch layouts: where the pack goes on screen. f = { x, y } centre of the free area in NDC (-1..1, y up) and
+    // { w, h } its share of the screen. null keeps the desktop placement, a little left of centre.
+    setInspectFrame(f) {
+      this.frame = f;
     }
     flip() {
       if (this.inspect) this.inspect.tyaw += Math.PI;
@@ -36540,7 +36589,15 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
         ins.holder.rotation.set(ins.pitch, ins.yaw, 0, "XYZ");
         ins.holder.rotation.order = "XYZ";
         const appear = ease(clamp(ins.t / 0.25, 0, 1));
-        ins.holder.position.z = -ins.dist + (1 - appear) * 0.25;
+        let dist = ins.dist;
+        const f = this.frame;
+        if (f) {
+          const tan = Math.tan(this.camera.fov * Math.PI / 360), asp = this.camera.aspect;
+          dist = Math.max(dist, ins.big / (1.6 * tan * f.h), ins.big / (1.6 * tan * asp * f.w));
+          ins.holder.position.x = f.x * tan * asp * dist;
+          ins.holder.position.y = f.y * tan * dist;
+        }
+        ins.holder.position.z = -dist + (1 - appear) * 0.25;
         ins.holder.scale.setScalar(0.4 + 0.6 * appear);
       }
       this.dim = damp(this.dim, ins ? 1 : 0, 10, dt);
@@ -37598,6 +37655,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       this.player.frozen = true;
       fillInspect(sku);
       $("inspect-ui").hidden = false;
+      this.frameInspect();
       showPrompt(null);
       setCrosshair("");
       sfx("pick");
@@ -37623,6 +37681,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       this.player.frozen = true;
       fillInspect(sku, { owned: true });
       $("inspect-ui").hidden = false;
+      this.frameInspect();
       showPrompt(null);
       setCrosshair("");
       sfx("pick");
@@ -37666,7 +37725,22 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       this.take(slot, true);
     }
     refreshInspect() {
-      if (this.insp) fillInspect(this.insp.sku, { owned: this.insp.owned });
+      if (this.insp) {
+        fillInspect(this.insp.sku, { owned: this.insp.owned });
+        this.frameInspect();
+      }
+    }
+    // Touch: centre the inspected pack in the screen area the card and the top bar leave free (ui.css places the card:
+    // a bottom sheet on phones, a side card on wider screens). Called on open, on a language change and on resize.
+    frameInspect() {
+      if (!this.insp || !input.touch) {
+        this.hands.setInspectFrame(null);
+        return;
+      }
+      const W = innerWidth, H2 = innerHeight, card = $("inspect-ui").getBoundingClientRect();
+      const sheet = card.width > W * 0.6;
+      const x1 = sheet ? W : card.left, y0 = $("topbar").getBoundingClientRect().bottom + 8, y1 = sheet ? card.top - 8 : H2;
+      this.hands.setInspectFrame({ x: x1 / W - 1, y: 1 - (y0 + y1) / H2, w: x1 / W, h: Math.max(0.2, (y1 - y0) / H2) });
     }
     // ------------------------------------------------------------------ objects
     activate(ob) {
@@ -37868,12 +37942,12 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     const box3 = $("touch");
     if (!box3) return;
     box3.innerHTML = `<div class="stick" id="t-stick"><span>${tp("hud.move")}</span><i></i></div>
+    ${btn("t-crouch", "crouch", "crouch", tp("ctl.crouch").split(" ")[0])}
     <div class="acts">
       ${btn("t-take", "take", "hand", tp("hud.take"))}
       ${btn("t-inspect", "a2", "search", tp("hud.inspect"))}
       ${btn("t-back", "a3", "undo", tp("tch.back"))}
       ${btn("t-basket", "a4", S.hasBasket ? "basket" : "hand", tp(S.hasBasket ? "hud.basket" : "hud.hands"))}
-      ${btn("t-crouch", "a5", "crouch", tp("ctl.crouch").split(" ")[0])}
     </div>`;
     bindStick($("t-stick"));
     press("t-take", () => G.mode === "inspect" ? inter.inspectTake() : inter.primary());
@@ -38156,6 +38230,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       renderer.setSize(innerWidth, innerHeight);
       camera.aspect = innerWidth / innerHeight;
       camera.updateProjectionMatrix();
+      interaction.frameInspect();
     });
     player.onStep = (k) => {
       if (player.pos.z < 0.2) sfx("step", k);
