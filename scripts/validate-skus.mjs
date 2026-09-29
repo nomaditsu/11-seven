@@ -1,0 +1,47 @@
+// Static checks over every registered SKU (no browser needed): node scripts/validate-skus.mjs
+import path from 'node:path';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const { SKUS, CATS } = await import(path.join(root, 'src/data/skus.js'));
+const { ING, ALLERGEN } = await import(path.join(root, 'src/data/ingredients.js'));
+const { GEO } = await import(path.join(root, 'src/data/shapes.js'));
+const { ILLUS } = await import(path.join(root, 'src/gfx/illus.js'));
+const { BRANDS } = await import(path.join(root, 'src/data/brands.js'));
+const THAI = /[\u0E01-\u0E3A\u0E40-\u0E5B]/;
+const problems = [], warns = [];
+const seen = new Set();
+for (const s of SKUS) {
+  const P = (m) => problems.push(`${s.id}: ${m}`), W = (m) => warns.push(`${s.id}: ${m}`);
+  if (seen.has(s.id)) P('duplicate id'); seen.add(s.id);
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(s.id)) P('bad id format');
+  for (const k of ['name', 'desc']) if (!s[k] || !s[k].en || !s[k].th) P(`missing ${k} translation`);
+  if (s.size && (!s.size.en || !s.size.th)) P('size translation');
+  if (s.sub && (!s.sub.en || !s.sub.th)) P('sub translation');
+  if (s.promo && (!s.promo.en || !s.promo.th)) P('promo translation');
+  if (s.name && s.name.th && !THAI.test(s.name.th)) W(`Thai name has no Thai script: ${s.name.th}`);
+  if (s.desc && s.desc.th && !THAI.test(s.desc.th)) P('Thai desc has no Thai');
+  if (s.name && s.name.en && THAI.test(s.name.en)) P('English name contains Thai script');
+  for (const k of s.ing || []) if (!ING[k]) P(`unknown ingredient ${k}`);
+  for (const k of s.allergens || []) if (!ALLERGEN[k]) P(`unknown allergen ${k}`);
+  if (!GEO[s.g]) P(`geometry ${s.g}`);
+  if (!BRANDS[s.brand]) P(`brand ${s.brand}`);
+  for (const h of String(s.hero).split('+')) if (!ILLUS[h]) P(`hero ${h}`);
+  if (!CATS[s.cat]) P('category');
+  if (!(s.price > 0)) P('price');
+  if (s.name && (s.name.en.length > 30 || s.name.th.length > 30)) W(`long name (${s.name.en.length}/${s.name.th.length})`);
+  if (s.desc && (s.desc.en.length > 260 || s.desc.th.length > 260)) W('long description');
+  if (/tobacco|cigarette|บุหรี่/i.test(JSON.stringify([s.name, s.desc]))) P('tobacco content is not allowed');
+  if (s.alcohol && s.promo) W('promo on an alcohol product');
+}
+const by = {};
+for (const s of SKUS) (by[s.cat] ||= []).push(s.id);
+console.log('SKUs:', SKUS.length, '· categories:', Object.keys(by).length);
+console.log(Object.entries(by).map(([k, v]) => `${k}:${v.length}`).join('  '));
+const pools = {};
+for (const s of SKUS) (pools[s.pool] ||= []).push(s.id);
+console.log('pools:', Object.entries(pools).map(([k, v]) => `${k}:${v.length}`).join('  '));
+const empty = Object.keys(CATS).filter((k) => !by[k]);
+if (empty.length) console.log('categories with no SKUs:', empty.join(', '));
+console.log(`${problems.length} problems, ${warns.length} warnings`);
+if (problems.length) console.log(problems.join('\n'));
+if (warns.length) console.log(warns.slice(0, 40).join('\n'));
+process.exit(problems.length ? 1 : 0);

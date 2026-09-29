@@ -1,0 +1,39 @@
+{
+  "name": "11-seven",
+  "version": "1.0.0",
+  "description": "7 Eleven Simulator by Nomaditsu — a first-person walk-in Bangkok corner store (11 SEVEN) built with three.js, shipped as one self-contained HTML page.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "shots": "node scripts/shots.mjs",
+    "qa": "node scripts/qa.mjs",
+    "sheet": "node scripts/sheet.mjs",
+    "boot": "node scripts/boot-check.mjs",
+    "zfight": "node scripts/zfight.mjs",
+    "validate": "node scripts/validate-skus.mjs && node scripts/validate-dialogue.mjs"
+  },
+  "author": "Nomaditsu",
+  "license": "MIT",
+  "devDependencies": {
+    "@fontsource/anton": "^5.3.0",
+    "@fontsource/archivo-black": "^5.3.0",
+    "@fontsource/bangers": "^5.3.0",
+    "@fontsource/bebas-neue": "^5.3.0",
+    "@fontsource/chonburi": "^5.3.0",
+    "@fontsource/fredoka": "^5.3.0",
+    "@fontsource/itim": "^5.3.0",
+    "@fontsource/kanit": "^5.3.0",
+    "@fontsource/lilita-one": "^5.3.0",
+    "@fontsource/mali": "^5.3.0",
+    "@fontsource/mitr": "^5.3.0",
+    "@fontsource/pacifico": "^5.3.0",
+    "@fontsource/pattaya": "^5.3.0",
+    "@fontsource/righteous": "^5.3.0",
+    "@fontsource/sarabun": "^5.3.0",
+    "@fontsource/sriracha": "^5.3.0",
+    "esbuild": "^0.28.2",
+    "playwright-core": "^1.63.0",
+    "three": "^0.186.1"
+  }
+}

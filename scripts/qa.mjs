@@ -1,0 +1,184 @@
+// End-to-end play-through in headless Chromium: browse -> take -> inspect (flip, language) -> checkout -> receipt -> panels.
+// Usage: node scripts/qa.mjs [--q=med] [--frames=2] [--hour=18]
+import { openSim } from './lib/harness.mjs';
+import fs from 'node:fs';
+
+const opt = Object.fromEntries(process.argv.slice(2).filter((a) => a.startsWith('--')).map((a) => { const [k, v] = a.slice(2).split('='); return [k, v ?? true]; }));
+const query = new URLSearchParams({ debug: '1', autostart: '1', q: opt.q || 'med', hour: opt.hour || '18' }).toString();
+const { browser, page, logs } = await openSim({ query: '?' + query, width: +(opt.w || 1280), height: +(opt.h || 720) });
+fs.mkdirSync('.scratch/qa', { recursive: true });
+let fails = 0;
+const ok = (cond, msg) => { console.log((cond ? 'PASS ' : 'FAIL ') + msg); if (!cond) fails++; };
+const frames = (n = +(opt.frames || 2)) => page.evaluate((n) => new Promise((res) => { const f0 = window.__sim.G.frame; const iv = setInterval(() => { if (window.__sim.G.frame >= f0 + n) { clearInterval(iv); res(); } }, 40); }), n);
+const shot = async (name, n) => { await frames(n); await page.screenshot({ path: `.scratch/qa/${name}.png` }); };
+const ev = (fn, arg) => page.evaluate(fn, arg);
+const state = () => ev(() => { const s = window.__sim; return { mode: s.G.mode, panel: document.querySelector('#panels .panel.on')?.id || null, items: s.S.items.map((e) => e.sku.id + 'x' + e.qty), bag: s.S.bag.map((e) => e.sku.id + 'x' + e.qty), cash: s.save.cash, pts: s.save.points, disc: s.save.discovered?.length ?? 0, ach: s.save.achievements?.length ?? 0, hour: s.G.hourNow, taken: s.S.taken.length }; });
+
+await frames(2);
+ok((await state()).mode === 'play', 'game starts in play mode');
+
+// --- pick three SKUs from different categories
+const picks = await ev(() => {
+  const s = window.__sim, seen = new Set(), out = [];
+  for (const sl of s.contents.pw.slots) { const k = sl.sku.cat; if (!seen.has(k) && !sl.sku.alcohol) { seen.add(k); out.push(sl.sku.id); } }
+  return out.slice(0, 6);
+});
+console.log('picks', picks.join(', '));
+
+// --- take one directly
+await ev((id) => window.__sim.lookAtSku(id), picks[0]);
+await frames(2);
+let r = await ev(() => { const it = window.__sim.interaction; return it.target ? it.target.type + ':' + (it.target.slot ? it.target.slot.sku.id : it.target.obj.kind) : null; });
+ok(r && r.startsWith('sku:'), 'crosshair targets a product (' + r + ')');
+await shot('01_target', 1);
+await ev(() => window.__sim.key('KeyT')); await frames(3);
+let st = await state();
+ok(st.items.length === 1, 'T takes the item (' + st.items + ')');
+await shot('02_taken', 2);
+
+// --- inspect another: F, flip, language flip
+await ev((id) => window.__sim.lookAtSku(id), picks[1]); await frames(2);
+await ev(() => window.__sim.key('KeyI')); await frames(3);
+st = await state(); ok(st.mode === 'inspect', 'I enters inspect mode');
+await shot('03_inspect_front', 4);
+await ev(() => window.__sim.key('Space')); await shot('04_inspect_back', 6);
+await ev(() => window.__sim.setLang('th')); await shot('05_inspect_back_th', 6);
+await ev(() => window.__sim.key('Space')); await shot('06_inspect_front_th', 6);
+st = await state(); ok(st.ach >= 1, 'achievements granted so far: ' + st.ach);
+await ev(() => window.__sim.setLang('en'));
+await ev(() => window.__sim.key('KeyT')); await frames(3);
+st = await state(); ok(st.items.length === 2 && st.mode === 'play', 'T in inspect takes the item and returns to play');
+
+// --- hands hold 5 items; the 6th is refused until a basket is picked up
+for (const id of picks.slice(2, 5)) { await ev((i) => window.__sim.lookAtSku(i), id); await frames(4); await ev(() => window.__sim.key('KeyT')); await frames(3); }   // headless frames are slow: wait for the target to update
+st = await state(); ok(st.items.length === 5, 'hands hold 5 items (' + st.items.length + ')');
+await ev((i) => window.__sim.lookAtSku(i), picks[5]); await frames(4); await ev(() => window.__sim.key('KeyT')); await frames(3);
+st = await state(); ok(st.items.length === 5, '6th item refused without a basket');
+await ev(() => { const s = window.__sim; s.interaction.activate({ kind: 'basket' }); }); await frames(3);
+await ev((i) => window.__sim.lookAtSku(i), picks[5]); await frames(4); await ev(() => window.__sim.key('KeyT')); await frames(3);
+st = await state(); ok(st.items.length === 6, 'with a basket the 6th item is accepted (' + st.items.length + ')');
+
+// --- alcohol is refused outside the legal hours (14:00-17:00) and allowed inside them
+const beer = await ev(() => { const s = window.__sim.contents.pw.slots.find((x) => x.sku.alcohol); return s ? s.sku.id : null; });
+if (beer) {
+  await ev(() => window.__sim.setHour(15)); await ev((i) => window.__sim.lookAtSku(i), beer); await frames(3);
+  const before = (await state()).items.length;
+  await ev(() => window.__sim.key('KeyT')); await frames(2);
+  ok((await state()).items.length === before, 'alcohol refused at 15:00 (' + beer + ')');
+  await shot('06b_alcohol_closed', 2);
+  await ev(() => window.__sim.setHour(19)); await ev((i) => window.__sim.lookAtSku(i), beer); await frames(3);
+  await ev(() => window.__sim.key('KeyT')); await frames(2);
+  ok((await state()).items.length === before + 1, 'alcohol accepted at 19:00');
+  await ev(() => window.__sim.setHour(18));
+}
+
+// --- basket panel, codex, quests
+await ev(() => window.__sim.open('basket')); await shot('07_basket', 3); await ev(() => window.__sim.close());
+await ev(() => window.__sim.open('codex')); await shot('08_codex', 4); await ev(() => window.__sim.close());
+await ev(() => window.__sim.open('quests')); await shot('09_quests', 3); await ev(() => window.__sim.close());
+
+// --- walk to the till and pay
+await ev(() => window.__sim.tp(2.7, -2.95, -Math.PI / 2, -0.05)); await frames(3);
+r = await ev(() => { const it = window.__sim.interaction; return it.target ? it.target.type + ':' + (it.target.slot ? it.target.slot.sku.id : it.target.obj.kind) : null; });
+ok(r === 'obj:pos', 'till is targetable (' + r + ')');
+await shot('10_till', 2);
+await ev(() => window.__sim.key('KeyE')); await frames(2);
+ok((await state()).panel === 'panel-talk', 'E at the till starts a conversation with the cashier');
+await shot('10b_talk', 3);
+await ev(() => document.querySelector('#panel-talk .choice').click()); await frames(4);
+await new Promise((r) => setTimeout(r, 400));
+ok((await state()).panel === 'panel-checkout', '"I would like to pay" opens checkout');
+// answer every question with the first (primary) button until the receipt appears
+let guard = 0, shotN = 11;
+while (guard++ < 40) {
+  await new Promise((r) => setTimeout(r, 600));
+  const s2 = await state();
+  if (s2.panel === 'panel-receipt') break;
+  const has = await ev(() => document.querySelectorAll('#co-choices button').length);
+  if (has) {
+    if (shotN < 15) await shot(`${shotN++}_checkout`, 2);
+    const txt = await ev(() => document.querySelector('#co-choices button').textContent);
+    console.log('  choice:', txt.replace(/\s+/g, ' ').trim());
+    await ev(() => document.querySelector('#co-choices button').click());
+  }
+}
+st = await state();
+ok(st.panel === 'panel-receipt', 'receipt appears');
+ok(st.items.length === 0 && st.bag.length > 0, 'basket emptied, bag filled (' + st.bag + ')');
+ok(st.cash < 500, 'cash was deducted: ' + st.cash);
+await shot('16_receipt', 3);
+await ev(() => document.getElementById('receipt-done').click()); await frames(2);
+ok((await state()).mode === 'play', 'back to play after receipt');
+await ev(() => window.__sim.open('basket')); await ev(() => document.querySelector('#panel-basket [data-tab="bag"]').click()); await shot('17_bag', 3);
+await ev(() => window.__sim.close());
+
+// --- settings / controls / about / pause
+for (const p of ['settings', 'controls', 'about', 'pause']) { await ev((p) => window.__sim.open(p), p); await shot('18_' + p, 3); await ev(() => window.__sim.close()); }
+
+// --- ATM and hot water are targetable, ATM pays out cash
+for (const kind of ['atm', 'hotwater', 'microwave']) {
+  const t = await ev((kind) => {
+    const s = window.__sim, ob = s.contents.ctx.interactables.find((o) => o.kind === kind);
+    const cz = (ob.box.min.z + ob.box.max.z) / 2, cy = (ob.box.min.y + ob.box.max.y) / 2;
+    s.tp(ob.box.max.x + 1.2, cz, Math.PI / 2, Math.atan2(cy - 1.6, 1.2));
+    return kind;
+  }, kind);
+  await frames(3);
+  const tg = await ev(() => { const it = window.__sim.interaction; return it.target ? it.target.type + ':' + (it.target.obj ? it.target.obj.kind : it.target.slot.sku.id) : null; });
+  ok(tg === 'obj:' + kind, kind + ' is targetable (' + tg + ')');
+  if (kind === 'atm') {
+    const c0 = (await state()).cash;
+    await ev(() => window.__sim.key('KeyE')); await frames(2);
+    ok((await state()).cash === c0 + 500, 'ATM pays out 500 baht');
+    await shot('19_atm', 2);
+  }
+}
+
+// --- bilingual mode leads with English; M (music) / N (sound effects) / . keys; conversations
+await ev(() => window.__sim.setLang('both'));
+ok(await ev(() => document.documentElement.lang) === 'en', 'bilingual mode leads with English');
+await shot('20_both_hud', 2);
+ok(await ev(() => window.__sim.settings.muted === false && window.__sim.settings.musicOn === false), 'after Walk in: sound effects on (for the door greeting), music off');
+ok(await ev(() => window.__sim.settings.sfx > 0.05 && window.__sim.settings.sfx === window.__sim.settings.music), 'sound-effects volume starts at the music volume');
+await page.keyboard.press('KeyN'); ok(await ev(() => window.__sim.settings.muted) === true, 'N turns sound effects off');
+await page.keyboard.press('KeyN'); ok(await ev(() => window.__sim.settings.muted) === false, 'N turns sound effects on');
+await page.keyboard.press('KeyM'); ok(await ev(() => window.__sim.settings.musicOn) === true, 'M turns the music on');
+await page.keyboard.press('KeyM'); ok(await ev(() => window.__sim.settings.musicOn) === false, 'M turns the music off');
+// flags draw their own colours: no icon stroke may leak onto them (this regressed once)
+ok(await ev(() => [...document.querySelectorAll('svg.flag rect')].every((r) => getComputedStyle(r).stroke === 'none')), 'flags have no outline');
+const t0 = await ev(() => window.__sim.settings.track); await page.keyboard.press('Period');
+ok(await ev(() => window.__sim.settings.track) === (t0 + 1) % 4, '. skips to the next track');
+ok(await ev(() => ['hud-lang', 'btn-sound', 'btn-music', 'btn-next', 'btn-menu'].every((id) => !!document.getElementById(id))), 'always-on audio / language / menu buttons exist');
+await ev(() => window.__sim.tp(3.5, -2.75, -Math.PI / 2, 0)); await frames(3);
+await ev(() => window.__sim.key('KeyE')); await frames(2);
+ok((await state()).panel === 'panel-talk', 'a conversation opens with E');
+await page.keyboard.press('Digit1'); await frames(3);
+await shot('21_talk', 3);
+ok(await ev(() => window.__sim.save.talked.some((k) => k.startsWith('p:cashier'))), 'the cashier is remembered as met');
+await page.keyboard.press('Escape'); await frames(2);
+ok((await state()).mode === 'play', 'Esc leaves the conversation');
+const errs = logs.filter((l) => /^\[(error|pageerror)\]/.test(l));
+// --- people walk around fixtures, not through them (fast-forward 3 minutes of NPC movement)
+{
+  const r = await ev(() => {
+    const s = window.__sim, far = { pos: { x: 200, z: 200 } };
+    let inside = 0; const who = new Set();
+    for (let t = 0; t < 180; t += 0.05) {
+      s.G.npcs.update(0.05, t, far);
+      for (const p of s.G.npcs.people) {
+        const x = p.group.position.x, z = p.group.position.z;
+        for (const c of s.colliders) {
+          if (!c.on || c.tag === 'door') continue;
+          const cx = Math.max(c.x0, Math.min(x, c.x1)), cz = Math.max(c.z0, Math.min(z, c.z1));
+          if ((x - cx) ** 2 + (z - cz) ** 2 < 0.15 * 0.15) { inside++; who.add((p.talkId || '?') + '/' + c.tag); break; }
+        }
+      }
+    }
+    return { inside, who: [...who].join(', ') };
+  });
+  ok(r.inside === 0, 'NPCs never walk through fixtures' + (r.inside ? ` (${r.inside} frames: ${r.who})` : ''));
+}
+ok(errs.length === 0, 'no console errors' + (errs.length ? '\n' + errs.slice(0, 6).join('\n') : ''));
+console.log(fails ? `\n${fails} FAILED` : '\nALL OK');
+await browser.close();
+process.exit(fails ? 1 : 0);

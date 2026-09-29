@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="7 Eleven Simulator by Nomaditsu — walk into a Bangkok 11 SEVEN, browse 250+ Thai products, and flip every sign and package between English and Thai.">
+<meta name="theme-color" content="#00874a">
+<title>7 Eleven Simulator by Nomaditsu</title>
+<style>
+/*__FONTS__*/
+/*__CSS__*/
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="gl" tabindex="0"></canvas>
+
+  <!-- ============================================================ TITLE / LOADING -->
+  <section id="title" class="screen">
+    <div class="title-audio">
+      <button class="ib" id="t-sound" type="button"><span class="ii"></span><small>N</small></button>
+      <button class="ib" id="t-music" type="button"><span class="ii"></span><small>M</small></button>
+      <button class="ib" id="t-next" type="button"><span class="ii"></span><small>.</small></button>
+    </div>
+    <div class="title-wrap">
+      <div class="brandmark" id="brandmark"></div>
+      <h1 class="game-title"><span>7 Eleven</span> <span class="sim">Simulator</span></h1>
+      <div class="byline"><i></i><span data-by></span> <button class="by-link" id="btn-by-title" type="button">Nomaditsu</button><i></i></div>
+      <p class="tagline" data-i18n="title.tagline"></p>
+
+      <div class="langbox">
+        <div class="langlabel"><span data-i18n="title.language"></span></div>
+        <div class="seg" id="title-lang">
+          <button data-lang="en">English</button><button data-lang="th">ไทย</button><button data-lang="both">EN + ไทย</button>
+        </div>
+        <div class="langnote" data-i18n="title.flipHint"></div>
+      </div>
+
+      <div class="btns">
+        <button id="btn-start" class="btn primary big" disabled><span data-i18n="title.loading"></span></button>
+        <div class="btnrow">
+          <button id="btn-settings" class="btn" data-i18n="title.settings"></button>
+          <button id="btn-controls" class="btn" data-i18n="title.controls"></button>
+          <button id="btn-about" class="btn ghost" data-i18n="title.about"></button>
+        </div>
+      </div>
+      <div class="loadbar"><i id="loadfill"></i></div>
+      <div class="tip" id="tip"></div>
+      <div class="hintline" data-i18n="title.hint"></div>
+    </div>
+    <div class="disclaimer">Fan-made tribute for fun · not affiliated with or endorsed by 7-Eleven, CP ALL or any brand shown. All names and marks belong to their owners; artwork is stylised.</div>
+  </section>
+
+  <!-- ============================================================ HUD -->
+  <div id="hud" hidden>
+    <div id="xhair"><i></i></div>
+    <div id="zoomframe"></div>
+
+    <div id="topbar">
+      <div class="tleft">
+        <button class="chip brand" id="hud-brand" type="button" data-open="about"><span class="bm" id="hud-logo"></span>
+          <span class="bt"><span class="word">11 <em>SEVEN</em></span><span class="by"><span data-by></span> <u>Nomaditsu</u></span></span></button>
+        <button class="chip stat clockchip" id="hud-time" type="button" data-open="time"><span class="ci" data-icon="clock"></span><div><b id="hud-clock">18:30</b><small id="hud-temp"></small></div></button>
+        <button class="chip stat snackchip" id="hud-codex" type="button" data-open="codex"><span class="ci" data-icon="book"></span><div><b data-i18n="hud.codex"></b><small id="hud-codex-n">0/0</small></div></button>
+        <div class="chip stat cashchip"><span class="ci" data-icon="cash"></span><div><b id="w-cash">500</b><small data-i18n="hud.cash"></small></div></div>
+        <button class="chip stat basketchip" id="hud-basket" type="button" data-open="basket"><span class="ci" id="w-basket-i" data-icon="hand"></span><div><b id="w-basket">0</b><small id="w-basket-l"></small></div></button>
+      </div>
+      <div class="tright" id="hud-right">
+        <button class="ib lang" id="hud-lang" type="button" data-btn="lang"><span class="ii"></span><small>L</small></button>
+        <span class="gap"></span>
+        <button class="ib" id="btn-sound" type="button" data-btn="sound"><span class="ii"></span><small>N</small></button>
+        <button class="ib" id="btn-music" type="button" data-btn="music"><span class="ii"></span><small>M</small></button>
+        <button class="ib" id="btn-next" type="button" data-btn="next"><span class="ii"></span><small>.</small></button>
+        <span class="gap"></span>
+        <button class="ib" id="btn-menu" type="button" data-btn="menu"><span class="ii"></span><small>Esc</small></button>
+      </div>
+    </div>
+    <div class="chip nowplaying" id="nowplaying"></div>
+
+    <div id="objective" hidden></div>
+
+    <div class="chip movepad" id="movepad" title="Move"><div class="pad"><i></i><kbd data-code="ArrowUp">↑</kbd><i></i><kbd data-code="ArrowLeft">←</kbd><kbd data-code="ArrowDown">↓</kbd><kbd data-code="ArrowRight">→</kbd></div></div>
+
+    <div id="prompt" hidden>
+      <div class="pcard" id="pcard">
+        <div class="pname" id="p-name"></div>
+        <div class="psub" id="p-sub"></div>
+        <div class="pmeta"><span class="pprice" id="p-price"></span><span class="pcat" id="p-cat"></span></div>
+      </div>
+      <div class="pkeys" id="p-keys"></div>
+    </div>
+
+    <div id="subtitle" hidden><div class="en" id="sub-en"></div><div class="rom" id="sub-rom"></div><div class="th" id="sub-th"></div></div>
+    <div id="zonebanner"></div>
+    <div class="chip hintbar" id="hints"></div>
+    <div id="touch"></div>
+    <div id="inspect-ui" hidden>
+      <div class="ins-card">
+        <div class="ins-brand" id="ins-brand"></div>
+        <h2 id="ins-name"></h2>
+        <div class="ins-second" id="ins-second"></div>
+        <div class="ins-row"><b id="ins-price"></b><span id="ins-size"></span></div>
+        <div class="ins-tags" id="ins-tags"></div>
+        <div class="ins-desc" id="ins-desc"></div>
+        <dl class="ins-dl" id="ins-dl"></dl>
+        <div class="ins-keys" id="ins-keys"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- toasts sit above the panels so warnings show during checkout too -->
+  <div id="toasts"></div>
+
+  <!-- ============================================================ PANELS -->
+  <div id="panels" hidden>
+    <div class="scrim"></div>
+
+    <!-- pause menu -->
+    <section class="panel dark mid" id="panel-pause">
+      <header><h2 data-i18n="menu.paused"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody" id="pause-body"></div>
+    </section>
+
+    <!-- settings -->
+    <section class="panel dark" id="panel-settings">
+      <header><h2 data-i18n="menu.settings"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody form" id="settings-body"></div>
+    </section>
+
+    <!-- controls -->
+    <section class="panel dark wide2" id="panel-controls">
+      <header><h2 data-i18n="menu.controls"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody" id="controls-body"></div>
+    </section>
+
+    <!-- about + employee badge -->
+    <section class="panel dark wide2" id="panel-about">
+      <header><h2 data-i18n="title.about"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody" id="about-body"></div>
+    </section>
+
+    <!-- talking to a character -->
+    <section class="panel dark talk" id="panel-talk"></section>
+
+    <!-- codex -->
+    <section class="panel wide" id="panel-codex">
+      <header>
+        <div><h2 data-i18n="codex.title"></h2><small data-i18n="codex.sub"></small></div>
+        <div class="codexprog"><b id="codex-count"></b><div class="bar"><i id="codex-bar"></i></div></div>
+        <button class="x" data-close aria-label="Close">✕</button>
+      </header>
+      <div class="codextools">
+        <input id="codex-search" type="search" data-i18n-ph="codex.search" autocomplete="off">
+        <label class="revealtog"><span data-i18n="codex.foundOnly"></span><span class="switch"><input type="checkbox" id="codex-found"><i></i></span></label>
+        <label class="revealtog"><span data-i18n="codex.reveal"></span><span class="switch"><input type="checkbox" id="codex-reveal"><i></i></span></label>
+      </div>
+      <div class="chips" id="codex-cats"></div>
+      <div class="pbody codexgrid" id="codex-grid"></div>
+      <div class="codexdetail" id="codex-detail" hidden></div>
+    </section>
+
+    <!-- time of day (opened from the clock chip) -->
+    <section class="panel dark mid" id="panel-time">
+      <header><h2 data-i18n="set.time"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody" id="time-body"></div>
+    </section>
+
+    <!-- quests -->
+    <section class="panel" id="panel-quests">
+      <header><h2 data-i18n="quest.title"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody" id="quests-body"></div>
+    </section>
+
+    <!-- basket / bag -->
+    <section class="panel" id="panel-basket">
+      <header><h2 id="basket-title"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="tabs"><button class="tab on" data-tab="basket" id="basket-tab"></button><button class="tab" data-tab="bag" data-i18n="basket.bought"></button></div>
+      <div class="pbody" id="basket-body"></div>
+      <footer id="basket-foot"></footer>
+    </section>
+
+    <!-- checkout dialogue -->
+    <section class="panel dialog" id="panel-checkout">
+      <header><h2 data-i18n="co.title"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody">
+        <div class="cashier">
+          <div class="avatar" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="24" r="14" fill="#f2c6a0"/><path d="M16 22c0-12 10-16 16-16s16 4 16 16c-4-6-9-8-16-8s-12 2-16 8z" fill="#1b1414"/><rect x="14" y="40" width="36" height="24" rx="10" fill="#fff"/><rect x="14" y="48" width="36" height="4" fill="#f58220"/><rect x="14" y="52" width="36" height="4" fill="#00874a"/><rect x="14" y="56" width="36" height="4" fill="#e31e24"/></svg></div>
+          <div class="bubble"><div class="b-en" id="co-en"></div><div class="b-rom" id="co-rom"></div><div class="b-th" id="co-th"></div></div>
+        </div>
+        <div class="poslist" id="co-list"></div>
+        <div class="co-total"><span data-i18n="co.total"></span><b id="co-total">฿0</b></div>
+        <div class="choices" id="co-choices"></div>
+        <div class="qrbox" id="co-qr" hidden><canvas id="co-qr-canvas" width="220" height="220"></canvas></div>
+      </div>
+    </section>
+
+    <!-- receipt -->
+    <section class="panel receipt" id="panel-receipt">
+      <header><h2 data-i18n="co.receipt"></h2><button class="x" data-close aria-label="Close">✕</button></header>
+      <div class="pbody"><canvas id="receipt-canvas"></canvas></div>
+      <footer><button class="btn" id="receipt-save" data-i18n="co.saveReceipt"></button><button class="btn primary" id="receipt-done" data-i18n="co.continue"></button></footer>
+    </section>
+  </div>
+
+  <div id="clickcatch" hidden><div class="cc-box"><b data-i18n="menu.clickToPlay"></b></div></div>
+  <div id="fade"></div>
+</div>
+<script>
+/*__THREE__*/
+</script>
+<script>
+/*__GAME__*/
+</script>
+</body>
+</html>
