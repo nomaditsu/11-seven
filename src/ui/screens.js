@@ -33,7 +33,7 @@ const OR = () => `<span class="or">${esc(tp('ctl.or'))}</span>`;
 // [alternatives (each a list of keys), label key, isNew]
 const KB_GROUPS = [
   { c: 'var(--gl)', key: 'ctlg.move', rows: [
-    [[['↑', '←', '↓', '→']], 'ctl.move'], [['mouse'], 'ctl.look'], [[['W', 'A', 'S', 'D']], 'ctl.lookKeys'], [[['Shift']], 'ctl.sprint'], [[['C'], ['Ctrl']], 'ctl.crouch'], [[['Z'], ['Right-click']], 'ctl.zoom'] ] },
+    [[['W', 'A', 'S', 'D'], ['↑', '←', '↓', '→']], 'ctl.move'], [['mouse'], 'ctl.look'], [[['Shift']], 'ctl.sprint'], [[['C'], ['Ctrl']], 'ctl.crouch'], [[['Z'], ['Right-click']], 'ctl.zoom'] ] },
   { c: 'var(--o)', key: 'ctlg.shop', rows: [
     [[['T'], ['Click']], 'ctl.take'], [[['I']], 'ctl.inspect'], [[['Space']], 'ctl.flip'], [[['P']], 'ctl.putback'] ] },
   { c: '#ff5a5f', key: 'ctlg.stuff', rows: [

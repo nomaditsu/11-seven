@@ -5500,7 +5500,6 @@ void main() {
     "set.time.late": { en: "Late night 02:00", th: "\u0E14\u0E36\u0E01 02:00" },
     // ---------------------------------------------------------------- controls legend
     "ctl.move": { en: "Move", th: "\u0E40\u0E14\u0E34\u0E19" },
-    "ctl.lookKeys": { en: "Look around (keyboard)", th: "\u0E21\u0E2D\u0E07\u0E23\u0E2D\u0E1A\u0E15\u0E31\u0E27 (\u0E41\u0E1B\u0E49\u0E19\u0E1E\u0E34\u0E21\u0E1E\u0E4C)", rom: "m\u0254\u0254ng r\u0254\u0302\u0254p tua (bp\u025B\u0302n-phim)" },
     "ctl.look": { en: "Look around (click and drag)", th: "\u0E21\u0E2D\u0E07\u0E23\u0E2D\u0E1A\u0E15\u0E31\u0E27 (\u0E04\u0E25\u0E34\u0E01\u0E04\u0E49\u0E32\u0E07\u0E41\u0E25\u0E49\u0E27\u0E25\u0E32\u0E01)", rom: "m\u0254\u0254ng r\u0254\u0302\u0254p tua (khl\xEDk kh\xE1ang l\u025B\u0301\u025Bo l\xE2ak)" },
     "ctl.sprint": { en: "Sprint", th: "\u0E27\u0E34\u0E48\u0E07" },
     "ctl.crouch": { en: "Crouch (reach low shelves)", th: "\u0E22\u0E48\u0E2D\u0E15\u0E31\u0E27 (\u0E14\u0E39\u0E0A\u0E31\u0E49\u0E19\u0E25\u0E48\u0E32\u0E07)" },
@@ -6639,19 +6638,14 @@ void main() {
         const k = 22e-4 * settings.sens * this.lookScale * (1 - this.zoomT * 0.8);
         this.yaw -= mx * k;
         this.pitch -= my * k * (settings.invertY ? -1 : 1);
-        const kl = 1.9 * settings.sens * dt * (1 - this.zoomT * 0.8);
-        if (down("KeyA")) this.yaw += kl;
-        if (down("KeyD")) this.yaw -= kl;
-        if (down("KeyW")) this.pitch += kl * 0.7;
-        if (down("KeyS")) this.pitch -= kl * 0.7;
         this.pitch = clamp(this.pitch, -1.5, 1.5);
       }
       let ix = 0, iz = 0;
       if (active && !this.frozen) {
-        if (down("ArrowUp")) iz -= 1;
-        if (down("ArrowDown")) iz += 1;
-        if (down("ArrowLeft")) ix -= 1;
-        if (down("ArrowRight")) ix += 1;
+        if (down("ArrowUp", "KeyW")) iz -= 1;
+        if (down("ArrowDown", "KeyS")) iz += 1;
+        if (down("ArrowLeft", "KeyA")) ix -= 1;
+        if (down("ArrowRight", "KeyD")) ix += 1;
       }
       const wantCrouch = active && !this.frozen && down("KeyC", "ControlLeft", "ControlRight");
       this.crouchT = damp(this.crouchT, wantCrouch ? 1 : 0, 9, dt);
@@ -9912,6 +9906,7 @@ void main() {
       this.talking = false;
       this.talkId = null;
       this.tbox = new THREE13.Box3();
+      this.tb = { half: o.tHalf ?? 0.4, y0: o.tY0 ?? 0, y1: o.tY1 ?? 1.9 };
       this.path = null;
       this.pathFor = -1;
       this.pi = 0;
@@ -9968,9 +9963,9 @@ void main() {
       if (this.talking) this.yaw = this.turn(this.yaw, Math.atan2(player.x - g2.position.x, player.z - g2.position.z), dt * 5);
       g2.rotation.y = this.yaw;
       {
-        const p = g2.position;
-        this.tbox.min.set(p.x - 0.4, 0, p.z - 0.4);
-        this.tbox.max.set(p.x + 0.4, 1.9, p.z + 0.4);
+        const p = g2.position, b = this.tb;
+        this.tbox.min.set(p.x - b.half, b.y0, p.z - b.half);
+        this.tbox.max.set(p.x + b.half, b.y1, p.z + b.half);
       }
       this.circle.x = g2.position.x;
       this.circle.z = g2.position.z;
@@ -10084,7 +10079,7 @@ void main() {
     build() {
       {
         const h = makeHuman({ shirtTex: "cashier", pants: 2830138, female: true, hairStyle: "bun", hair: 1314830, skin: skinTones[1], height: 1.58 });
-        const c2 = new Person(h, { x: 4.95, z: -2.75, yaw: -Math.PI / 2, route: [] });
+        const c2 = new Person(h, { x: 4.95, z: -2.75, yaw: -Math.PI / 2, route: [], tHalf: 0.3, tY0: 1, tY1: 1.65 });
         this.cashier = this.add(c2, "cashier");
         c2.wai = function() {
           this.poseT = 2.2;
@@ -35664,9 +35659,8 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   var OR = () => `<span class="or">${esc2(tp("ctl.or"))}</span>`;
   var KB_GROUPS = [
     { c: "var(--gl)", key: "ctlg.move", rows: [
-      [[["\u2191", "\u2190", "\u2193", "\u2192"]], "ctl.move"],
+      [[["W", "A", "S", "D"], ["\u2191", "\u2190", "\u2193", "\u2192"]], "ctl.move"],
       [["mouse"], "ctl.look"],
-      [[["W", "A", "S", "D"]], "ctl.lookKeys"],
       [[["Shift"]], "ctl.sprint"],
       [[["C"], ["Ctrl"]], "ctl.crouch"],
       [[["Z"], ["Right-click"]], "ctl.zoom"]
@@ -37501,10 +37495,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       this.zone = null;
       this.restock = [];
       this.stoolBoxes = (ctx.stools || []).map((s) => ({ kind: "stool", box: new THREE24.Box3(new THREE24.Vector3(s.x - 0.22, 0.55, s.z - 0.22), new THREE24.Vector3(s.x + 0.22, 0.9, s.z + 0.22)), maxDist: 2.2 }));
-      this.extra = [
-        { kind: "pos", box: new THREE24.Box3(new THREE24.Vector3(3, 0.8, -3.4), new THREE24.Vector3(4.5, 1.7, -2)), maxDist: 2.9 },
-        { kind: "pos", box: new THREE24.Box3(new THREE24.Vector3(3, 0.8, -4.6), new THREE24.Vector3(4.5, 1.7, -3.5)), maxDist: 2.9 }
-      ];
+      this.extra = [];
       this.dynamic = [];
       this.atmUses = save.atmUses || 0;
       this.cafeBusy = false;
@@ -37608,8 +37599,6 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       switch (ob.kind) {
         case "basket":
           return S.hasBasket ? tp("hud.dropBasket") : tp("hud.grabBasket");
-        case "pos":
-          return tp("act.talkPay");
         case "atm":
           return tp("act.withdraw");
         case "microwave":
@@ -37883,9 +37872,6 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
           }
           this.hands.refresh();
           break;
-        case "pos":
-          startTalk("cashier", this.npcs && this.npcs.cashier, { effect: (e) => this.talkEffect(e), pay: () => this.checkout() });
-          break;
         case "atm": {
           if ((save.atmUses || 0) >= 6) {
             toast(tp("atm.limit"), "warn");
@@ -38071,7 +38057,6 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   }
   var carryFace = () => S.hasBasket ? ["\u{1F9FA}", "hud.basket"] : ["\u{1F932}", "hud.hands"];
   var USE = {
-    pos: ["\u{1F4B3}", "tv.pay"],
     atm: ["\u{1F3E7}", "tv.withdraw"],
     microwave: ["\u2668\uFE0F", "tv.heat"],
     hotwater: ["\u{1F4A7}", "tv.pour"],

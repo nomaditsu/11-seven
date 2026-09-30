@@ -28,10 +28,9 @@ export class Interaction {
     this.zone = null;
     this.restock = [];
     this.stoolBoxes = (ctx.stools || []).map((s) => ({ kind: 'stool', box: new THREE.Box3(new THREE.Vector3(s.x - 0.22, 0.55, s.z - 0.22), new THREE.Vector3(s.x + 0.22, 0.9, s.z + 0.22)), maxDist: 2.2 }));
-    this.extra = [
-      { kind: 'pos', box: new THREE.Box3(new THREE.Vector3(3.0, 0.8, -3.4), new THREE.Vector3(4.5, 1.7, -2.0)), maxDist: 2.9 },
-      { kind: 'pos', box: new THREE.Box3(new THREE.Vector3(3.0, 0.8, -4.6), new THREE.Vector3(4.5, 1.7, -3.5)), maxDist: 2.9 },
-    ];
+    // No zone around the tills: you talk to (and pay) the cashier by aiming at her (her talk target, in npcs.js).
+    // A till zone used to cover the counter and the impulse rack in front of it and hid their items.
+    this.extra = [];
     this.dynamic = [];       // set by NPC module (dog, cashier)
     this.atmUses = save.atmUses || 0;
     this.cafeBusy = false;
@@ -113,7 +112,6 @@ export class Interaction {
   actionLabel(ob) {
     switch (ob.kind) {
       case 'basket': return S.hasBasket ? tp('hud.dropBasket') : tp('hud.grabBasket');
-      case 'pos': return tp('act.talkPay');
       case 'atm': return tp('act.withdraw');
       case 'microwave': return tp('act.heat');
       case 'hotwater': return tp('act.pour');
@@ -287,9 +285,6 @@ export class Interaction {
           S.hasBasket = false; sfx('put');
         } else { S.hasBasket = true; sfx('pick'); toast(tp('hud.gotBasket'), 'good'); }
         this.hands.refresh();
-        break;
-      case 'pos':      // the counter: chat with the cashier, who can also ring you up
-        startTalk('cashier', this.npcs && this.npcs.cashier, { effect: (e) => this.talkEffect(e), pay: () => this.checkout() });
         break;
       case 'atm': {
         if ((save.atmUses || 0) >= 6) { toast(tp('atm.limit'), 'warn'); sfx('error'); return; }

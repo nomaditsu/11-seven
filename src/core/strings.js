@@ -60,7 +60,6 @@ export const STR = {
 
   // ---------------------------------------------------------------- controls legend
   'ctl.move': { en: 'Move', th: 'เดิน' },
-  'ctl.lookKeys': { en: 'Look around (keyboard)', th: 'มองรอบตัว (แป้นพิมพ์)', rom: 'mɔɔng rɔ̂ɔp tua (bpɛ̂n-phim)' },
   'ctl.look': { en: 'Look around (click and drag)', th: 'มองรอบตัว (คลิกค้างแล้วลาก)', rom: 'mɔɔng rɔ̂ɔp tua (khlík kháang lɛ́ɛo lâak)' },
   'ctl.sprint': { en: 'Sprint', th: 'วิ่ง' },
   'ctl.crouch': { en: 'Crouch (reach low shelves)', th: 'ย่อตัว (ดูชั้นล่าง)' },

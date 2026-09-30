@@ -45,21 +45,16 @@ export class Player {
       const k = 0.0022 * settings.sens * this.lookScale * (1 - this.zoomT * 0.8);   // zoomed: 20% speed for fine control
       this.yaw -= mx * k;
       this.pitch -= my * k * (settings.invertY ? -1 : 1);
-      // W A S D look around from the keyboard (arrows move)
-      const kl = 1.9 * settings.sens * dt * (1 - this.zoomT * 0.8);
-      if (down('KeyA')) this.yaw += kl;
-      if (down('KeyD')) this.yaw -= kl;
-      if (down('KeyW')) this.pitch += kl * 0.7;
-      if (down('KeyS')) this.pitch -= kl * 0.7;
       this.pitch = clamp(this.pitch, -1.5, 1.5);
     }
     // ---- move
     let ix = 0, iz = 0;
     if (active && !this.frozen) {
-      if (down('ArrowUp')) iz -= 1;
-      if (down('ArrowDown')) iz += 1;
-      if (down('ArrowLeft')) ix -= 1;
-      if (down('ArrowRight')) ix += 1;
+      // W A S D or the arrow keys move; the mouse (or a finger) looks
+      if (down('ArrowUp', 'KeyW')) iz -= 1;
+      if (down('ArrowDown', 'KeyS')) iz += 1;
+      if (down('ArrowLeft', 'KeyA')) ix -= 1;
+      if (down('ArrowRight', 'KeyD')) ix += 1;
     }
     const wantCrouch = active && !this.frozen && down('KeyC', 'ControlLeft', 'ControlRight');
     this.crouchT = damp(this.crouchT, wantCrouch ? 1 : 0, 9, dt);

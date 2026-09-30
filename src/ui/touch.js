@@ -41,7 +41,7 @@ function btn(id, cls, emoji, label) {
 }
 const carryFace = () => (S.hasBasket ? ['🧺', 'hud.basket'] : ['🤲', 'hud.hands']);
 // The big button is Interact until something is in reach, then it names what it will do.
-const USE = { pos: ['💳', 'tv.pay'], atm: ['🏧', 'tv.withdraw'], microwave: ['♨️', 'tv.heat'], hotwater: ['💧', 'tv.pour'],
+const USE = { atm: ['🏧', 'tv.withdraw'], microwave: ['♨️', 'tv.heat'], hotwater: ['💧', 'tv.pour'],
   coffee: ['☕', 'tv.order'], dog: ['🐾', 'tv.pet'], stool: ['🪑', 'tv.sit'] };
 function takeFace() {
   if (actionKind === 'sku') return ['✋', 'tv.take'];

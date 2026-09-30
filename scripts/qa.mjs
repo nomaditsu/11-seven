@@ -80,10 +80,10 @@ await ev(() => window.__sim.open('quests')); await shot('09_quests', 3); await e
 // --- walk to the till and pay
 await ev(() => window.__sim.tp(2.7, -2.95, -Math.PI / 2, -0.05)); await frames(3);
 r = await ev(() => { const it = window.__sim.interaction; return it.target ? it.target.type + ':' + (it.target.slot ? it.target.slot.sku.id : it.target.obj.kind) : null; });
-ok(r === 'obj:pos', 'till is targetable (' + r + ')');
+ok(r === 'obj:npc', 'the cashier is targetable by aiming at her (' + r + ')');
 await shot('10_till', 2);
 await ev(() => window.__sim.key('KeyE')); await frames(2);
-ok((await state()).panel === 'panel-talk', 'E at the till starts a conversation with the cashier');
+ok((await state()).panel === 'panel-talk', 'E on the cashier starts a conversation');
 await shot('10b_talk', 3);
 await ev(() => document.querySelector('#panel-talk .choice').click()); await frames(4);
 await new Promise((r) => setTimeout(r, 400));
@@ -182,6 +182,28 @@ const errs = logs.filter((l) => /^\[(error|pageerror)\]/.test(l));
     return { inside, who: [...who].join(', ') };
   });
   ok(r.inside === 0, 'NPCs never walk through fixtures' + (r.inside ? ` (${r.inside} frames: ${r.who})` : ''));
+}
+// There is no zone around the till: the rack items in front of the counter and the counter top never select the cashier.
+{
+  const picks = await ev(() => [...new Set(window.__sim.slotsWhere('IMP[12]'))].slice(0, 10));
+  let tillHits = 0;
+  for (const p of picks) {
+    const [id, tag] = p.split('|');
+    await ev(([id, tag]) => window.__sim.lookAtSku(id, tag), [id, tag]); await frames(3);
+    if (await ev(() => { const t = window.__sim.interaction.target; return !!t && t.type === 'obj' && (t.obj.kind === 'npc' || t.obj.kind === 'pos'); })) tillHits++;
+  }
+  ok(picks.length > 0 && tillHits === 0, `impulse rack items never select the cashier (${tillHits}/${picks.length} did)`);
+  await ev(() => window.__sim.tp(2.9, -2.75, -Math.PI / 2, -0.54)); await frames(3);   // crosshair on the counter top right in front of her
+  ok(await ev(() => { const t = window.__sim.interaction.target; return !(t && t.type === 'obj' && t.obj.kind === 'npc'); }), 'aiming at the counter top in front of the cashier does not select her');
+}
+// W A S D move like the arrow keys and never turn the view (the mouse looks)
+{
+  await ev(() => window.__sim.tp(0.5, 3.5, 0, 0)); await frames(3);
+  const a = await ev(() => ({ z: window.__sim.player.pos.z, yaw: window.__sim.player.yaw }));
+  await page.keyboard.down('KeyW'); await frames(12); await page.keyboard.up('KeyW');
+  await page.keyboard.down('KeyA'); await frames(6); await page.keyboard.up('KeyA');
+  const b = await ev(() => ({ z: window.__sim.player.pos.z, yaw: window.__sim.player.yaw }));
+  ok(b.z < a.z - 0.1 && b.yaw === a.yaw, `W moves forward and A does not turn (dz ${(b.z - a.z).toFixed(2)}, dyaw ${(b.yaw - a.yaw).toFixed(3)})`);
 }
 ok(errs.length === 0, 'no console errors' + (errs.length ? '\n' + errs.slice(0, 6).join('\n') : ''));
 console.log(fails ? `\n${fails} FAILED` : '\nALL OK');

@@ -164,6 +164,9 @@ class Person {
     this.talking = false;     // true while the player is chatting: stop walking and face them
     this.talkId = null;
     this.tbox = new THREE.Box3();
+    // talk box (what the crosshair must be on): half width, bottom and top. Staff behind the counter start at the counter
+    // top, so aiming at the counter or the impulse rack in front of it never selects them.
+    this.tb = { half: o.tHalf ?? 0.4, y0: o.tY0 ?? 0, y1: o.tY1 ?? 1.9 };
     this.path = null; this.pathFor = -1; this.pi = 0;   // A* path to the current waypoint (see nav.js)
   }
   wai() { this.poseT = 2.2; }
@@ -200,7 +203,7 @@ class Person {
     if (this.poseT > 0) this.poseT -= dt;
     if (this.talking) this.yaw = this.turn(this.yaw, Math.atan2(player.x - g.position.x, player.z - g.position.z), dt * 5);
     g.rotation.y = this.yaw;
-    { const p = g.position; this.tbox.min.set(p.x - 0.4, 0, p.z - 0.4); this.tbox.max.set(p.x + 0.4, 1.9, p.z + 0.4); }
+    { const p = g.position, b = this.tb; this.tbox.min.set(p.x - b.half, b.y0, p.z - b.half); this.tbox.max.set(p.x + b.half, b.y1, p.z + b.half); }
     this.circle.x = g.position.x; this.circle.z = g.position.z;
     // animation
     this.moving = move;
@@ -270,7 +273,7 @@ export class Npcs {
     // ------------------------------------------------ the cashier
     {
       const h = makeHuman({ shirtTex: 'cashier', pants: 0x2b2f3a, female: true, hairStyle: 'bun', hair: 0x14100e, skin: skinTones[1], height: 1.58 });
-      const c = new Person(h, { x: 4.95, z: -2.75, yaw: -Math.PI / 2, route: [] });
+      const c = new Person(h, { x: 4.95, z: -2.75, yaw: -Math.PI / 2, route: [], tHalf: 0.3, tY0: 1.0, tY1: 1.65 });
       this.cashier = this.add(c, 'cashier');
       c.wai = function () { this.poseT = 2.2; };
     }
