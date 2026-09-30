@@ -12,6 +12,13 @@ const ok = (cond, msg) => { console.log((cond ? 'PASS ' : 'FAIL ') + msg); if (!
 const frames = (n = +(opt.frames || 2)) => page.evaluate((n) => new Promise((res) => { const f0 = window.__sim.G.frame; const iv = setInterval(() => { if (window.__sim.G.frame >= f0 + n) { clearInterval(iv); res(); } }, 40); }), n);
 const shot = async (name, n) => { await frames(n); await page.screenshot({ path: `.scratch/qa/${name}.png` }); };
 const ev = (fn, arg) => page.evaluate(fn, arg);
+// What the crosshair is on, and which people stand within 3 m of the player (to explain a failed aim check)
+const aim = () => ev(() => {
+  const s = window.__sim, t = s.interaction.target, pp = s.player.pos;
+  const tg = !t ? 'null' : t.type === 'sku' ? 'sku:' + t.slot.sku.id : 'obj:' + t.obj.kind + (t.obj.id ? '/' + t.obj.id : '');
+  const near = s.G.npcs.people.map((p) => [p.talkId, Math.hypot(p.group.position.x - pp.x, p.group.position.z - pp.z)]).filter(([, d]) => d < 3).map(([k, d]) => k + '@' + d.toFixed(2));
+  return tg + (near.length ? ' near:' + near.join(',') : '');
+});
 const state = () => ev(() => { const s = window.__sim; return { mode: s.G.mode, panel: document.querySelector('#panels .panel.on')?.id || null, items: s.S.items.map((e) => e.sku.id + 'x' + e.qty), bag: s.S.bag.map((e) => e.sku.id + 'x' + e.qty), cash: s.save.cash, pts: s.save.points, disc: s.save.discovered?.length ?? 0, ach: s.save.achievements?.length ?? 0, hour: s.G.hourNow, taken: s.S.taken.length }; });
 
 await frames(2);
@@ -24,6 +31,10 @@ const picks = await ev(() => {
   return out.slice(0, 6);
 });
 console.log('picks', picks.join(', '));
+
+// Shoppers walking past can step between the camera and a product, or shove the player off aim with their collision
+// circle, so the aim checks run with the shoppers parked (debug hook, see the headless-qa pitfall).
+await ev(() => window.__sim.freezeShoppers(true)); await frames(1);
 
 // --- take one directly
 await ev((id) => window.__sim.lookAtSku(id), picks[0]);
@@ -50,13 +61,18 @@ await ev(() => window.__sim.key('KeyT')); await frames(3);
 st = await state(); ok(st.items.length === 2 && st.mode === 'play', 'T in inspect takes the item and returns to play');
 
 // --- hands hold 5 items; the 6th is refused until a basket is picked up
-for (const id of picks.slice(2, 5)) { await ev((i) => window.__sim.lookAtSku(i), id); await frames(4); await ev(() => window.__sim.key('KeyT')); await frames(3); }   // headless frames are slow: wait for the target to update
+for (const id of picks.slice(2, 5)) {
+  const at = await ev((i) => window.__sim.lookAtSku(i), id); await frames(4);   // headless frames are slow: wait for the target to update
+  const n0 = (await state()).items.length, a = await aim() + ' drift:' + await ev((at) => Math.hypot(window.__sim.player.pos.x - at.px, window.__sim.player.pos.z - at.pz).toFixed(2), at); await ev(() => window.__sim.key('KeyT')); await frames(3);
+  if ((await state()).items.length === n0) console.log('  DIAG take ' + id + ' missed, aim was ' + a);
+}
 st = await state(); ok(st.items.length === 5, 'hands hold 5 items (' + st.items.length + ')');
 await ev((i) => window.__sim.lookAtSku(i), picks[5]); await frames(4); await ev(() => window.__sim.key('KeyT')); await frames(3);
 st = await state(); ok(st.items.length === 5, '6th item refused without a basket');
 await ev(() => { const s = window.__sim; s.interaction.activate({ kind: 'basket' }); }); await frames(3);
-await ev((i) => window.__sim.lookAtSku(i), picks[5]); await frames(4); await ev(() => window.__sim.key('KeyT')); await frames(3);
+await ev((i) => window.__sim.lookAtSku(i), picks[5]); await frames(4); const a6 = await aim(); await ev(() => window.__sim.key('KeyT')); await frames(3);
 st = await state(); ok(st.items.length === 6, 'with a basket the 6th item is accepted (' + st.items.length + ')');
+if (st.items.length !== 6) console.log('  DIAG 6th item aim was ' + a6);
 
 // --- alcohol is refused outside the legal hours (14:00-17:00) and allowed inside them
 const beer = await ev(() => { const s = window.__sim.contents.pw.slots.find((x) => x.sku.alcohol); return s ? s.sku.id : null; });
@@ -126,6 +142,7 @@ for (const kind of ['atm', 'hotwater', 'microwave']) {
   await frames(3);
   const tg = await ev(() => { const it = window.__sim.interaction; return it.target ? it.target.type + ':' + (it.target.obj ? it.target.obj.kind : it.target.slot.sku.id) : null; });
   ok(tg === 'obj:' + kind, kind + ' is targetable (' + tg + ')');
+  if (tg !== 'obj:' + kind) console.log('  DIAG ' + kind + ' aim ' + await aim());
   if (kind === 'atm') {
     const c0 = (await state()).cash;
     await ev(() => window.__sim.key('KeyE')); await frames(2);
@@ -162,6 +179,17 @@ await shot('21_talk', 3);
 ok(await ev(() => window.__sim.save.talked.some((k) => k.startsWith('p:cashier'))), 'the cashier is remembered as met');
 await page.keyboard.press('Escape'); await frames(2);
 ok((await state()).mode === 'play', 'Esc leaves the conversation');
+// the shoppers come back and walk again when unfrozen (the game never calls the hook)
+{
+  const r = await ev(() => {
+    const s = window.__sim, ps = s.G.npcs.people.filter((p) => p.shopper), far = { pos: { x: 200, z: 200 } };
+    s.freezeShoppers(false);
+    const a = ps.map((p) => [p.group.position.x, p.group.position.z]);
+    for (let t = 0; t < 20; t += 0.05) s.G.npcs.update(0.05, t, far);   // fast-forward 20 s of walking
+    return { back: ps.length > 0 && ps.every((p, i) => !p.frozen && Math.hypot(a[i][0], a[i][1]) < 30), moved: ps.some((p, i) => Math.hypot(p.group.position.x - a[i][0], p.group.position.z - a[i][1]) > 0.5) };
+  });
+  ok(r.back && r.moved, `unfrozen shoppers are back in the store (${r.back}) and walking (${r.moved})`);
+}
 const errs = logs.filter((l) => /^\[(error|pageerror)\]/.test(l));
 // --- people walk around fixtures, not through them (fast-forward 3 minutes of NPC movement)
 {
@@ -183,6 +211,7 @@ const errs = logs.filter((l) => /^\[(error|pageerror)\]/.test(l));
   });
   ok(r.inside === 0, 'NPCs never walk through fixtures' + (r.inside ? ` (${r.inside} frames: ${r.who})` : ''));
 }
+await ev(() => window.__sim.freezeShoppers(true)); await frames(1);
 // There is no zone around the till: the rack items in front of the counter and the counter top never select the cashier.
 {
   const picks = await ev(() => [...new Set(window.__sim.slotsWhere('IMP[12]'))].slice(0, 10));

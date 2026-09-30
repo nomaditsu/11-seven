@@ -11,6 +11,8 @@
     "sheet": "node scripts/sheet.mjs",
     "boot": "node scripts/boot-check.mjs",
     "zfight": "node scripts/zfight.mjs",
+    "pwa": "node scripts/pwa-check.mjs",
+    "icons": "node scripts/icons.mjs",
     "validate": "node scripts/validate-skus.mjs && node scripts/validate-dialogue.mjs"
   },
   "author": "Nomaditsu",

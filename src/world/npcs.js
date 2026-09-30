@@ -173,7 +173,7 @@ class Person {
   update(dt, player, time) {
     const g = this.group;
     let move = false;
-    if (this.route.length && this.poseT <= 0 && !this.talking) {
+    if (this.route.length && this.poseT <= 0 && !this.talking && !this.frozen) {
       const wp = this.route[this.idx];
       if (this.waitT > 0) { this.waitT -= dt; if (wp.face !== undefined) this.yaw = this.turn(this.yaw, wp.face, dt * 4); if (this.waitT <= 0) this.idx = (this.idx + 1) % this.route.length; }
       else {
@@ -304,6 +304,7 @@ export class Npcs {
       const h = makeHuman(s.opt);
       const p = new Person(h, { x: s.start[0], z: s.start[1], route: s.route, speed: s.speed });
       p.idx = Math.floor(Math.random() * s.route.length);
+      p.shopper = true;
       this.add(p, TALK[li]);
     });
     // ------------------------------------------------ outside
@@ -318,6 +319,18 @@ export class Npcs {
     }
     this.dog = new Dog();
     this.group.add(this.dog.group);
+  }
+
+  // Debug only (window.__sim.freezeShoppers, used by scripts/qa.mjs): hold the shoppers still, parked far outside, so
+  // none can step between the camera and a target or push the player off aim. Off puts them back where they were.
+  freezeShoppers(on) {
+    this.people.filter((p) => p.shopper).forEach((p, i) => {
+      const g = p.group.position;
+      if (on && !p.frozen) { p.parked = [g.x, g.z]; g.x = 60 + i * 2; g.z = 60; }
+      else if (!on && p.frozen) { [g.x, g.z] = p.parked; p.pathFor = -1; }
+      p.frozen = on;
+      p.circle.x = g.x; p.circle.z = g.z;
+    });
   }
 
   update(dt, time, player) {

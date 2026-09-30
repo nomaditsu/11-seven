@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="description" content="7 Eleven Simulator by Nomaditsu — walk into a Bangkok 11 SEVEN, browse 250+ Thai products, and flip every sign and package between English and Thai.">
 <meta name="theme-color" content="#00874a">
+<link rel="manifest" href="manifest.webmanifest">
 <title>7 Eleven Simulator by Nomaditsu</title>
 <style>
 /*! Fonts embedded below, unmodified woff2 files from Fontsource, each licensed under the SIL Open Font License 1.1.
@@ -804,6 +805,7 @@ body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}
           <button id="btn-about" class="btn ghost" data-i18n="title.about"></button>
         </div>
       </div>
+      <div class="hintline" id="install-hint" data-i18n="title.install" hidden></div>
       <div class="loadbar"><i id="loadfill"></i></div>
       <div class="tip" id="tip"></div>
       <div class="hintline" data-i18n="title.hint"></div>
@@ -5457,6 +5459,7 @@ void main() {
     "title.language": { en: "Language", th: "\u0E20\u0E32\u0E29\u0E32" },
     "title.hint": { en: "Best with headphones and fullscreen. Press L any time to flip the language.", th: "\u0E41\u0E19\u0E30\u0E19\u0E33\u0E43\u0E2B\u0E49\u0E43\u0E2A\u0E48\u0E2B\u0E39\u0E1F\u0E31\u0E07\u0E41\u0E25\u0E30\u0E40\u0E25\u0E48\u0E19\u0E41\u0E1A\u0E1A\u0E40\u0E15\u0E47\u0E21\u0E08\u0E2D \u0E01\u0E14 L \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E2A\u0E25\u0E31\u0E1A\u0E20\u0E32\u0E29\u0E32\u0E44\u0E14\u0E49\u0E17\u0E38\u0E01\u0E40\u0E21\u0E37\u0E48\u0E2D" },
     "title.flipHint": { en: "Everything \u2014 signs, packaging, price tags \u2014 switches language.", th: "\u0E17\u0E31\u0E49\u0E07\u0E1B\u0E49\u0E32\u0E22 \u0E1A\u0E23\u0E23\u0E08\u0E38\u0E20\u0E31\u0E13\u0E11\u0E4C \u0E41\u0E25\u0E30\u0E1B\u0E49\u0E32\u0E22\u0E23\u0E32\u0E04\u0E32 \u0E08\u0E30\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E20\u0E32\u0E29\u0E32\u0E15\u0E32\u0E21" },
+    "title.install": { en: "Play offline: tap Share, then Add to Home Screen.", th: '\u0E40\u0E25\u0E48\u0E19\u0E41\u0E1A\u0E1A\u0E2D\u0E2D\u0E1F\u0E44\u0E25\u0E19\u0E4C: \u0E41\u0E15\u0E30\u0E1B\u0E38\u0E48\u0E21\u0E41\u0E0A\u0E23\u0E4C \u0E41\u0E25\u0E49\u0E27\u0E40\u0E25\u0E37\u0E2D\u0E01 "\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E44\u0E1B\u0E22\u0E31\u0E07\u0E2B\u0E19\u0E49\u0E32\u0E08\u0E2D\u0E42\u0E2E\u0E21"', rom: 'l\xEAn b\u025B\u0300\u025Bp \u0254\u0301\u0254f-laai: dt\u025B\u0300\u025B bp\xF9m ch\u025B\u025B l\u025B\u0301\u025Bo l\xFBak "ph\u0259\u0302\u0259m bpai yang n\xE2a-j\u0254\u0254 hoom"' },
     "title.resume": { en: "Continue", th: "\u0E40\u0E25\u0E48\u0E19\u0E15\u0E48\u0E2D" },
     "lang.en": { en: "English", th: "English" },
     "lang.th": { en: "\u0E44\u0E17\u0E22", th: "\u0E44\u0E17\u0E22" },
@@ -9941,7 +9944,7 @@ void main() {
     update(dt, player, time) {
       const g2 = this.group;
       let move = false;
-      if (this.route.length && this.poseT <= 0 && !this.talking) {
+      if (this.route.length && this.poseT <= 0 && !this.talking && !this.frozen) {
         const wp = this.route[this.idx];
         if (this.waitT > 0) {
           this.waitT -= dt;
@@ -10158,6 +10161,7 @@ void main() {
         const h = makeHuman(s.opt);
         const p = new Person(h, { x: s.start[0], z: s.start[1], route: s.route, speed: s.speed });
         p.idx = Math.floor(Math.random() * s.route.length);
+        p.shopper = true;
         this.add(p, TALK[li]);
       });
       {
@@ -10171,6 +10175,24 @@ void main() {
       }
       this.dog = new Dog();
       this.group.add(this.dog.group);
+    }
+    // Debug only (window.__sim.freezeShoppers, used by scripts/qa.mjs): hold the shoppers still, parked far outside, so
+    // none can step between the camera and a target or push the player off aim. Off puts them back where they were.
+    freezeShoppers(on) {
+      this.people.filter((p) => p.shopper).forEach((p, i) => {
+        const g2 = p.group.position;
+        if (on && !p.frozen) {
+          p.parked = [g2.x, g2.z];
+          g2.x = 60 + i * 2;
+          g2.z = 60;
+        } else if (!on && p.frozen) {
+          [g2.x, g2.z] = p.parked;
+          p.pathFor = -1;
+        }
+        p.frozen = on;
+        p.circle.x = g2.x;
+        p.circle.z = g2.z;
+      });
     }
     update(dt, time, player) {
       const pp = { x: player.pos.x, z: player.pos.z };
@@ -38381,10 +38403,28 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     pop.querySelector(".pin").style.maxHeight = H2 - top - 8 + "px";
   }
 
+  // src/core/pwa.js
+  var web = () => /^https?:$/.test(location.protocol);
+  var standalone = () => matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches || navigator.standalone === true;
+  var ios = () => /iP(hone|ad|od)/.test(navigator.userAgent) || /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
+  function initOffline(params2) {
+    if (!("serviceWorker" in navigator) || !web()) return;
+    if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && !params2.has("sw")) return;
+    navigator.serviceWorker.register("sw.js").catch(() => {
+    });
+    if (standalone() && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {
+    });
+  }
+  function showInstallHint() {
+    const el2 = document.getElementById("install-hint");
+    if (el2) el2.hidden = !(web() && ios() && !standalone());
+  }
+
   // src/main.js
   var params = new URLSearchParams(location.search);
   G.debug = params.has("debug");
   async function boot() {
+    initOffline(params);
     loadAll();
     settings.muted = true;
     settings.musicOn = false;
@@ -38403,6 +38443,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       return;
     }
     initUI();
+    showInstallHint();
     initSoundPop();
     input.lockMode = settings.mouseLook === "lock";
     initPanels();
@@ -38684,6 +38725,9 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       },
       key(code) {
         interaction.onKey(code);
+      },
+      freezeShoppers(on = true) {
+        npcs.freezeShoppers(on);
       },
       info() {
         return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, geoms: renderer.info.memory.geometries, tex: renderer.info.memory.textures, skus: SKUS.length, items: contents.pw.slots.length };

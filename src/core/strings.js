@@ -11,6 +11,7 @@ export const STR = {
   'title.language': { en: 'Language', th: 'ภาษา' },
   'title.hint': { en: 'Best with headphones and fullscreen. Press L any time to flip the language.', th: 'แนะนำให้ใส่หูฟังและเล่นแบบเต็มจอ กด L เพื่อสลับภาษาได้ทุกเมื่อ' },
   'title.flipHint': { en: 'Everything — signs, packaging, price tags — switches language.', th: 'ทั้งป้าย บรรจุภัณฑ์ และป้ายราคา จะเปลี่ยนภาษาตาม' },
+  'title.install': { en: 'Play offline: tap Share, then Add to Home Screen.', th: 'เล่นแบบออฟไลน์: แตะปุ่มแชร์ แล้วเลือก "เพิ่มไปยังหน้าจอโฮม"', rom: 'lên bɛ̀ɛp ɔ́ɔf-laai: dtɛ̀ɛ bpùm chɛɛ lɛ́ɛo lûak "phə̂əm bpai yang nâa-jɔɔ hoom"' },
   'title.resume': { en: 'Continue', th: 'เล่นต่อ' },
   'lang.en': { en: 'English', th: 'English' },
   'lang.th': { en: 'ไทย', th: 'ไทย' },

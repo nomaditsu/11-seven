@@ -174,8 +174,18 @@ let html = template
   .replace('/*__GAME__*/', () => esc(game));
 
 fs.writeFileSync(path.join(root, 'index.html'), html);
+
+// Service worker (src/sw.js -> sw.js): the files it keeps for offline play, and a version that changes with any of
+// them, so each new build replaces the copy on players' phones. Icons come from scripts/icons.mjs.
+const offline = ['index.html', 'manifest.webmanifest', ...fs.readdirSync(path.join(root, 'icons')).filter((f) => f.endsWith('.png')).sort().map((f) => `icons/${f}`)];
+const hash = crypto.createHash('sha1');
+for (const f of offline) hash.update(f === 'index.html' ? html : fs.readFileSync(path.join(root, f)));
+const version = hash.digest('hex').slice(0, 12);
+fs.writeFileSync(path.join(root, 'sw.js'), fs.readFileSync(path.join(src, 'sw.js'), 'utf8')
+  .replace('__VERSION__', version).replace('__FILES__', JSON.stringify(offline)));
 const kb = (n) => (n / 1024).toFixed(0) + ' KB';
 console.log(
   `index.html ${kb(html.length)}  (three ${kb(three.code.length)}${three.cached ? ' cached' : ''}, ` +
-  `game ${kb(game.length)}, fonts ${kb(fonts.bytes)} raw)  ${names.length} THREE symbols  ${Date.now() - t0} ms`
+  `game ${kb(game.length)}, fonts ${kb(fonts.bytes)} raw)  ${names.length} THREE symbols  ${Date.now() - t0} ms\n` +
+  `sw.js ${version}  (${offline.length} files offline)`
 );

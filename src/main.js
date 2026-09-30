@@ -28,6 +28,7 @@ import { initAudio, updateAudio, sfx, applyVolumes, speakThai, speakGreeting, se
 import { talkKey, cleanup as talkCleanup, talkActive } from './game/talk.js';
 import { initTouch, syncTouchMode } from './ui/touch.js';
 import { initSoundPop, soundPopOpen, closeSoundPop } from './ui/soundpop.js';
+import { initOffline, showInstallHint } from './core/pwa.js';
 import { checkoutActive, checkoutKey } from './game/checkout.js';
 import { drawReceipt } from './game/receipt.js';
 import { QUESTS } from './data/quests.js';
@@ -39,6 +40,7 @@ const params = new URLSearchParams(location.search);
 G.debug = params.has('debug');
 
 async function boot() {
+  initOffline(params);
   loadAll();
   // Every visit starts with sound and music off. Browsers block audio until the first click anyway, so showing them
   // as on made the buttons lie and it took two clicks to hear anything. One click on either button now starts it.
@@ -53,6 +55,7 @@ async function boot() {
   if (params.has('sheet')) { showSheet(params); return; }
 
   initUI();
+  showInstallHint();
   initSoundPop();
   input.lockMode = settings.mouseLook === 'lock';
   initPanels();
@@ -243,6 +246,7 @@ async function boot() {
     setLang(m) { changeLanguage(m, true); },
     start() { startGame(); },
     key(code) { interaction.onKey(code); },
+    freezeShoppers(on = true) { npcs.freezeShoppers(on); },
     info() { return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, geoms: renderer.info.memory.geometries, tex: renderer.info.memory.textures, skus: SKUS.length, items: contents.pw.slots.length }; },
     lookAtSku(id, tagRe) {
       const re = tagRe ? new RegExp(tagRe) : null;
