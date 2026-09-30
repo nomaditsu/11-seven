@@ -9,7 +9,6 @@ export const defaults = {
   fov: 72,
   sens: 1.0,
   invertY: false,
-  mouseLook: 'drag',     // 'drag' (hold and drag to look) | 'lock' (click to capture the mouse, Esc frees it)
   bob: true,
   master: 0.8,
   ambience: 0.8,
@@ -56,7 +55,6 @@ export function loadAll() {
   } catch (e) { /* ignore corrupt data */ }
   settings.fov = clamp(+settings.fov || 72, 55, 105);
   settings.sens = clamp(+settings.sens || 1, 0.2, 3);
-  if (settings.mouseLook !== 'lock') settings.mouseLook = 'drag';
 }
 
 let dirty = false;

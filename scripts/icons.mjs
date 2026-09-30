@@ -12,7 +12,11 @@ const out = path.join(root, 'icons');
 
 // full: the badge on its green square, edge to edge (phones round the corners off themselves).
 // maskable: Android may crop to a circle keeping only the middle 80%, so the badge sits at 80% on a green field.
+// favicon: the browser-tab icon, rounded like the HUD badge, transparent corners. apple-touch-icon: iOS home screen
+// and bookmarks (both linked in src/template.html).
 const ICONS = [
+  { file: 'favicon-64.png', size: 64, inset: 1, radius: 40 },
+  { file: 'apple-touch-icon-180.png', size: 180, inset: 1 },
   { file: 'icon-192.png', size: 192, inset: 1 },
   { file: 'icon-512.png', size: 512, inset: 1 },
   { file: 'icon-maskable-512.png', size: 512, inset: 0.8 },
@@ -31,14 +35,13 @@ await page.addScriptTag({ content: logo.outputFiles[0].text });
 await page.evaluate(() => document.fonts.load('400 42px "Archivo Black"'));
 fs.mkdirSync(out, { recursive: true });
 for (const icon of ICONS) {
-  const dataUrl = await page.evaluate(({ size, inset }) => {
+  const dataUrl = await page.evaluate(({ size, inset, radius = 0 }) => {
     const c = document.createElement('canvas');
     c.width = c.height = size;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = LOGO.BRAND.green;
-    ctx.fillRect(0, 0, size, size);
+    if (!radius) { ctx.fillStyle = LOGO.BRAND.green; ctx.fillRect(0, 0, size, size); }
     const h = size * inset, o = (size - h) / 2;
-    LOGO.drawLogo(ctx, o, o, h);
+    LOGO.drawLogo(ctx, o, o, h, { radius });
     return c.toDataURL('image/png');
   }, icon);
   fs.writeFileSync(path.join(out, icon.file), Buffer.from(dataUrl.split(',')[1], 'base64'));

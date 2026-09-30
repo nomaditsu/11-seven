@@ -26,7 +26,7 @@ export const ui = {
 // ------------------------------------------------------------------------------------------ init
 export function initUI() {
   for (const id of ['title', 'hud', 'panels', 'xhair', 'zoomframe', 'prompt', 'p-name', 'p-sub', 'p-price', 'p-cat', 'p-keys', 'pcard', 'subtitle', 'sub-th', 'sub-rom', 'sub-en',
-    'zonebanner', 'toasts', 'hints', 'objective', 'w-cash', 'w-basket', 'w-basket-l', 'w-basket-i', 'hud-clock', 'hud-temp', 'hud-codex-n', 'hud-codex', 'hud-logo', 'hud-brand', 'brandmark', 'btn-by-title', 'btn-sound', 'btn-info', 'btn-menu', 't-sound', 'phead-logo', 'movepad', 'touch',
+    'zonebanner', 'toasts', 'hints', 'objective', 'w-cash', 'w-basket', 'w-basket-l', 'w-basket-i', 'hud-clock', 'hud-temp', 'hud-codex-n', 'hud-codex', 'hud-logo', 'hud-brand', 'brandmark', 'btn-by-title', 'btn-sound', 'btn-info', 'btn-look', 'btn-menu', 't-sound', 'phead-logo', 'movepad', 'touch',
     'btn-start', 'btn-settings', 'btn-controls', 'btn-about', 'loadfill', 'tip', 'title-lang', 'clickcatch', 'fade',
     'inspect-ui', 'ins-brand', 'ins-name', 'ins-second', 'ins-price', 'ins-size', 'ins-tags', 'ins-desc', 'ins-dl', 'ins-keys']) el[id] = $(id);
   el.scr = document.querySelector('.scrim');
@@ -42,6 +42,7 @@ export function initUI() {
   el['title-lang'].querySelectorAll('button').forEach((b) => b.addEventListener('click', () => changeLanguage(b.dataset.lang)));
 
   // top-right buttons: About (data-open), Sound (opens the popover in soundpop.js) and Menu
+  el['btn-look'].addEventListener('click', () => ui.hooks.toggleLook && ui.hooks.toggleLook());
   el['btn-menu'].addEventListener('click', () => (ui.panel === 'pause' ? ui.close() : ui.open('pause')));
 
   // panels
@@ -125,6 +126,8 @@ export function refreshTop() {
     el[p + '-sound'].classList.toggle('nomus', !settings.musicOn);
   }
   setBtn('btn-info', ICON.info, t('btn.about'));
+  setBtn('btn-look', ICON.look, t('btn.look'));
+  el['btn-look'].classList.toggle('on', input.locked);
   setBtn('btn-menu', ICON.menu, t('btn.menu'));
   if (ui.onAudioUi) ui.onAudioUi();
   if (el['hud-codex']) el['hud-codex'].title = t('btn.snackbook');
@@ -307,7 +310,7 @@ export function updateHints() {
   // hints hidden: keep one small H button so players can find their way back
   if (!settings.hints) { el.hints.innerHTML = item('H', 'hud.showHints', true); el.hints.classList.add('mini'); return; }
   el.hints.classList.remove('mini');
-  el.hints.innerHTML = item('T', 'hud.takeTalk') + item('I', 'hud.inspect') + item('P', 'hud.putback') + item('B', carryKey()) + item('H', 'hud.hideHints', true);
+  el.hints.innerHTML = item('T', 'hud.takeTalk') + item('I', 'hud.inspect') + item('P', 'hud.putback') + item('B', carryKey()) + item('L', 'hud.look') + item('H', 'hud.hideHints', true);
 }
 
 const OBJ_HTML = { key: '' };
@@ -378,7 +381,6 @@ function buildSettings() {
     row(tp('set.quality'), tp('set.needReload'), seg('quality', [['low', tp('set.q.low')], ['med', tp('set.q.med')], ['high', tp('set.q.high')]], settings.quality)) +
     row(tp('set.fov'), '', slider('fov', 55, 105, 1, settings.fov)) +
     `<h3>${esc(tp('set.sec.ctl'))}</h3>` +
-    (input.touch ? '' : row(tp('set.look'), tp('set.lookHelp'), seg('mouselook', [['drag', tp('set.look.drag')], ['lock', tp('set.look.lock')]], settings.mouseLook))) +
     row(tp('set.sens'), '', slider('sens', 0.2, 3, 0.05, settings.sens)) +
     row(tp('set.invert'), '', sw('invert', settings.invertY)) +
     row(tp('set.bob'), '', sw('bob', settings.bob)) +
@@ -400,7 +402,6 @@ function buildSettings() {
   const segBind = (id, fn) => { const e = $('s-' + id); e.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { e.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); fn(b.dataset.v); })); };
   segBind('lang', (v) => changeLanguage(v));
   segBind('quality', (v) => { settings.quality = v; markDirty(); });
-  if (!input.touch) segBind('mouselook', (v) => { settings.mouseLook = v; input.lockMode = v === 'lock'; markDirty(); });
   bind('timepreset', (e) => { if (ui.hooks.setHour) ui.hooks.setHour(+e.value); $('s-hour').value = e.value; }, 'change');
   bind('hour', (e) => { if (ui.hooks.setHour) ui.hooks.setHour(+e.value); });
   bind('clock', (e) => { settings.clockRuns = e.checked; markDirty(); }, 'change');

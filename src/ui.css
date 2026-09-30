@@ -15,7 +15,7 @@
 /* ---------- top bar ---------- */
 #topbar{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:3}
 #topbar>*{pointer-events:none}
-.tleft{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;min-width:0}
+.tleft{display:flex;gap:8px;align-items:stretch;flex-wrap:nowrap;min-width:0}
 .tright{display:flex;gap:6px;align-items:flex-start;flex:none}
 .chip{background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:auto}
 .brand{box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:6px 16px 6px 10px;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:none}
@@ -42,6 +42,8 @@ button.stat{cursor:pointer}button.stat:hover{border-color:var(--o)}
 .ib.snd .mini i{width:2.5px;background:#5be0a0;border-radius:1px;height:40%;animation:sbob .9s ease-in-out infinite}
 .ib.snd .mini i:nth-child(2){animation-delay:-.3s}.ib.snd .mini i:nth-child(3){animation-delay:-.6s}
 .ib.snd.nomus .mini,.ib.snd.off .mini{display:none}
+.ib.look.on{border-color:#5be0a0;background:rgba(47,191,122,.3);color:#bff2d8}
+html[data-touch] .ib.look{display:none}
 .ib.snd.open{border-color:var(--o);background:rgba(245,130,32,.22)}
 @keyframes sbob{0%,100%{height:30%}50%{height:100%}}
 
@@ -184,7 +186,6 @@ body[data-mode=ui] .hint,body[data-mode=ui] .pad kbd,body[data-mode=inspect] .hi
 .ckeys{display:flex;flex-wrap:wrap;align-items:center;gap:0 4px}
 .clab{font-size:19px;font-weight:500;line-height:1.15}
 .or{font-size:13px;color:var(--mutedl);margin:0 6px}
-.badge-new{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;background:var(--o);color:#1a0f05;border-radius:6px;padding:1px 6px;letter-spacing:.05em}
 .glyph{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);margin-bottom:3px}
 .glyph svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ctip{margin-top:14px;font-size:14px;color:var(--mutedl)}
@@ -338,17 +339,24 @@ body[data-mode=inspect] #touch .act.take{order:3}
 
 /* ---------- responsive ---------- */
 /* As the window narrows, the chips lose their less essential text step by step, the on-screen controls replace the
-   key hints at 899px (html[data-tc], touch.js), the wordmark goes at 799px, and phones get the header bar at 640px. */
-@media (max-width:1199px){#hud-temp{display:none}}
+   key hints and the wordmark goes at 899px (html[data-tc], touch.js), spacing tightens at 760 and 700px, and phones get
+   the header bar at 640px. The chips never wrap (.tleft nowrap). */
+@media (max-width:1199px){#hud-temp{display:none}.hint{padding:0 8px;gap:8px;font-size:15px}.hint.dim div{display:none}}
 @media (max-width:1023px){
+  .hintbar{padding:8px 10px;gap:2px}.hint{padding:0 6px;gap:6px;font-size:14px}#hud .hint kbd{min-width:32px;height:32px;font-size:15px;padding:0 8px}
+  .movepad{padding:8px 10px}.pad{grid-template-columns:repeat(3,34px)}#hud .pad kbd{min-width:34px;height:34px;font-size:16px;padding:0}
   .stat small{display:none}
   #hud-codex b{display:none}
   #hud-codex small{display:block;font-size:20px;font-weight:700;color:#fff;line-height:1.1}
   #hud-codex .of{font-size:.72em;font-weight:500;color:var(--mutedl)}
   .stat{padding:6px 12px}
 }
-@media (max-width:899px){#hud-codex small{font-size:17px}}
-@media (max-width:799px){.brand .bt{display:none}.brand{padding:6px 10px}}
+@media (max-width:899px){#hud-codex small{font-size:17px}.tright .ib{width:46px;height:46px}}
+@media (max-width:760px){.stat{padding:6px 9px}.tleft{gap:6px}}
+@media (max-width:700px){.tright .ib{width:44px;height:44px}.stat{padding:6px 8px;gap:5px}.ci svg{width:18px;height:18px}}
+/* mouse users on a very narrow window: L still toggles mouse look, the header just has no room for its button */
+@media (max-width:400px){.ib.look{display:none}}
+@media (max-width:899px){.brand .bt{display:none}.brand{padding:6px 10px}}
 @media (max-width:899px),(hover:none) and (pointer:coarse){
   .movepad,.hintbar{display:none}
   .stat b{font-size:17px}

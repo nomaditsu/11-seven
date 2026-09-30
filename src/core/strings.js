@@ -1,7 +1,7 @@
 // UI dictionary. Every key has { en, th }.  {placeholders} are filled by t(key, vars).
 export const STR = {
   // ---------------------------------------------------------------- title screen
-  'title.tagline': { en: 'Step into a Bangkok 11 SEVEN and explore every shelf.', th: 'เดินเข้าอีเลฟเว่น เซเว่น กลางกรุงเทพฯ แล้วสำรวจทุกชั้นวางสินค้า' },
+  'title.tagline': { en: 'Step into your favourite store in Bangkok and explore every shelf.', th: 'ก้าวเข้าร้านโปรดของคุณในกรุงเทพฯ แล้วสำรวจทุกชั้นวางสินค้า', rom: 'gâao khâo ráan bpròot khɔ̌ɔng khun nai grung-thêep lɛ́ɛo sǎm-rùat túk chán waang sǐn-kháa' },
   'title.start': { en: 'Walk in', th: 'เดินเข้าร้าน' },
   'title.loading': { en: 'Stocking the shelves…', th: 'กำลังจัดสินค้าขึ้นชั้น…' },
   'title.ready': { en: 'Ready!', th: 'พร้อมแล้ว!' },
@@ -9,7 +9,7 @@ export const STR = {
   'title.controls': { en: 'Controls', th: 'ปุ่มควบคุม' },
   'title.about': { en: 'About', th: 'เกี่ยวกับเกม' },
   'title.language': { en: 'Language', th: 'ภาษา' },
-  'title.hint': { en: 'Best with headphones and fullscreen. Press L any time to flip the language.', th: 'แนะนำให้ใส่หูฟังและเล่นแบบเต็มจอ กด L เพื่อสลับภาษาได้ทุกเมื่อ' },
+  'title.hint': { en: 'Best with headphones and fullscreen. Press L in the store for mouse look.', th: 'แนะนำให้ใส่หูฟังและเล่นแบบเต็มจอ กด L ในร้านเพื่อมองด้วยเมาส์', rom: 'nɛ́-nam hâi sài hǔu-fang lɛ́ lên bɛ̀ɛp tem jɔɔ, gòt L nai ráan phʉ̂a mɔɔng dûai máo' },
   'title.flipHint': { en: 'Everything — signs, packaging, price tags — switches language.', th: 'ทั้งป้าย บรรจุภัณฑ์ และป้ายราคา จะเปลี่ยนภาษาตาม' },
   'title.install': { en: 'Play offline: tap Share, then Add to Home Screen.', th: 'เล่นแบบออฟไลน์: แตะปุ่มแชร์ แล้วเลือก "เพิ่มไปยังหน้าจอโฮม"', rom: 'lên bɛ̀ɛp ɔ́ɔf-laai: dtɛ̀ɛ bpùm chɛɛ lɛ́ɛo lûak "phə̂əm bpai yang nâa-jɔɔ hoom"' },
   'title.resume': { en: 'Continue', th: 'เล่นต่อ' },
@@ -344,7 +344,6 @@ export const TIPS = [
   { en: 'Cigarettes are hidden behind the counter — displaying tobacco at the point of sale is banned in Thailand.', th: 'บุหรี่ต้องเก็บมิดชิดหลังเคาน์เตอร์ เพราะกฎหมายไทยห้ามโชว์สินค้ายาสูบ ณ จุดขาย' },
   { en: 'Try the classic: ข้าวกะเพราไก่ไข่ดาว — spicy holy basil chicken with a fried egg, ready in the microwave.', th: 'ลองเมนูสุดฮิต ข้าวกะเพราไก่ไข่ดาว อุ่นไมโครเวฟก็อร่อยได้ทันที' },
   { en: '“อุ่นไหมคะ?” means “Shall I heat that up?” — you will hear it at every visit.', th: '“อุ่นไหมคะ?” แปลว่า “ให้อุ่นให้ไหมคะ?” เป็นประโยคที่จะได้ยินทุกครั้งที่ไปซื้อของ' },
-  { en: 'Press L at any time to flip between English and Thai — even while you are reading a package.', th: 'กด L เพื่อสลับระหว่างภาษาอังกฤษและไทยได้ทุกเมื่อ แม้ขณะกำลังอ่านซองสินค้า' },
   { en: 'Crispy seaweed (สาหร่ายทอดกรอบ) is Thailand’s favourite tourist snack to take home.', th: 'สาหร่ายทอดกรอบเป็นขนมที่นักท่องเที่ยวซื้อกลับบ้านมากที่สุดอย่างหนึ่ง' },
   { en: 'The air-conditioning is famously arctic — half of Bangkok pops in just to cool off.', th: 'แอร์เย็นฉ่ำของอีเลฟเว่น เซเว่น เป็นที่หลบร้อนยอดนิยมของคนกรุงเทพฯ' },
   { en: 'Grilled pork skewers with sticky rice (หมูปิ้งข้าวเหนียว) are the classic Bangkok breakfast in a bag.', th: 'หมูปิ้งข้าวเหนียวคืออาหารเช้ายอดฮิตของคนกรุงเทพฯ' },

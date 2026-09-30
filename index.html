@@ -6,6 +6,8 @@
 <meta name="description" content="7 Eleven Simulator by Nomaditsu — walk into a Bangkok 11 SEVEN, browse 250+ Thai products, and flip every sign and package between English and Thai.">
 <meta name="theme-color" content="#00874a">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
 <meta name="apple-mobile-web-app-title" content="11 SEVEN">
 <title>7 Eleven Simulator by Nomaditsu</title>
 <style>
@@ -357,7 +359,7 @@ kbd{display:inline-block;min-width:1.6em;padding:.05em .45em;border-radius:.4em;
 /* ---------- top bar ---------- */
 #topbar{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:3}
 #topbar>*{pointer-events:none}
-.tleft{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;min-width:0}
+.tleft{display:flex;gap:8px;align-items:stretch;flex-wrap:nowrap;min-width:0}
 .tright{display:flex;gap:6px;align-items:flex-start;flex:none}
 .chip{background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:auto}
 .brand{box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:6px 16px 6px 10px;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:none}
@@ -384,6 +386,8 @@ button.stat{cursor:pointer}button.stat:hover{border-color:var(--o)}
 .ib.snd .mini i{width:2.5px;background:#5be0a0;border-radius:1px;height:40%;animation:sbob .9s ease-in-out infinite}
 .ib.snd .mini i:nth-child(2){animation-delay:-.3s}.ib.snd .mini i:nth-child(3){animation-delay:-.6s}
 .ib.snd.nomus .mini,.ib.snd.off .mini{display:none}
+.ib.look.on{border-color:#5be0a0;background:rgba(47,191,122,.3);color:#bff2d8}
+html[data-touch] .ib.look{display:none}
 .ib.snd.open{border-color:var(--o);background:rgba(245,130,32,.22)}
 @keyframes sbob{0%,100%{height:30%}50%{height:100%}}
 
@@ -526,7 +530,6 @@ body[data-mode=ui] .hint,body[data-mode=ui] .pad kbd,body[data-mode=inspect] .hi
 .ckeys{display:flex;flex-wrap:wrap;align-items:center;gap:0 4px}
 .clab{font-size:19px;font-weight:500;line-height:1.15}
 .or{font-size:13px;color:var(--mutedl);margin:0 6px}
-.badge-new{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;background:var(--o);color:#1a0f05;border-radius:6px;padding:1px 6px;letter-spacing:.05em}
 .glyph{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);margin-bottom:3px}
 .glyph svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ctip{margin-top:14px;font-size:14px;color:var(--mutedl)}
@@ -680,17 +683,24 @@ body[data-mode=inspect] #touch .act.take{order:3}
 
 /* ---------- responsive ---------- */
 /* As the window narrows, the chips lose their less essential text step by step, the on-screen controls replace the
-   key hints at 899px (html[data-tc], touch.js), the wordmark goes at 799px, and phones get the header bar at 640px. */
-@media (max-width:1199px){#hud-temp{display:none}}
+   key hints and the wordmark goes at 899px (html[data-tc], touch.js), spacing tightens at 760 and 700px, and phones get
+   the header bar at 640px. The chips never wrap (.tleft nowrap). */
+@media (max-width:1199px){#hud-temp{display:none}.hint{padding:0 8px;gap:8px;font-size:15px}.hint.dim div{display:none}}
 @media (max-width:1023px){
+  .hintbar{padding:8px 10px;gap:2px}.hint{padding:0 6px;gap:6px;font-size:14px}#hud .hint kbd{min-width:32px;height:32px;font-size:15px;padding:0 8px}
+  .movepad{padding:8px 10px}.pad{grid-template-columns:repeat(3,34px)}#hud .pad kbd{min-width:34px;height:34px;font-size:16px;padding:0}
   .stat small{display:none}
   #hud-codex b{display:none}
   #hud-codex small{display:block;font-size:20px;font-weight:700;color:#fff;line-height:1.1}
   #hud-codex .of{font-size:.72em;font-weight:500;color:var(--mutedl)}
   .stat{padding:6px 12px}
 }
-@media (max-width:899px){#hud-codex small{font-size:17px}}
-@media (max-width:799px){.brand .bt{display:none}.brand{padding:6px 10px}}
+@media (max-width:899px){#hud-codex small{font-size:17px}.tright .ib{width:46px;height:46px}}
+@media (max-width:760px){.stat{padding:6px 9px}.tleft{gap:6px}}
+@media (max-width:700px){.tright .ib{width:44px;height:44px}.stat{padding:6px 8px;gap:5px}.ci svg{width:18px;height:18px}}
+/* mouse users on a very narrow window: L still toggles mouse look, the header just has no room for its button */
+@media (max-width:400px){.ib.look{display:none}}
+@media (max-width:899px){.brand .bt{display:none}.brand{padding:6px 10px}}
 @media (max-width:899px),(hover:none) and (pointer:coarse){
   .movepad,.hintbar{display:none}
   .stat b{font-size:17px}
@@ -831,6 +841,7 @@ body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}
         <button class="chip stat basketchip" id="hud-basket" type="button" data-open="basket"><span class="ci" id="w-basket-i" data-icon="hand"></span><div><b id="w-basket">0</b><small id="w-basket-l"></small></div></button>
       </div>
       <div class="tright" id="hud-right">
+        <button class="ib look" id="btn-look" type="button"><span class="ii"></span><small>L</small></button>
         <button class="ib info" id="btn-info" type="button" data-open="about"><span class="ii"></span></button>
         <button class="ib snd" id="btn-sound" type="button" data-btn="sound" aria-haspopup="dialog" aria-expanded="false"><span class="ii"></span><span class="mini"><i></i><i></i><i></i></span></button>
         <button class="ib" id="btn-menu" type="button" data-btn="menu"><span class="ii"></span><small>Esc</small></button>
@@ -5353,8 +5364,6 @@ void main() {
     fov: 72,
     sens: 1,
     invertY: false,
-    mouseLook: "drag",
-    // 'drag' (hold and drag to look) | 'lock' (click to capture the mouse, Esc frees it)
     bob: true,
     master: 0.8,
     ambience: 0.8,
@@ -5410,7 +5419,6 @@ void main() {
     }
     settings.fov = clamp(+settings.fov || 72, 55, 105);
     settings.sens = clamp(+settings.sens || 1, 0.2, 3);
-    if (settings.mouseLook !== "lock") settings.mouseLook = "drag";
   }
   var dirty = false;
   function markDirty() {
@@ -5450,7 +5458,7 @@ void main() {
   // src/core/strings.js
   var STR = {
     // ---------------------------------------------------------------- title screen
-    "title.tagline": { en: "Step into a Bangkok 11 SEVEN and explore every shelf.", th: "\u0E40\u0E14\u0E34\u0E19\u0E40\u0E02\u0E49\u0E32\u0E2D\u0E35\u0E40\u0E25\u0E1F\u0E40\u0E27\u0E48\u0E19 \u0E40\u0E0B\u0E40\u0E27\u0E48\u0E19 \u0E01\u0E25\u0E32\u0E07\u0E01\u0E23\u0E38\u0E07\u0E40\u0E17\u0E1E\u0E2F \u0E41\u0E25\u0E49\u0E27\u0E2A\u0E33\u0E23\u0E27\u0E08\u0E17\u0E38\u0E01\u0E0A\u0E31\u0E49\u0E19\u0E27\u0E32\u0E07\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32" },
+    "title.tagline": { en: "Step into your favourite store in Bangkok and explore every shelf.", th: "\u0E01\u0E49\u0E32\u0E27\u0E40\u0E02\u0E49\u0E32\u0E23\u0E49\u0E32\u0E19\u0E42\u0E1B\u0E23\u0E14\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E43\u0E19\u0E01\u0E23\u0E38\u0E07\u0E40\u0E17\u0E1E\u0E2F \u0E41\u0E25\u0E49\u0E27\u0E2A\u0E33\u0E23\u0E27\u0E08\u0E17\u0E38\u0E01\u0E0A\u0E31\u0E49\u0E19\u0E27\u0E32\u0E07\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32", rom: "g\xE2ao kh\xE2o r\xE1an bpr\xF2ot kh\u0254\u030C\u0254ng khun nai grung-th\xEAep l\u025B\u0301\u025Bo s\u01CEm-r\xF9at t\xFAk ch\xE1n waang s\u01D0n-kh\xE1a" },
     "title.start": { en: "Walk in", th: "\u0E40\u0E14\u0E34\u0E19\u0E40\u0E02\u0E49\u0E32\u0E23\u0E49\u0E32\u0E19" },
     "title.loading": { en: "Stocking the shelves\u2026", th: "\u0E01\u0E33\u0E25\u0E31\u0E07\u0E08\u0E31\u0E14\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E02\u0E36\u0E49\u0E19\u0E0A\u0E31\u0E49\u0E19\u2026" },
     "title.ready": { en: "Ready!", th: "\u0E1E\u0E23\u0E49\u0E2D\u0E21\u0E41\u0E25\u0E49\u0E27!" },
@@ -5458,7 +5466,7 @@ void main() {
     "title.controls": { en: "Controls", th: "\u0E1B\u0E38\u0E48\u0E21\u0E04\u0E27\u0E1A\u0E04\u0E38\u0E21" },
     "title.about": { en: "About", th: "\u0E40\u0E01\u0E35\u0E48\u0E22\u0E27\u0E01\u0E31\u0E1A\u0E40\u0E01\u0E21" },
     "title.language": { en: "Language", th: "\u0E20\u0E32\u0E29\u0E32" },
-    "title.hint": { en: "Best with headphones and fullscreen. Press L any time to flip the language.", th: "\u0E41\u0E19\u0E30\u0E19\u0E33\u0E43\u0E2B\u0E49\u0E43\u0E2A\u0E48\u0E2B\u0E39\u0E1F\u0E31\u0E07\u0E41\u0E25\u0E30\u0E40\u0E25\u0E48\u0E19\u0E41\u0E1A\u0E1A\u0E40\u0E15\u0E47\u0E21\u0E08\u0E2D \u0E01\u0E14 L \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E2A\u0E25\u0E31\u0E1A\u0E20\u0E32\u0E29\u0E32\u0E44\u0E14\u0E49\u0E17\u0E38\u0E01\u0E40\u0E21\u0E37\u0E48\u0E2D" },
+    "title.hint": { en: "Best with headphones and fullscreen. Press L in the store for mouse look.", th: "\u0E41\u0E19\u0E30\u0E19\u0E33\u0E43\u0E2B\u0E49\u0E43\u0E2A\u0E48\u0E2B\u0E39\u0E1F\u0E31\u0E07\u0E41\u0E25\u0E30\u0E40\u0E25\u0E48\u0E19\u0E41\u0E1A\u0E1A\u0E40\u0E15\u0E47\u0E21\u0E08\u0E2D \u0E01\u0E14 L \u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C", rom: "n\u025B\u0301-nam h\xE2i s\xE0i h\u01D4u-fang l\u025B\u0301 l\xEAn b\u025B\u0300\u025Bp tem j\u0254\u0254, g\xF2t L nai r\xE1an ph\u0289\u0302a m\u0254\u0254ng d\xFBai m\xE1o" },
     "title.flipHint": { en: "Everything \u2014 signs, packaging, price tags \u2014 switches language.", th: "\u0E17\u0E31\u0E49\u0E07\u0E1B\u0E49\u0E32\u0E22 \u0E1A\u0E23\u0E23\u0E08\u0E38\u0E20\u0E31\u0E13\u0E11\u0E4C \u0E41\u0E25\u0E30\u0E1B\u0E49\u0E32\u0E22\u0E23\u0E32\u0E04\u0E32 \u0E08\u0E30\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E20\u0E32\u0E29\u0E32\u0E15\u0E32\u0E21" },
     "title.install": { en: "Play offline: tap Share, then Add to Home Screen.", th: '\u0E40\u0E25\u0E48\u0E19\u0E41\u0E1A\u0E1A\u0E2D\u0E2D\u0E1F\u0E44\u0E25\u0E19\u0E4C: \u0E41\u0E15\u0E30\u0E1B\u0E38\u0E48\u0E21\u0E41\u0E0A\u0E23\u0E4C \u0E41\u0E25\u0E49\u0E27\u0E40\u0E25\u0E37\u0E2D\u0E01 "\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E44\u0E1B\u0E22\u0E31\u0E07\u0E2B\u0E19\u0E49\u0E32\u0E08\u0E2D\u0E42\u0E2E\u0E21"', rom: 'l\xEAn b\u025B\u0300\u025Bp \u0254\u0301\u0254f-laai: dt\u025B\u0300\u025B bp\xF9m ch\u025B\u025B l\u025B\u0301\u025Bo l\xFBak "ph\u0259\u0302\u0259m bpai yang n\xE2a-j\u0254\u0254 hoom"' },
     "title.resume": { en: "Continue", th: "\u0E40\u0E25\u0E48\u0E19\u0E15\u0E48\u0E2D" },
@@ -5776,7 +5784,6 @@ void main() {
     { en: "Cigarettes are hidden behind the counter \u2014 displaying tobacco at the point of sale is banned in Thailand.", th: "\u0E1A\u0E38\u0E2B\u0E23\u0E35\u0E48\u0E15\u0E49\u0E2D\u0E07\u0E40\u0E01\u0E47\u0E1A\u0E21\u0E34\u0E14\u0E0A\u0E34\u0E14\u0E2B\u0E25\u0E31\u0E07\u0E40\u0E04\u0E32\u0E19\u0E4C\u0E40\u0E15\u0E2D\u0E23\u0E4C \u0E40\u0E1E\u0E23\u0E32\u0E30\u0E01\u0E0E\u0E2B\u0E21\u0E32\u0E22\u0E44\u0E17\u0E22\u0E2B\u0E49\u0E32\u0E21\u0E42\u0E0A\u0E27\u0E4C\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E22\u0E32\u0E2A\u0E39\u0E1A \u0E13 \u0E08\u0E38\u0E14\u0E02\u0E32\u0E22" },
     { en: "Try the classic: \u0E02\u0E49\u0E32\u0E27\u0E01\u0E30\u0E40\u0E1E\u0E23\u0E32\u0E44\u0E01\u0E48\u0E44\u0E02\u0E48\u0E14\u0E32\u0E27 \u2014 spicy holy basil chicken with a fried egg, ready in the microwave.", th: "\u0E25\u0E2D\u0E07\u0E40\u0E21\u0E19\u0E39\u0E2A\u0E38\u0E14\u0E2E\u0E34\u0E15 \u0E02\u0E49\u0E32\u0E27\u0E01\u0E30\u0E40\u0E1E\u0E23\u0E32\u0E44\u0E01\u0E48\u0E44\u0E02\u0E48\u0E14\u0E32\u0E27 \u0E2D\u0E38\u0E48\u0E19\u0E44\u0E21\u0E42\u0E04\u0E23\u0E40\u0E27\u0E1F\u0E01\u0E47\u0E2D\u0E23\u0E48\u0E2D\u0E22\u0E44\u0E14\u0E49\u0E17\u0E31\u0E19\u0E17\u0E35" },
     { en: "\u201C\u0E2D\u0E38\u0E48\u0E19\u0E44\u0E2B\u0E21\u0E04\u0E30?\u201D means \u201CShall I heat that up?\u201D \u2014 you will hear it at every visit.", th: "\u201C\u0E2D\u0E38\u0E48\u0E19\u0E44\u0E2B\u0E21\u0E04\u0E30?\u201D \u0E41\u0E1B\u0E25\u0E27\u0E48\u0E32 \u201C\u0E43\u0E2B\u0E49\u0E2D\u0E38\u0E48\u0E19\u0E43\u0E2B\u0E49\u0E44\u0E2B\u0E21\u0E04\u0E30?\u201D \u0E40\u0E1B\u0E47\u0E19\u0E1B\u0E23\u0E30\u0E42\u0E22\u0E04\u0E17\u0E35\u0E48\u0E08\u0E30\u0E44\u0E14\u0E49\u0E22\u0E34\u0E19\u0E17\u0E38\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07\u0E17\u0E35\u0E48\u0E44\u0E1B\u0E0B\u0E37\u0E49\u0E2D\u0E02\u0E2D\u0E07" },
-    { en: "Press L at any time to flip between English and Thai \u2014 even while you are reading a package.", th: "\u0E01\u0E14 L \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E2A\u0E25\u0E31\u0E1A\u0E23\u0E30\u0E2B\u0E27\u0E48\u0E32\u0E07\u0E20\u0E32\u0E29\u0E32\u0E2D\u0E31\u0E07\u0E01\u0E24\u0E29\u0E41\u0E25\u0E30\u0E44\u0E17\u0E22\u0E44\u0E14\u0E49\u0E17\u0E38\u0E01\u0E40\u0E21\u0E37\u0E48\u0E2D \u0E41\u0E21\u0E49\u0E02\u0E13\u0E30\u0E01\u0E33\u0E25\u0E31\u0E07\u0E2D\u0E48\u0E32\u0E19\u0E0B\u0E2D\u0E07\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32" },
     { en: "Crispy seaweed (\u0E2A\u0E32\u0E2B\u0E23\u0E48\u0E32\u0E22\u0E17\u0E2D\u0E14\u0E01\u0E23\u0E2D\u0E1A) is Thailand\u2019s favourite tourist snack to take home.", th: "\u0E2A\u0E32\u0E2B\u0E23\u0E48\u0E32\u0E22\u0E17\u0E2D\u0E14\u0E01\u0E23\u0E2D\u0E1A\u0E40\u0E1B\u0E47\u0E19\u0E02\u0E19\u0E21\u0E17\u0E35\u0E48\u0E19\u0E31\u0E01\u0E17\u0E48\u0E2D\u0E07\u0E40\u0E17\u0E35\u0E48\u0E22\u0E27\u0E0B\u0E37\u0E49\u0E2D\u0E01\u0E25\u0E31\u0E1A\u0E1A\u0E49\u0E32\u0E19\u0E21\u0E32\u0E01\u0E17\u0E35\u0E48\u0E2A\u0E38\u0E14\u0E2D\u0E22\u0E48\u0E32\u0E07\u0E2B\u0E19\u0E36\u0E48\u0E07" },
     { en: "The air-conditioning is famously arctic \u2014 half of Bangkok pops in just to cool off.", th: "\u0E41\u0E2D\u0E23\u0E4C\u0E40\u0E22\u0E47\u0E19\u0E09\u0E48\u0E33\u0E02\u0E2D\u0E07\u0E2D\u0E35\u0E40\u0E25\u0E1F\u0E40\u0E27\u0E48\u0E19 \u0E40\u0E0B\u0E40\u0E27\u0E48\u0E19 \u0E40\u0E1B\u0E47\u0E19\u0E17\u0E35\u0E48\u0E2B\u0E25\u0E1A\u0E23\u0E49\u0E2D\u0E19\u0E22\u0E2D\u0E14\u0E19\u0E34\u0E22\u0E21\u0E02\u0E2D\u0E07\u0E04\u0E19\u0E01\u0E23\u0E38\u0E07\u0E40\u0E17\u0E1E\u0E2F" },
     { en: "Grilled pork skewers with sticky rice (\u0E2B\u0E21\u0E39\u0E1B\u0E34\u0E49\u0E07\u0E02\u0E49\u0E32\u0E27\u0E40\u0E2B\u0E19\u0E35\u0E22\u0E27) are the classic Bangkok breakfast in a bag.", th: "\u0E2B\u0E21\u0E39\u0E1B\u0E34\u0E49\u0E07\u0E02\u0E49\u0E32\u0E27\u0E40\u0E2B\u0E19\u0E35\u0E22\u0E27\u0E04\u0E37\u0E2D\u0E2D\u0E32\u0E2B\u0E32\u0E23\u0E40\u0E0A\u0E49\u0E32\u0E22\u0E2D\u0E14\u0E2E\u0E34\u0E15\u0E02\u0E2D\u0E07\u0E04\u0E19\u0E01\u0E23\u0E38\u0E07\u0E40\u0E17\u0E1E\u0E2F" },
@@ -5930,14 +5937,15 @@ void main() {
     "pop.sfxSub": { en: "Store sounds and voices", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E41\u0E25\u0E30\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1E\u0E39\u0E14", rom: "s\u01D0ang nai r\xE1an l\u025B\u0301 s\u01D0ang ph\xFBut" },
     "pop.on": { en: "On", th: "\u0E40\u0E1B\u0E34\u0E14", rom: "bp\u0259\u0300\u0259t" },
     "pop.off": { en: "Off", th: "\u0E1B\u0E34\u0E14", rom: "bp\xECt" },
-    // Settings > Mouse look, and the hints when the mouse is captured / freed
-    "set.look": { en: "Mouse look", th: "\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C", rom: "gaan m\u0254\u0254ng d\xFBai m\xE1o" },
-    "set.lookHelp": { en: "Drag: hold and drag to look. Locked: click the store to capture the mouse; Esc frees it.", th: "\u0E25\u0E32\u0E01: \u0E01\u0E14\u0E04\u0E49\u0E32\u0E07\u0E41\u0E25\u0E49\u0E27\u0E25\u0E32\u0E01\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07 \u0E25\u0E47\u0E2D\u0E01: \u0E04\u0E25\u0E34\u0E01\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E08\u0E31\u0E1A\u0E40\u0E21\u0E32\u0E2A\u0E4C \u0E01\u0E14 Esc \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E1B\u0E25\u0E48\u0E2D\u0E22", rom: "l\xE2ak: g\xF2t kh\xE1ang l\u025B\u0301\u025Bo l\xE2ak ph\u0289\u0302a m\u0254\u0254ng. l\u0254\u0301k: khl\xEDk nai r\xE1an ph\u0289\u0302a j\xE0p m\xE1o, g\xF2t Esc ph\u0289\u0302a pl\u0254\u0300i" },
-    "set.look.drag": { en: "Drag", th: "\u0E25\u0E32\u0E01", rom: "l\xE2ak" },
-    "set.look.lock": { en: "Locked", th: "\u0E25\u0E47\u0E2D\u0E01", rom: "l\u0254\u0301k" },
-    "look.locked": { en: "Mouse captured for looking. Esc frees it.", th: "\u0E08\u0E31\u0E1A\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E44\u0E27\u0E49\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E21\u0E2D\u0E07\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E14 Esc \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E1B\u0E25\u0E48\u0E2D\u0E22", rom: "j\xE0p m\xE1o w\xE1i s\u01CEm-r\xE0p m\u0254\u0254ng l\u025B\u0301\u025Bo, g\xF2t Esc ph\u0289\u0302a pl\u0254\u0300i" },
-    "look.freed": { en: "Mouse free. Click the store to look around again.", th: "\u0E1B\u0E25\u0E48\u0E2D\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E41\u0E25\u0E49\u0E27 \u0E04\u0E25\u0E34\u0E01\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07\u0E15\u0E48\u0E2D", rom: "pl\u0254\u0300i m\xE1o l\u025B\u0301\u025Bo, khl\xEDk nai r\xE1an ph\u0289\u0302a m\u0254\u0254ng t\u0254\u0300\u0254" },
-    "look.failed": { en: "This browser would not capture the mouse. Drag to look instead.", th: "\u0E40\u0E1A\u0E23\u0E32\u0E27\u0E4C\u0E40\u0E0B\u0E2D\u0E23\u0E4C\u0E19\u0E35\u0E49\u0E08\u0E31\u0E1A\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E43\u0E0A\u0E49\u0E01\u0E32\u0E23\u0E25\u0E32\u0E01\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07\u0E41\u0E17\u0E19", rom: "brao-s\u0259\u0302\u0259 n\xEDi j\xE0p m\xE1o m\xE2i d\xE2ai, ch\xE1i gaan l\xE2ak ph\u0289\u0302a m\u0254\u0254ng th\u025B\u025Bn" },
+    // Mouse look (L or the look button): pointer lock on / off
+    "btn.look": { en: "Mouse look on / off (L)", th: "\u0E40\u0E1B\u0E34\u0E14/\u0E1B\u0E34\u0E14\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C (L)", rom: "bp\u0259\u0300\u0259t / bp\xECt gaan m\u0254\u0254ng d\xFBai m\xE1o (L)" },
+    "hud.look": { en: "Mouse look", th: "\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C", rom: "m\u0254\u0254ng d\xFBai m\xE1o" },
+    "ctl.lookToggle": { en: "Mouse look on / off (Esc also turns it off)", th: "\u0E40\u0E1B\u0E34\u0E14/\u0E1B\u0E34\u0E14\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C (\u0E01\u0E14 Esc \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E1B\u0E34\u0E14\u0E44\u0E14\u0E49\u0E14\u0E49\u0E27\u0E22)", rom: "bp\u0259\u0300\u0259t / bp\xECt gaan m\u0254\u0254ng d\xFBai m\xE1o (g\xF2t Esc ph\u0289\u0302a bp\xECt d\xE2ai d\xFBai)" },
+    "look.on": { en: "Mouse look on: move to look, right-click to inspect, hold the middle button to zoom. L or Esc turns it off.", th: "\u0E40\u0E1B\u0E34\u0E14\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E41\u0E25\u0E49\u0E27 \u0E02\u0E22\u0E31\u0E1A\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07 \u0E04\u0E25\u0E34\u0E01\u0E02\u0E27\u0E32\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E14\u0E39\u0E43\u0E01\u0E25\u0E49\u0E46 \u0E01\u0E14\u0E1B\u0E38\u0E48\u0E21\u0E01\u0E25\u0E32\u0E07\u0E04\u0E49\u0E32\u0E07\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E0B\u0E39\u0E21 \u0E01\u0E14 L \u0E2B\u0E23\u0E37\u0E2D Esc \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E1B\u0E34\u0E14", rom: "bp\u0259\u0300\u0259t gaan m\u0254\u0254ng d\xFBai m\xE1o l\u025B\u0301\u025Bo, kh\xE0-y\xE0p ph\u0289\u0302a m\u0254\u0254ng, khl\xEDk khw\u01CEa ph\u0289\u0302a duu gl\xE2i-gl\xE2i, g\xF2t bp\xF9m glaang kh\xE1ang ph\u0289\u0302a suum, g\xF2t L r\u0289\u030C\u0289 Esc ph\u0289\u0302a bp\xECt" },
+    "ctl.lookInspect": { en: "Inspect (in mouse look)", th: "\u0E14\u0E39\u0E43\u0E01\u0E25\u0E49\u0E46 (\u0E15\u0E2D\u0E19\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C)", rom: "duu gl\xE2i-gl\xE2i (dt\u0254\u0254n m\u0254\u0254ng d\xFBai m\xE1o)" },
+    "ctl.lookZoom": { en: "Zoom, hold (in mouse look)", th: "\u0E0B\u0E39\u0E21 \u0E01\u0E14\u0E04\u0E49\u0E32\u0E07 (\u0E15\u0E2D\u0E19\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C)", rom: "suum, g\xF2t kh\xE1ang (dt\u0254\u0254n m\u0254\u0254ng d\xFBai m\xE1o)" },
+    "look.off": { en: "Mouse look off. Press L to turn it back on.", th: "\u0E1B\u0E34\u0E14\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E14 L \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E1B\u0E34\u0E14\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07", rom: "bp\xECt gaan m\u0254\u0254ng d\xFBai m\xE1o l\u025B\u0301\u025Bo, g\xF2t L ph\u0289\u0302a bp\u0259\u0300\u0259t \xECik khr\xE1ng" },
+    "look.failed": { en: "Mouse look is not available in this window. It works in Chrome, Safari and Firefox. Drag to look instead.", th: "\u0E2B\u0E19\u0E49\u0E32\u0E15\u0E48\u0E32\u0E07\u0E19\u0E35\u0E49\u0E43\u0E0A\u0E49\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E43\u0E0A\u0E49\u0E44\u0E14\u0E49\u0E43\u0E19 Chrome, Safari \u0E41\u0E25\u0E30 Firefox \u0E43\u0E0A\u0E49\u0E01\u0E32\u0E23\u0E25\u0E32\u0E01\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07\u0E41\u0E17\u0E19", rom: "n\xE2a-t\xE0ang n\xEDi ch\xE1i gaan m\u0254\u0254ng d\xFBai m\xE1o m\xE2i d\xE2ai, ch\xE1i d\xE2ai nai Chrome, Safari l\u025B\u0301 Firefox, ch\xE1i gaan l\xE2ak ph\u0289\u0302a m\u0254\u0254ng th\u025B\u025Bn" },
     "pop.track": { en: "Track", th: "\u0E40\u0E1E\u0E25\u0E07", rom: "phleeng" },
     "pop.close": { en: "Close", th: "\u0E1B\u0E34\u0E14", rom: "bp\xECt" },
     // the big touch action button: idle label, then a short verb for what is in reach
@@ -6378,8 +6386,6 @@ void main() {
     dy: 0,
     wheel: 0,
     locked: false,
-    lockMode: false,
-    // Settings > Mouse look = Locked
     unlockedAt: 0,
     // when the lock was last released (main.js ignores the Esc that released it)
     touch: false,
@@ -6445,6 +6451,7 @@ void main() {
         input.pressOnCanvas = true;
         canvas.classList.add("pressing");
       }
+      if (e.button === 1) e.preventDefault();
       emit("mousedown", e.button, e);
     });
     addEventListener("mouseup", (e) => {
@@ -6467,9 +6474,9 @@ void main() {
   function lockPointer() {
     try {
       const p = input.canvas.requestPointerLock();
-      if (p && p.catch) p.catch(() => {
-      });
+      if (p && p.catch) p.catch((e) => console.warn("pointer lock refused:", e && e.message));
     } catch (e) {
+      console.warn("pointer lock refused:", e && e.message);
     }
   }
   function exitLock() {
@@ -6704,7 +6711,7 @@ void main() {
       }
       this.bobPhase += sp * dt * (sprint ? 4.2 : 4.6);
       this.bobAmt = damp(this.bobAmt, settings.bob ? clamp(sp / 2.4, 0, 1.4) : 0, 8, dt);
-      const wantZoom = active && (down("KeyZ") || input.mouseDown[2]) && !this.frozen;
+      const wantZoom = active && (down("KeyZ") || (input.locked ? input.mouseDown[1] : input.mouseDown[2])) && !this.frozen;
       this.zoomT = damp(this.zoomT, wantZoom ? 1 : 0, 10, dt);
       this.fovKick = damp(this.fovKick, this.sprinting ? 5 : 0, 6, dt);
       const fov = lerp(settings.fov + this.fovKick, 26, this.zoomT);
@@ -35046,6 +35053,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     music: '<svg viewBox="0 0 24 24"><circle class="f" cx="8" cy="17.5" r="3.2"/><path d="M11.2 17.5V4.5c0 3.2 6.3 3 6.3 8"/></svg>',
     next: '<svg viewBox="0 0 24 24"><path class="f" d="M5 5.5v13l9-6.5z"/><path class="f" d="M16 5.5h3v13h-3z"/></svg>',
     prev: '<svg viewBox="0 0 24 24"><path class="f" d="M19 5.5v13l-9-6.5z"/><path class="f" d="M5 5.5h3v13H5z"/></svg>',
+    look: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/><circle class="f" cx="12" cy="12" r="1.6"/></svg>',
     info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle class="f" cx="12" cy="7.8" r="1.3"/></svg>',
     menu: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>',
     voice: '<svg viewBox="0 0 24 24"><path class="f" d="M12 3.5a3 3 0 013 3v5a3 3 0 01-6 0v-5a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v3.5"/></svg>',
@@ -35725,11 +35733,13 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     ] },
     { c: "var(--cream)", key: "ctlg.game", rows: [
       [[["Esc"]], "ctl.menu"],
-      [[["L"]], "ctl.lang"],
+      [[["L"]], "ctl.lookToggle"],
+      [[["Right-click"]], "ctl.lookInspect"],
+      [[["Middle-click"]], "ctl.lookZoom"],
       [[["H"]], "ctl.hints"],
-      [[["M"]], "ctl.music", 1],
-      [[["N"]], "ctl.mute", 1],
-      [[["."], [","]], "ctl.next", 1]
+      [[["M"]], "ctl.music"],
+      [[["N"]], "ctl.mute"],
+      [[["."], [","]], "ctl.next"]
     ] }
   ];
   var TOUCH_GROUPS = [
@@ -35738,9 +35748,9 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     { c: "#ff5a5f", key: "ctlg.stuff", rows: [["basket", "tch.basket", "tch.basketD"], ["book", "tch.snack", "tch.snackD"]] },
     { c: "var(--cream)", key: "ctlg.game", rows: [["sound", "hud.snackbook", "tch.audioD"], ["menu", "tch.menu", "tch.menuD"]] }
   ];
-  function kbRow([alts, label, isNew]) {
+  function kbRow([alts, label]) {
     const keys = alts[0] === "mouse" ? `<span class="glyph"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 3v7"/></svg></span> ${esc2(tp("ctl.mouse"))}` : alts.map((g2, i) => (i ? OR() : "") + g2.map((k) => KEYS2(k)).join("")).join("");
-    return `<div class="crow"><div class="ckeys">${keys}${isNew ? '<span class="badge-new">NEW</span>' : ""}</div><div class="clab">${D(label)}</div></div>`;
+    return `<div class="crow"><div class="ckeys">${keys}</div><div class="clab">${D(label)}</div></div>`;
   }
   function touchRow([icon, t1, t22]) {
     return `<div class="crow"><div class="ckeys"><span class="glyph">${ICON[icon] || ""}</span> <b style="margin-left:6px;font-size:17px">${esc2(tp(t1))}</b></div><div class="clab">${D(t22)}</div></div>`;
@@ -35824,6 +35834,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       "btn-by-title",
       "btn-sound",
       "btn-info",
+      "btn-look",
       "btn-menu",
       "t-sound",
       "phead-logo",
@@ -35858,6 +35869,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     });
     el["btn-by-title"].addEventListener("click", () => ui.open("about"));
     el["title-lang"].querySelectorAll("button").forEach((b) => b.addEventListener("click", () => changeLanguage(b.dataset.lang)));
+    el["btn-look"].addEventListener("click", () => ui.hooks.toggleLook && ui.hooks.toggleLook());
     el["btn-menu"].addEventListener("click", () => ui.panel === "pause" ? ui.close() : ui.open("pause"));
     document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => ui.close()));
     document.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => ui.open(b.dataset.open)));
@@ -35953,6 +35965,8 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       el[p + "-sound"].classList.toggle("nomus", !settings.musicOn);
     }
     setBtn("btn-info", ICON.info, t("btn.about"));
+    setBtn("btn-look", ICON.look, t("btn.look"));
+    el["btn-look"].classList.toggle("on", input.locked);
     setBtn("btn-menu", ICON.menu, t("btn.menu"));
     if (ui.onAudioUi) ui.onAudioUi();
     if (el["hud-codex"]) el["hud-codex"].title = t("btn.snackbook");
@@ -36179,7 +36193,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       return;
     }
     el.hints.classList.remove("mini");
-    el.hints.innerHTML = item("T", "hud.takeTalk") + item("I", "hud.inspect") + item("P", "hud.putback") + item("B", carryKey()) + item("H", "hud.hideHints", true);
+    el.hints.innerHTML = item("T", "hud.takeTalk") + item("I", "hud.inspect") + item("P", "hud.putback") + item("B", carryKey()) + item("L", "hud.look") + item("H", "hud.hideHints", true);
   }
   function updateObjective() {
     const q = S.activeQuest ? QUESTS.find((x) => x.id === S.activeQuest) : null;
@@ -36237,7 +36251,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     const slider2 = (id, min, max, step, val) => `<input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}">`;
     const sw = (id, on) => `<label class="switch"><input type="checkbox" id="s-${id}" ${on ? "checked" : ""}><i></i></label>`;
     const seg = (id, opts, cur2) => `<div class="seg" id="s-${id}">${opts.map(([v, l]) => `<button data-v="${v}" class="${v === cur2 ? "on" : ""}">${esc2(l)}</button>`).join("")}</div>`;
-    body.innerHTML = `<h3>${esc2(tp("set.sec.lang"))}</h3>` + row(tp("set.language"), tp("set.languageHelp"), seg("lang", [["en", "English"], ["th", "\u0E44\u0E17\u0E22"], ["both", "EN + \u0E44\u0E17\u0E22"]], lang.mode)) + row(tp("set.time"), "", `<select id="s-timepreset">${[["7.5", "set.time.morning"], ["12.5", "set.time.noon"], ["15.5", "set.time.afternoon"], ["18.5", "set.time.evening"], ["21.5", "set.time.night"], ["2", "set.time.late"]].map(([v, k]) => `<option value="${v}">${esc2(tp(k))}</option>`).join("")}</select>`) + row(tp("pause.hours"), "", slider2("hour", 0, 24, 0.25, G.hourNow || 18.5)) + row(tp("set.clock"), "", sw("clock", settings.clockRuns)) + `<h3>${esc2(tp("set.sec.gfx"))}</h3>` + row(tp("set.quality"), tp("set.needReload"), seg("quality", [["low", tp("set.q.low")], ["med", tp("set.q.med")], ["high", tp("set.q.high")]], settings.quality)) + row(tp("set.fov"), "", slider2("fov", 55, 105, 1, settings.fov)) + `<h3>${esc2(tp("set.sec.ctl"))}</h3>` + (input.touch ? "" : row(tp("set.look"), tp("set.lookHelp"), seg("mouselook", [["drag", tp("set.look.drag")], ["lock", tp("set.look.lock")]], settings.mouseLook))) + row(tp("set.sens"), "", slider2("sens", 0.2, 3, 0.05, settings.sens)) + row(tp("set.invert"), "", sw("invert", settings.invertY)) + row(tp("set.bob"), "", sw("bob", settings.bob)) + `<h3>${esc2(tp("set.sec.snd"))}</h3>` + row(tp("set.master"), "", slider2("master", 0, 1, 0.02, settings.master)) + row(tp("set.ambience"), "", slider2("ambience", 0, 1, 0.02, settings.ambience)) + row(tp("set.muted"), "", sw("muted", settings.muted)) + row(tp("set.musicOn"), "", sw("musicOn", settings.musicOn)) + row(tp("set.track"), "", `<select id="s-track">${MUSIC_TRACKS.map((tr, i) => `<option value="${i}" ${i === settings.track ? "selected" : ""}>${esc2(tr.name)}</option>`).join("")}</select>`) + row(tp("set.music"), "", slider2("music", 0, 1, 0.02, settings.music)) + row(tp("set.sfx"), "", slider2("sfx", 0, 1, 0.02, settings.sfx)) + `<h3>${esc2(tp("set.sec.play"))}</h3>` + row(tp("set.subtitles"), "", sw("subtitles", settings.subtitles)) + row(tp("set.romanize"), "", sw("romanize", settings.romanize)) + row(tp("set.voice"), "", sw("voice", settings.voice)) + row(tp("set.hints"), "", sw("hints", settings.hints)) + `<div class="row"><div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="s-reload">${esc2(tp("set.reload"))}</button><button class="btn" id="s-reset">${esc2(tp("set.reset"))}</button></div></div>`;
+    body.innerHTML = `<h3>${esc2(tp("set.sec.lang"))}</h3>` + row(tp("set.language"), tp("set.languageHelp"), seg("lang", [["en", "English"], ["th", "\u0E44\u0E17\u0E22"], ["both", "EN + \u0E44\u0E17\u0E22"]], lang.mode)) + row(tp("set.time"), "", `<select id="s-timepreset">${[["7.5", "set.time.morning"], ["12.5", "set.time.noon"], ["15.5", "set.time.afternoon"], ["18.5", "set.time.evening"], ["21.5", "set.time.night"], ["2", "set.time.late"]].map(([v, k]) => `<option value="${v}">${esc2(tp(k))}</option>`).join("")}</select>`) + row(tp("pause.hours"), "", slider2("hour", 0, 24, 0.25, G.hourNow || 18.5)) + row(tp("set.clock"), "", sw("clock", settings.clockRuns)) + `<h3>${esc2(tp("set.sec.gfx"))}</h3>` + row(tp("set.quality"), tp("set.needReload"), seg("quality", [["low", tp("set.q.low")], ["med", tp("set.q.med")], ["high", tp("set.q.high")]], settings.quality)) + row(tp("set.fov"), "", slider2("fov", 55, 105, 1, settings.fov)) + `<h3>${esc2(tp("set.sec.ctl"))}</h3>` + row(tp("set.sens"), "", slider2("sens", 0.2, 3, 0.05, settings.sens)) + row(tp("set.invert"), "", sw("invert", settings.invertY)) + row(tp("set.bob"), "", sw("bob", settings.bob)) + `<h3>${esc2(tp("set.sec.snd"))}</h3>` + row(tp("set.master"), "", slider2("master", 0, 1, 0.02, settings.master)) + row(tp("set.ambience"), "", slider2("ambience", 0, 1, 0.02, settings.ambience)) + row(tp("set.muted"), "", sw("muted", settings.muted)) + row(tp("set.musicOn"), "", sw("musicOn", settings.musicOn)) + row(tp("set.track"), "", `<select id="s-track">${MUSIC_TRACKS.map((tr, i) => `<option value="${i}" ${i === settings.track ? "selected" : ""}>${esc2(tr.name)}</option>`).join("")}</select>`) + row(tp("set.music"), "", slider2("music", 0, 1, 0.02, settings.music)) + row(tp("set.sfx"), "", slider2("sfx", 0, 1, 0.02, settings.sfx)) + `<h3>${esc2(tp("set.sec.play"))}</h3>` + row(tp("set.subtitles"), "", sw("subtitles", settings.subtitles)) + row(tp("set.romanize"), "", sw("romanize", settings.romanize)) + row(tp("set.voice"), "", sw("voice", settings.voice)) + row(tp("set.hints"), "", sw("hints", settings.hints)) + `<div class="row"><div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="s-reload">${esc2(tp("set.reload"))}</button><button class="btn" id="s-reset">${esc2(tp("set.reset"))}</button></div></div>`;
     const bind = (id, fn, evt = "input") => {
       const e = $("s-" + id);
       if (e) e.addEventListener(evt, () => fn(e));
@@ -36252,11 +36266,6 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     segBind("lang", (v) => changeLanguage(v));
     segBind("quality", (v) => {
       settings.quality = v;
-      markDirty();
-    });
-    if (!input.touch) segBind("mouselook", (v) => {
-      settings.mouseLook = v;
-      input.lockMode = v === "lock";
       markDirty();
     });
     bind("timepreset", (e) => {
@@ -36399,7 +36408,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     if (alg) rows.push([tp("card.allergens"), alg]);
     rows.push([tp("card.where"), whereIs(sku)]);
     el["ins-dl"].innerHTML = rows.map(([a, b]) => `<dt>${esc2(a)}</dt><dd>${esc2(b)}</dd>`).join("");
-    const keys = o.owned ? [["I", tp("card.done")], ["Space", tp("card.flip")], ["L", tp("hud.language")]] : [["T", tp("hud.take")], ["Space", tp("card.flip")], ["I", tp("card.leave")], ["L", tp("hud.language")]];
+    const keys = o.owned ? [["I", tp("card.done")], ["Space", tp("card.flip")]] : [["T", tp("hud.take")], ["Space", tp("card.flip")], ["I", tp("card.leave")]];
     el["ins-keys"].innerHTML = keys.map(([k, l]) => `<span><kbd>${esc2(k)}</kbd>${esc2(l)}</span>`).join("");
   }
   var cdx = { cat: "all", q: "", reveal: false, foundOnly: false, sel: null };
@@ -38446,7 +38455,6 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     initUI();
     showInstallHint();
     initSoundPop();
-    input.lockMode = settings.mouseLook === "lock";
     initPanels();
     const WAKE = ["pointerdown", "keydown", "touchend"];
     const wake = () => {
@@ -38571,26 +38579,33 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     player.onStep = (k) => {
       if (player.pos.z < 0.2) sfx("step", k);
     };
-    onInput("mousedown", (button) => {
-      if (!input.lockMode || input.locked || input.touch || button !== 0) return;
-      if (!G.started || ui.panel || ui.popOpen || G.mode !== "play" && G.mode !== "inspect") return;
-      input.pressOnCanvas = false;
-      lockPointer();
-    });
     onInput("lockchange", (locked) => {
+      refreshTop();
       if (locked) {
         el.clickcatch.hidden = true;
         if (!input.lockTipShown) {
           input.lockTipShown = true;
-          toast(tp("look.locked"), "", 2600);
+          toast(tp("look.on"), "", 3e3);
         }
         return;
       }
-      if (G.started && (G.mode === "play" || G.mode === "inspect") && !ui.panel) toast(tp("look.freed"), "", 3200);
+      if (G.started && (G.mode === "play" || G.mode === "inspect") && !ui.panel) toast(tp("look.off"), "", 2600);
     });
     onInput("lockerror", () => {
-      if (input.lockMode) toast(tp("look.failed"), "warn", 3200);
+      toast(tp("look.failed"), "warn", 4200);
     });
+    onInput("mousedown", (button) => {
+      if (button !== 2 || !input.locked || ui.panel || G.mode !== "play" && G.mode !== "inspect") return;
+      interaction.onKey("KeyI");
+    });
+    ui.hooks.toggleLook = () => {
+      if (input.locked) {
+        exitLock();
+        return;
+      }
+      if (!G.started || input.touch || ui.panel || ui.popOpen || G.mode !== "play" && G.mode !== "inspect") return;
+      lockPointer();
+    };
     onInput("click", () => {
       if (!G.started || ui.panel || ui.popOpen || performance.now() - (ui.popClosedAt || 0) < 450) return;
       if (G.mode === "play") interaction.primary();
@@ -38635,8 +38650,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
         return;
       }
       if (code === "KeyL") {
-        const next = e.shiftKey ? "both" : lang.mode === "en" ? "th" : lang.mode === "th" ? "both" : "en";
-        changeLanguage(next);
+        ui.hooks.toggleLook();
         return;
       }
       if (code === "Escape") {

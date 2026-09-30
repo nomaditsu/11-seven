@@ -125,14 +125,15 @@ export const STR_UI = {
   'pop.sfxSub': { en: 'Store sounds and voices', th: 'เสียงในร้านและเสียงพูด', rom: 'sǐang nai ráan lɛ́ sǐang phûut' },
   'pop.on': { en: 'On', th: 'เปิด', rom: 'bpə̀ət' },
   'pop.off': { en: 'Off', th: 'ปิด', rom: 'bpìt' },
-  // Settings > Mouse look, and the hints when the mouse is captured / freed
-  'set.look': { en: 'Mouse look', th: 'การมองด้วยเมาส์', rom: 'gaan mɔɔng dûai máo' },
-  'set.lookHelp': { en: 'Drag: hold and drag to look. Locked: click the store to capture the mouse; Esc frees it.', th: 'ลาก: กดค้างแล้วลากเพื่อมอง ล็อก: คลิกในร้านเพื่อจับเมาส์ กด Esc เพื่อปล่อย', rom: 'lâak: gòt kháang lɛ́ɛo lâak phʉ̂a mɔɔng. lɔ́k: khlík nai ráan phʉ̂a jàp máo, gòt Esc phʉ̂a plɔ̀i' },
-  'set.look.drag': { en: 'Drag', th: 'ลาก', rom: 'lâak' },
-  'set.look.lock': { en: 'Locked', th: 'ล็อก', rom: 'lɔ́k' },
-  'look.locked': { en: 'Mouse captured for looking. Esc frees it.', th: 'จับเมาส์ไว้สำหรับมองแล้ว กด Esc เพื่อปล่อย', rom: 'jàp máo wái sǎm-ràp mɔɔng lɛ́ɛo, gòt Esc phʉ̂a plɔ̀i' },
-  'look.freed': { en: 'Mouse free. Click the store to look around again.', th: 'ปล่อยเมาส์แล้ว คลิกในร้านเพื่อมองต่อ', rom: 'plɔ̀i máo lɛ́ɛo, khlík nai ráan phʉ̂a mɔɔng tɔ̀ɔ' },
-  'look.failed': { en: 'This browser would not capture the mouse. Drag to look instead.', th: 'เบราว์เซอร์นี้จับเมาส์ไม่ได้ ใช้การลากเพื่อมองแทน', rom: 'brao-sə̂ə níi jàp máo mâi dâai, chái gaan lâak phʉ̂a mɔɔng thɛɛn' },
+  // Mouse look (L or the look button): pointer lock on / off
+  'btn.look': { en: 'Mouse look on / off (L)', th: 'เปิด/ปิดการมองด้วยเมาส์ (L)', rom: 'bpə̀ət / bpìt gaan mɔɔng dûai máo (L)' },
+  'hud.look': { en: 'Mouse look', th: 'มองด้วยเมาส์', rom: 'mɔɔng dûai máo' },
+  'ctl.lookToggle': { en: 'Mouse look on / off (Esc also turns it off)', th: 'เปิด/ปิดการมองด้วยเมาส์ (กด Esc เพื่อปิดได้ด้วย)', rom: 'bpə̀ət / bpìt gaan mɔɔng dûai máo (gòt Esc phʉ̂a bpìt dâai dûai)' },
+  'look.on': { en: 'Mouse look on: move to look, right-click to inspect, hold the middle button to zoom. L or Esc turns it off.', th: 'เปิดการมองด้วยเมาส์แล้ว ขยับเพื่อมอง คลิกขวาเพื่อดูใกล้ๆ กดปุ่มกลางค้างเพื่อซูม กด L หรือ Esc เพื่อปิด', rom: 'bpə̀ət gaan mɔɔng dûai máo lɛ́ɛo, khà-yàp phʉ̂a mɔɔng, khlík khwǎa phʉ̂a duu glâi-glâi, gòt bpùm glaang kháang phʉ̂a suum, gòt L rʉ̌ʉ Esc phʉ̂a bpìt' },
+  'ctl.lookInspect': { en: 'Inspect (in mouse look)', th: 'ดูใกล้ๆ (ตอนมองด้วยเมาส์)', rom: 'duu glâi-glâi (dtɔɔn mɔɔng dûai máo)' },
+  'ctl.lookZoom': { en: 'Zoom, hold (in mouse look)', th: 'ซูม กดค้าง (ตอนมองด้วยเมาส์)', rom: 'suum, gòt kháang (dtɔɔn mɔɔng dûai máo)' },
+  'look.off': { en: 'Mouse look off. Press L to turn it back on.', th: 'ปิดการมองด้วยเมาส์แล้ว กด L เพื่อเปิดอีกครั้ง', rom: 'bpìt gaan mɔɔng dûai máo lɛ́ɛo, gòt L phʉ̂a bpə̀ət ìik khráng' },
+  'look.failed': { en: 'Mouse look is not available in this window. It works in Chrome, Safari and Firefox. Drag to look instead.', th: 'หน้าต่างนี้ใช้การมองด้วยเมาส์ไม่ได้ ใช้ได้ใน Chrome, Safari และ Firefox ใช้การลากเพื่อมองแทน', rom: 'nâa-tàang níi chái gaan mɔɔng dûai máo mâi dâai, chái dâai nai Chrome, Safari lɛ́ Firefox, chái gaan lâak phʉ̂a mɔɔng thɛɛn' },
   'pop.track': { en: 'Track', th: 'เพลง', rom: 'phleeng' },
   'pop.close': { en: 'Close', th: 'ปิด', rom: 'bpìt' },
   // the big touch action button: idle label, then a short verb for what is in reach

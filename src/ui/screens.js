@@ -30,7 +30,7 @@ export function buildPause() {
 let ctlTab = null;
 const KEYS = (k) => `<kbd>${esc(k)}</kbd>`;
 const OR = () => `<span class="or">${esc(tp('ctl.or'))}</span>`;
-// [alternatives (each a list of keys), label key, isNew]
+// [alternatives (each a list of keys), label key]
 const KB_GROUPS = [
   { c: 'var(--gl)', key: 'ctlg.move', rows: [
     [[['W', 'A', 'S', 'D'], ['↑', '←', '↓', '→']], 'ctl.move'], [['mouse'], 'ctl.look'], [[['Shift']], 'ctl.sprint'], [[['C'], ['Ctrl']], 'ctl.crouch'], [[['Z'], ['Right-click']], 'ctl.zoom'] ] },
@@ -39,7 +39,7 @@ const KB_GROUPS = [
   { c: '#ff5a5f', key: 'ctlg.stuff', rows: [
     [[['B'], ['Tab']], 'ctl.basket'], [[['K']], 'ctl.codex'], [[['Q']], 'ctl.quests'] ] },
   { c: 'var(--cream)', key: 'ctlg.game', rows: [
-    [[['Esc']], 'ctl.menu'], [[['L']], 'ctl.lang'], [[['H']], 'ctl.hints'], [[['M']], 'ctl.music', 1], [[['N']], 'ctl.mute', 1], [[['.'], [',']], 'ctl.next', 1] ] },
+    [[['Esc']], 'ctl.menu'], [[['L']], 'ctl.lookToggle'], [[['Right-click']], 'ctl.lookInspect'], [[['Middle-click']], 'ctl.lookZoom'], [[['H']], 'ctl.hints'], [[['M']], 'ctl.music'], [[['N']], 'ctl.mute'], [[['.'], [',']], 'ctl.next'] ] },
 ];
 const TOUCH_GROUPS = [
   { c: 'var(--gl)', key: 'ctlg.move', rows: [['stick', 'tch.stick', 'tch.stickD'], ['drag', 'tch.look', 'tch.lookD'], ['pinch', 'tch.pinch', 'tch.pinchD'], ['crouch', 'tch.crouch', 'tch.crouchD']] },
@@ -47,10 +47,10 @@ const TOUCH_GROUPS = [
   { c: '#ff5a5f', key: 'ctlg.stuff', rows: [['basket', 'tch.basket', 'tch.basketD'], ['book', 'tch.snack', 'tch.snackD']] },
   { c: 'var(--cream)', key: 'ctlg.game', rows: [['sound', 'hud.snackbook', 'tch.audioD'], ['menu', 'tch.menu', 'tch.menuD']] },
 ];
-function kbRow([alts, label, isNew]) {
+function kbRow([alts, label]) {
   const keys = alts[0] === 'mouse' ? `<span class="glyph"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 3v7"/></svg></span> ${esc(tp('ctl.mouse'))}`
     : alts.map((g, i) => (i ? OR() : '') + g.map((k) => KEYS(k)).join('')).join('');
-  return `<div class="crow"><div class="ckeys">${keys}${isNew ? '<span class="badge-new">NEW</span>' : ''}</div><div class="clab">${D(label)}</div></div>`;
+  return `<div class="crow"><div class="ckeys">${keys}</div><div class="clab">${D(label)}</div></div>`;
 }
 function touchRow([icon, t1, t2]) {
   return `<div class="crow"><div class="ckeys"><span class="glyph">${ICON[icon] || ''}</span> <b style="margin-left:6px;font-size:17px">${esc(tp(t1))}</b></div><div class="clab">${D(t2)}</div></div>`;

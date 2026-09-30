@@ -70,8 +70,8 @@ export function fillInspect(sku, o = {}) {
   if (alg) rows.push([tp('card.allergens'), alg]);
   rows.push([tp('card.where'), whereIs(sku)]);
   el['ins-dl'].innerHTML = rows.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
-  const keys = o.owned ? [['I', tp('card.done')], ['Space', tp('card.flip')], ['L', tp('hud.language')]]
-    : [['T', tp('hud.take')], ['Space', tp('card.flip')], ['I', tp('card.leave')], ['L', tp('hud.language')]];
+  const keys = o.owned ? [['I', tp('card.done')], ['Space', tp('card.flip')]]
+    : [['T', tp('hud.take')], ['Space', tp('card.flip')], ['I', tp('card.leave')]];
   el['ins-keys'].innerHTML = keys.map(([k, l]) => `<span><kbd>${esc(k)}</kbd>${esc(l)}</span>`).join('');
 }
 

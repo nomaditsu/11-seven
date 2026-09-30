@@ -1,14 +1,13 @@
 // Keyboard / mouse input. Desktop looks around by click-and-drag by default, so the cursor stays free for the HUD
 // buttons: a press that barely moves is a click (take / talk), a press that drags is a look. Holding the right button
 // zooms, and dragging with it held looks around at a slower, finer speed.
-// Settings > Mouse look > Locked (input.lockMode) uses pointer lock instead: a click on the store captures the mouse
-// (main.js), moving it looks, every click acts, and Esc frees it (the browser always releases the lock on Esc).
+// Mouse look (L or the look button, main.js) uses pointer lock instead: the mouse is captured, moving it looks, every
+// click acts, and L or Esc frees it (the browser always releases the lock on Esc).
 export const input = {
   keys: new Set(),
   dx: 0, dy: 0,
   wheel: 0,
   locked: false,
-  lockMode: false,   // Settings > Mouse look = Locked
   unlockedAt: 0,     // when the lock was last released (main.js ignores the Esc that released it)
   touch: false,      // set by the touch layer on phones / tablets (no pointer lock, taps are handled there)
   dragLook: false,   // true once play starts: look while the left button is held
@@ -52,6 +51,7 @@ export function initInput(canvas) {
     if (input.touch) return;
     input.mouseDown[e.button] = true;
     if (e.button === 0) { input.dragPx = 0; input.pressOnCanvas = true; canvas.classList.add('pressing'); }
+    if (e.button === 1) e.preventDefault();   // the middle button zooms in mouse look; no browser autoscroll
     emit('mousedown', e.button, e);
   });
   addEventListener('mouseup', (e) => {
@@ -66,10 +66,11 @@ export function initInput(canvas) {
   canvas.addEventListener('wheel', (e) => { input.wheel += Math.sign(e.deltaY); e.preventDefault(); }, { passive: false });
 }
 
-// Play mode: enable drag-to-look. Pointer lock is opt-in (lockPointer, Settings > Mouse look): it traps trackpads.
+// Play mode: enable drag-to-look. Pointer lock is opt-in (lockPointer: L or the look button): it traps trackpads.
 export function requestLock() { input.dragLook = true; }
 export function lockPointer() {
-  try { const p = input.canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* not supported */ }
+  try { const p = input.canvas.requestPointerLock(); if (p && p.catch) p.catch((e) => console.warn('pointer lock refused:', e && e.message)); }
+  catch (e) { console.warn('pointer lock refused:', e && e.message); }
 }
 export function exitLock() { try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) { /* ignore */ } }
 export function consumeMouse() { const r = [input.dx, input.dy]; input.dx = 0; input.dy = 0; return r; }

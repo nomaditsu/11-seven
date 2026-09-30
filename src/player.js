@@ -84,7 +84,8 @@ export class Player {
     this.bobPhase += sp * dt * (sprint ? 4.2 : 4.6);
     this.bobAmt = damp(this.bobAmt, settings.bob ? clamp(sp / 2.4, 0, 1.4) : 0, 8, dt);
     // ---- zoom / fov
-    const wantZoom = active && (down('KeyZ') || input.mouseDown[2]) && !this.frozen;
+    // zoom: Z, or hold right-click (drag look) / the middle button (mouse look, where right-click inspects)
+    const wantZoom = active && (down('KeyZ') || (input.locked ? input.mouseDown[1] : input.mouseDown[2])) && !this.frozen;
     this.zoomT = damp(this.zoomT, wantZoom ? 1 : 0, 10, dt);
     this.fovKick = damp(this.fovKick, this.sprinting ? 5 : 0, 6, dt);
     const fov = lerp(settings.fov + this.fovKick, 26, this.zoomT);

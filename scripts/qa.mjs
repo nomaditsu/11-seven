@@ -215,13 +215,14 @@ await ev(() => window.__sim.freezeShoppers(true)); await frames(1);
 // There is no zone around the till: the rack items in front of the counter and the counter top never select the cashier.
 {
   const picks = await ev(() => [...new Set(window.__sim.slotsWhere('IMP[12]'))].slice(0, 10));
-  let tillHits = 0;
+  let tillHits = 0; const others = [];
   for (const p of picks) {
     const [id, tag] = p.split('|');
     await ev(([id, tag]) => window.__sim.lookAtSku(id, tag), [id, tag]); await frames(6);   // let the target catch up (frames, not ms)
-    if (await ev(() => { const t = window.__sim.interaction.target; return !!t && t.type === 'obj' && (t.obj.kind === 'npc' || t.obj.kind === 'pos'); })) tillHits++;
+    const who = await ev(() => { const t = window.__sim.interaction.target; return t && t.type === 'obj' && t.obj.kind === 'npc' ? t.obj.id : null; });
+    if (who === 'cashier') tillHits++; else if (who) others.push(who);   // a shopper walking past can block the view; that is fine
   }
-  ok(picks.length > 0 && tillHits === 0, `impulse rack items never select the cashier (${tillHits}/${picks.length} did)`);
+  ok(picks.length > 0 && tillHits === 0, `impulse rack items never select the cashier (${tillHits}/${picks.length} did${others.length ? '; shoppers in the way: ' + others.join(', ') : ''})`);
   await ev(() => window.__sim.tp(2.9, -2.75, -Math.PI / 2, -0.54)); await frames(3);   // crosshair on the counter top right in front of her
   ok(await ev(() => { const t = window.__sim.interaction.target; return !(t && t.type === 'obj' && t.obj.kind === 'npc'); }), 'aiming at the counter top in front of the cashier does not select her');
 }
@@ -234,20 +235,34 @@ await ev(() => window.__sim.freezeShoppers(true)); await frames(1);
   const b = await ev(() => ({ z: window.__sim.player.pos.z, yaw: window.__sim.player.yaw }));
   ok(b.z < a.z - 0.1 && b.yaw === a.yaw, `W moves forward and A does not turn (dz ${(b.z - a.z).toFixed(2)}, dyaw ${(b.yaw - a.yaw).toFixed(3)})`);
 }
-// Settings > Mouse look = Locked: a click captures the mouse, Esc frees it without opening the menu, a second Esc does
+// Mouse look: L captures the mouse (moving looks, a click still acts); Esc frees it without the menu, a second Esc opens
+// the menu; L also frees it; the look button toggles it too
 {
-  await ev(() => window.__sim.close()); await ev(() => window.__sim.open('settings')); await frames(2);
-  await page.click('#s-mouselook [data-v=lock]'); await ev(() => window.__sim.close()); await frames(3);
-  await ev(() => window.__sim.tp(0.5, 3.5, 0, 0)); await frames(3);
-  await page.mouse.click(640, 360); await frames(4);
-  const locked = await ev(() => document.pointerLockElement === document.getElementById('gl'));
+  await ev(() => window.__sim.close()); await ev(() => window.__sim.tp(0.5, 3.5, 0, 0)); await frames(3);
+  await page.mouse.click(640, 700); await frames(2);   // focus the page (a user gesture), like a player would
+  await page.keyboard.press('KeyL'); await frames(4);
+  const onL = await ev(() => document.pointerLockElement === document.getElementById('gl') && document.getElementById('btn-look').classList.contains('on'));
+  const y0 = await ev(() => window.__sim.player.yaw); await page.mouse.move(700, 400); await page.mouse.move(760, 400); await frames(3);
+  const looks = (await ev(() => window.__sim.player.yaw)) !== y0;
+  // right-click inspects the item in the crosshair (again puts it back); holding the middle button zooms
+  await ev(() => { const s = window.__sim.contents.pw.slots.find((x) => !x.taken && /IMP1/.test(x.gkey)); window.__sim.lookAtSku(s.sku.id); }); await frames(6);
+  await page.mouse.down({ button: 'right' }); await page.mouse.up({ button: 'right' }); await frames(6);
+  const rInspect = await ev(() => window.__sim.G.mode === 'inspect');
+  await page.mouse.down({ button: 'right' }); await page.mouse.up({ button: 'right' }); await frames(6);
+  const rBack = await ev(() => window.__sim.G.mode === 'play');
+  await page.mouse.down({ button: 'middle' }); await frames(12);
+  const mZoom = await ev(() => window.__sim.player.zoomT > 0.5); await page.mouse.up({ button: 'middle' }); await frames(3);
+  ok(rInspect && rBack && mZoom, `mouse look: right-click inspects (${rInspect}) and puts back (${rBack}), middle button zooms (${mZoom})`);
   await page.keyboard.press('Escape'); await frames(4);
   const freed = await ev(() => !document.pointerLockElement && document.getElementById('panels').hidden);
   await new Promise((r) => setTimeout(r, 300)); await page.keyboard.press('Escape'); await frames(3);
   const menu = await ev(() => document.getElementById('panel-pause').classList.contains('on'));
-  ok(locked && freed && menu, `Mouse look Locked: click captures (${locked}), Esc frees without the menu (${freed}), second Esc opens it (${menu})`);
-  await ev(() => window.__sim.close()); await ev(() => window.__sim.open('settings')); await frames(2);
-  await page.click('#s-mouselook [data-v=drag]'); await ev(() => window.__sim.close());
+  await ev(() => window.__sim.close()); await frames(3);
+  await page.keyboard.press('KeyL'); await frames(4); await page.keyboard.press('KeyL'); await frames(4);
+  const offL = await ev(() => !document.pointerLockElement && !document.getElementById('btn-look').classList.contains('on'));
+  await page.click('#btn-look'); await frames(4);
+  const onBtn = await ev(() => !!document.pointerLockElement); await page.keyboard.press('KeyL'); await frames(3);
+  ok(onL && looks && freed && menu && offL && onBtn, `mouse look: L on (${onL}), moving looks (${looks}), Esc frees without the menu (${freed}), 2nd Esc menu (${menu}), L off (${offL}), button on (${onBtn})`);
 }
 ok(errs.length === 0, 'no console errors' + (errs.length ? '\n' + errs.slice(0, 6).join('\n') : ''));
 console.log(fails ? `\n${fails} FAILED` : '\nALL OK');

@@ -57,7 +57,6 @@ async function boot() {
   initUI();
   showInstallHint();
   initSoundPop();
-  input.lockMode = settings.mouseLook === 'lock';
   initPanels();
   // Sound and music are on from the first page load. Browsers hold audio until the first click / key press, so
   // (re)start it on the first gesture anywhere, including the title-screen sound buttons.
@@ -159,19 +158,24 @@ async function boot() {
 
   // ---- input wiring
   player.onStep = (k) => { if (player.pos.z < 0.2) sfx('step', k); };
-  // Mouse look = Locked: a click on the store captures the mouse (that click does nothing else); Esc frees it with a
-  // hint, and a second Esc opens the menu as usual.
-  onInput('mousedown', (button) => {
-    if (!input.lockMode || input.locked || input.touch || button !== 0) return;
-    if (!G.started || ui.panel || ui.popOpen || (G.mode !== 'play' && G.mode !== 'inspect')) return;
-    input.pressOnCanvas = false;
-    lockPointer();
-  });
+  // Mouse look: L (or the look button) captures the mouse so moving it looks; L or Esc frees it. The Esc that frees it
+  // does not open the menu; a second Esc does.
   onInput('lockchange', (locked) => {
-    if (locked) { uiEl.clickcatch.hidden = true; if (!input.lockTipShown) { input.lockTipShown = true; toast(tp('look.locked'), '', 2600); } return; }
-    if (G.started && (G.mode === 'play' || G.mode === 'inspect') && !ui.panel) toast(tp('look.freed'), '', 3200);
+    refreshTop();
+    if (locked) { uiEl.clickcatch.hidden = true; if (!input.lockTipShown) { input.lockTipShown = true; toast(tp('look.on'), '', 3000); } return; }
+    if (G.started && (G.mode === 'play' || G.mode === 'inspect') && !ui.panel) toast(tp('look.off'), '', 2600);
   });
-  onInput('lockerror', () => { if (input.lockMode) toast(tp('look.failed'), 'warn', 3200); });
+  onInput('lockerror', () => { toast(tp('look.failed'), 'warn', 4200); });
+  // in mouse look, right-click inspects (like I; again to put it back) and the middle button zooms (player.js)
+  onInput('mousedown', (button) => {
+    if (button !== 2 || !input.locked || ui.panel || (G.mode !== 'play' && G.mode !== 'inspect')) return;
+    interaction.onKey('KeyI');
+  });
+  ui.hooks.toggleLook = () => {
+    if (input.locked) { exitLock(); return; }
+    if (!G.started || input.touch || ui.panel || ui.popOpen || (G.mode !== 'play' && G.mode !== 'inspect')) return;
+    lockPointer();
+  };
   // A click (press without dragging) on the world takes / talks / uses; dragging only looks around.
   onInput('click', () => {
     if (!G.started || ui.panel || ui.popOpen || performance.now() - (ui.popClosedAt || 0) < 450) return;   // a tap that closed the sound popover does nothing else
@@ -190,7 +194,7 @@ async function boot() {
     if (!G.started) return;
     if (ui.panel === 'talk') { if (talkKey(code)) return; }
     if (ui.panel === 'checkout' && /^Digit[1-9]$/.test(code)) { const b = document.querySelectorAll('#co-choices button')[+code.slice(5) - 1]; if (b) b.click(); return; }
-    if (code === 'KeyL') { const next = e.shiftKey ? 'both' : lang.mode === 'en' ? 'th' : lang.mode === 'th' ? 'both' : 'en'; changeLanguage(next); return; }
+    if (code === 'KeyL') { ui.hooks.toggleLook(); return; }   // L = mouse look on / off (language lives in the menu)
     if (code === 'Escape') {
       if (ui.panel && ui.panel !== 'pause') ui.close();
       else if (ui.panel === 'pause') ui.close();
