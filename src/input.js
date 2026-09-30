@@ -1,11 +1,15 @@
-// Keyboard / mouse input. Desktop looks around by click-and-drag (no pointer lock), so the cursor stays free for the
-// HUD buttons. A press that barely moves is a click (take / talk); a press that drags is a look. Holding the right
-// button zooms, and dragging with it held looks around at a slower, finer speed.
+// Keyboard / mouse input. Desktop looks around by click-and-drag by default, so the cursor stays free for the HUD
+// buttons: a press that barely moves is a click (take / talk), a press that drags is a look. Holding the right button
+// zooms, and dragging with it held looks around at a slower, finer speed.
+// Settings > Mouse look > Locked (input.lockMode) uses pointer lock instead: a click on the store captures the mouse
+// (main.js), moving it looks, every click acts, and Esc frees it (the browser always releases the lock on Esc).
 export const input = {
   keys: new Set(),
   dx: 0, dy: 0,
   wheel: 0,
   locked: false,
+  lockMode: false,   // Settings > Mouse look = Locked
+  unlockedAt: 0,     // when the lock was last released (main.js ignores the Esc that released it)
   touch: false,      // set by the touch layer on phones / tablets (no pointer lock, taps are handled there)
   dragLook: false,   // true once play starts: look while the left button is held
   dragPx: 0,         // how far the current left-button press has moved (px)
@@ -32,6 +36,7 @@ export function initInput(canvas) {
   addEventListener('blur', () => { input.keys.clear(); input.mouseDown = [false, false, false]; });
   document.addEventListener('pointerlockchange', () => {
     input.locked = document.pointerLockElement === canvas;
+    if (!input.locked) input.unlockedAt = performance.now();
     emit('lockchange', input.locked);
   });
   document.addEventListener('pointerlockerror', () => { input.dragLook = true; emit('lockerror'); });
@@ -54,15 +59,18 @@ export function initInput(canvas) {
     input.mouseDown[e.button] = false;
     if (e.button !== 0) return;
     canvas.classList.remove('pressing', 'dragging');
-    if (wasDown && input.pressOnCanvas && input.dragPx < CLICK_PX) emit('click', 0, e);
+    if (wasDown && input.pressOnCanvas && (input.locked || input.dragPx < CLICK_PX)) emit('click', 0, e);   // locked: moving is looking, so every click counts
     input.pressOnCanvas = false;
   });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('wheel', (e) => { input.wheel += Math.sign(e.deltaY); e.preventDefault(); }, { passive: false });
 }
 
-// Play mode: enable drag-to-look. (Pointer lock is no longer used: it trapped the trackpad in look mode.)
+// Play mode: enable drag-to-look. Pointer lock is opt-in (lockPointer, Settings > Mouse look): it traps trackpads.
 export function requestLock() { input.dragLook = true; }
+export function lockPointer() {
+  try { const p = input.canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* not supported */ }
+}
 export function exitLock() { try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) { /* ignore */ } }
 export function consumeMouse() { const r = [input.dx, input.dy]; input.dx = 0; input.dy = 0; return r; }
 export function consumeWheel() { const w = input.wheel; input.wheel = 0; return w; }

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { G } from './core/state.js';
 import { settings, defaults, save, loadAll, QUALITY, flush, markDirty } from './core/settings.js';
 import { setLanguageMode, lang, tp, t, pick } from './core/i18n.js';
-import { initInput, onInput, requestLock, exitLock, input, consumeMouse } from './input.js';
+import { initInput, onInput, requestLock, exitLock, lockPointer, input, consumeMouse } from './input.js';
 import { Player } from './player.js';
 import { buildInteriorEnv } from './gfx/envmaps.js';
 import { initMaterials, ENV, bindGlassEnv } from './world/materials.js';
@@ -54,6 +54,7 @@ async function boot() {
 
   initUI();
   initSoundPop();
+  input.lockMode = settings.mouseLook === 'lock';
   initPanels();
   // Sound and music are on from the first page load. Browsers hold audio until the first click / key press, so
   // (re)start it on the first gesture anywhere, including the title-screen sound buttons.
@@ -155,11 +156,19 @@ async function boot() {
 
   // ---- input wiring
   player.onStep = (k) => { if (player.pos.z < 0.2) sfx('step', k); };
-  onInput('lockchange', (locked) => {
-    if (locked) { uiEl.clickcatch.hidden = true; return; }
-    if (G.mode === 'play' && !ui.panel && G.started) ui.open('pause');
-    else if (G.mode === 'inspect' && !ui.panel) ui.open('pause');
+  // Mouse look = Locked: a click on the store captures the mouse (that click does nothing else); Esc frees it with a
+  // hint, and a second Esc opens the menu as usual.
+  onInput('mousedown', (button) => {
+    if (!input.lockMode || input.locked || input.touch || button !== 0) return;
+    if (!G.started || ui.panel || ui.popOpen || (G.mode !== 'play' && G.mode !== 'inspect')) return;
+    input.pressOnCanvas = false;
+    lockPointer();
   });
+  onInput('lockchange', (locked) => {
+    if (locked) { uiEl.clickcatch.hidden = true; if (!input.lockTipShown) { input.lockTipShown = true; toast(tp('look.locked'), '', 2600); } return; }
+    if (G.started && (G.mode === 'play' || G.mode === 'inspect') && !ui.panel) toast(tp('look.freed'), '', 3200);
+  });
+  onInput('lockerror', () => { if (input.lockMode) toast(tp('look.failed'), 'warn', 3200); });
   // A click (press without dragging) on the world takes / talks / uses; dragging only looks around.
   onInput('click', () => {
     if (!G.started || ui.panel || ui.popOpen || performance.now() - (ui.popClosedAt || 0) < 450) return;   // a tap that closed the sound popover does nothing else
@@ -173,6 +182,8 @@ async function boot() {
     if (code === 'Period') { initAudio(); skipTrack(1); return; }
     if (code === 'Comma') { initAudio(); skipTrack(-1); return; }
     if (code === 'Escape' && soundPopOpen()) { closeSoundPop(); return; }
+    // the Esc that frees a captured mouse only frees it (whether it arrives before or just after the release)
+    if (code === 'Escape' && (input.locked || performance.now() - input.unlockedAt < 250)) { exitLock(); return; }
     if (!G.started) return;
     if (ui.panel === 'talk') { if (talkKey(code)) return; }
     if (ui.panel === 'checkout' && /^Digit[1-9]$/.test(code)) { const b = document.querySelectorAll('#co-choices button')[+code.slice(5) - 1]; if (b) b.click(); return; }

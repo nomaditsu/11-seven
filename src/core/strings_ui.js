@@ -125,6 +125,14 @@ export const STR_UI = {
   'pop.sfxSub': { en: 'Store sounds and voices', th: 'เสียงในร้านและเสียงพูด', rom: 'sǐang nai ráan lɛ́ sǐang phûut' },
   'pop.on': { en: 'On', th: 'เปิด', rom: 'bpə̀ət' },
   'pop.off': { en: 'Off', th: 'ปิด', rom: 'bpìt' },
+  // Settings > Mouse look, and the hints when the mouse is captured / freed
+  'set.look': { en: 'Mouse look', th: 'การมองด้วยเมาส์', rom: 'gaan mɔɔng dûai máo' },
+  'set.lookHelp': { en: 'Drag: hold and drag to look. Locked: click the store to capture the mouse; Esc frees it.', th: 'ลาก: กดค้างแล้วลากเพื่อมอง ล็อก: คลิกในร้านเพื่อจับเมาส์ กด Esc เพื่อปล่อย', rom: 'lâak: gòt kháang lɛ́ɛo lâak phʉ̂a mɔɔng. lɔ́k: khlík nai ráan phʉ̂a jàp máo, gòt Esc phʉ̂a plɔ̀i' },
+  'set.look.drag': { en: 'Drag', th: 'ลาก', rom: 'lâak' },
+  'set.look.lock': { en: 'Locked', th: 'ล็อก', rom: 'lɔ́k' },
+  'look.locked': { en: 'Mouse captured for looking. Esc frees it.', th: 'จับเมาส์ไว้สำหรับมองแล้ว กด Esc เพื่อปล่อย', rom: 'jàp máo wái sǎm-ràp mɔɔng lɛ́ɛo, gòt Esc phʉ̂a plɔ̀i' },
+  'look.freed': { en: 'Mouse free. Click the store to look around again.', th: 'ปล่อยเมาส์แล้ว คลิกในร้านเพื่อมองต่อ', rom: 'plɔ̀i máo lɛ́ɛo, khlík nai ráan phʉ̂a mɔɔng tɔ̀ɔ' },
+  'look.failed': { en: 'This browser would not capture the mouse. Drag to look instead.', th: 'เบราว์เซอร์นี้จับเมาส์ไม่ได้ ใช้การลากเพื่อมองแทน', rom: 'brao-sə̂ə níi jàp máo mâi dâai, chái gaan lâak phʉ̂a mɔɔng thɛɛn' },
   'pop.track': { en: 'Track', th: 'เพลง', rom: 'phleeng' },
   'pop.close': { en: 'Close', th: 'ปิด', rom: 'bpìt' },
   // the big touch action button: idle label, then a short verb for what is in reach

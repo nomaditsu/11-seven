@@ -5350,6 +5350,8 @@ void main() {
     fov: 72,
     sens: 1,
     invertY: false,
+    mouseLook: "drag",
+    // 'drag' (hold and drag to look) | 'lock' (click to capture the mouse, Esc frees it)
     bob: true,
     master: 0.8,
     ambience: 0.8,
@@ -5405,6 +5407,7 @@ void main() {
     }
     settings.fov = clamp(+settings.fov || 72, 55, 105);
     settings.sens = clamp(+settings.sens || 1, 0.2, 3);
+    if (settings.mouseLook !== "lock") settings.mouseLook = "drag";
   }
   var dirty = false;
   function markDirty() {
@@ -5923,6 +5926,14 @@ void main() {
     "pop.sfxSub": { en: "Store sounds and voices", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E41\u0E25\u0E30\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1E\u0E39\u0E14", rom: "s\u01D0ang nai r\xE1an l\u025B\u0301 s\u01D0ang ph\xFBut" },
     "pop.on": { en: "On", th: "\u0E40\u0E1B\u0E34\u0E14", rom: "bp\u0259\u0300\u0259t" },
     "pop.off": { en: "Off", th: "\u0E1B\u0E34\u0E14", rom: "bp\xECt" },
+    // Settings > Mouse look, and the hints when the mouse is captured / freed
+    "set.look": { en: "Mouse look", th: "\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E14\u0E49\u0E27\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C", rom: "gaan m\u0254\u0254ng d\xFBai m\xE1o" },
+    "set.lookHelp": { en: "Drag: hold and drag to look. Locked: click the store to capture the mouse; Esc frees it.", th: "\u0E25\u0E32\u0E01: \u0E01\u0E14\u0E04\u0E49\u0E32\u0E07\u0E41\u0E25\u0E49\u0E27\u0E25\u0E32\u0E01\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07 \u0E25\u0E47\u0E2D\u0E01: \u0E04\u0E25\u0E34\u0E01\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E08\u0E31\u0E1A\u0E40\u0E21\u0E32\u0E2A\u0E4C \u0E01\u0E14 Esc \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E1B\u0E25\u0E48\u0E2D\u0E22", rom: "l\xE2ak: g\xF2t kh\xE1ang l\u025B\u0301\u025Bo l\xE2ak ph\u0289\u0302a m\u0254\u0254ng. l\u0254\u0301k: khl\xEDk nai r\xE1an ph\u0289\u0302a j\xE0p m\xE1o, g\xF2t Esc ph\u0289\u0302a pl\u0254\u0300i" },
+    "set.look.drag": { en: "Drag", th: "\u0E25\u0E32\u0E01", rom: "l\xE2ak" },
+    "set.look.lock": { en: "Locked", th: "\u0E25\u0E47\u0E2D\u0E01", rom: "l\u0254\u0301k" },
+    "look.locked": { en: "Mouse captured for looking. Esc frees it.", th: "\u0E08\u0E31\u0E1A\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E44\u0E27\u0E49\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E21\u0E2D\u0E07\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E14 Esc \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E1B\u0E25\u0E48\u0E2D\u0E22", rom: "j\xE0p m\xE1o w\xE1i s\u01CEm-r\xE0p m\u0254\u0254ng l\u025B\u0301\u025Bo, g\xF2t Esc ph\u0289\u0302a pl\u0254\u0300i" },
+    "look.freed": { en: "Mouse free. Click the store to look around again.", th: "\u0E1B\u0E25\u0E48\u0E2D\u0E22\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E41\u0E25\u0E49\u0E27 \u0E04\u0E25\u0E34\u0E01\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07\u0E15\u0E48\u0E2D", rom: "pl\u0254\u0300i m\xE1o l\u025B\u0301\u025Bo, khl\xEDk nai r\xE1an ph\u0289\u0302a m\u0254\u0254ng t\u0254\u0300\u0254" },
+    "look.failed": { en: "This browser would not capture the mouse. Drag to look instead.", th: "\u0E40\u0E1A\u0E23\u0E32\u0E27\u0E4C\u0E40\u0E0B\u0E2D\u0E23\u0E4C\u0E19\u0E35\u0E49\u0E08\u0E31\u0E1A\u0E40\u0E21\u0E32\u0E2A\u0E4C\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E43\u0E0A\u0E49\u0E01\u0E32\u0E23\u0E25\u0E32\u0E01\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E21\u0E2D\u0E07\u0E41\u0E17\u0E19", rom: "brao-s\u0259\u0302\u0259 n\xEDi j\xE0p m\xE1o m\xE2i d\xE2ai, ch\xE1i gaan l\xE2ak ph\u0289\u0302a m\u0254\u0254ng th\u025B\u025Bn" },
     "pop.track": { en: "Track", th: "\u0E40\u0E1E\u0E25\u0E07", rom: "phleeng" },
     "pop.close": { en: "Close", th: "\u0E1B\u0E34\u0E14", rom: "bp\xECt" },
     // the big touch action button: idle label, then a short verb for what is in reach
@@ -6363,6 +6374,10 @@ void main() {
     dy: 0,
     wheel: 0,
     locked: false,
+    lockMode: false,
+    // Settings > Mouse look = Locked
+    unlockedAt: 0,
+    // when the lock was last released (main.js ignores the Esc that released it)
     touch: false,
     // set by the touch layer on phones / tablets (no pointer lock, taps are handled there)
     dragLook: false,
@@ -6401,6 +6416,7 @@ void main() {
     });
     document.addEventListener("pointerlockchange", () => {
       input.locked = document.pointerLockElement === canvas;
+      if (!input.locked) input.unlockedAt = performance.now();
       emit("lockchange", input.locked);
     });
     document.addEventListener("pointerlockerror", () => {
@@ -6432,7 +6448,7 @@ void main() {
       input.mouseDown[e.button] = false;
       if (e.button !== 0) return;
       canvas.classList.remove("pressing", "dragging");
-      if (wasDown && input.pressOnCanvas && input.dragPx < CLICK_PX) emit("click", 0, e);
+      if (wasDown && input.pressOnCanvas && (input.locked || input.dragPx < CLICK_PX)) emit("click", 0, e);
       input.pressOnCanvas = false;
     });
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
@@ -6443,6 +6459,14 @@ void main() {
   }
   function requestLock() {
     input.dragLook = true;
+  }
+  function lockPointer() {
+    try {
+      const p = input.canvas.requestPointerLock();
+      if (p && p.catch) p.catch(() => {
+      });
+    } catch (e) {
+    }
   }
   function exitLock() {
     try {
@@ -36190,7 +36214,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     const slider2 = (id, min, max, step, val) => `<input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}">`;
     const sw = (id, on) => `<label class="switch"><input type="checkbox" id="s-${id}" ${on ? "checked" : ""}><i></i></label>`;
     const seg = (id, opts, cur2) => `<div class="seg" id="s-${id}">${opts.map(([v, l]) => `<button data-v="${v}" class="${v === cur2 ? "on" : ""}">${esc2(l)}</button>`).join("")}</div>`;
-    body.innerHTML = `<h3>${esc2(tp("set.sec.lang"))}</h3>` + row(tp("set.language"), tp("set.languageHelp"), seg("lang", [["en", "English"], ["th", "\u0E44\u0E17\u0E22"], ["both", "EN + \u0E44\u0E17\u0E22"]], lang.mode)) + row(tp("set.time"), "", `<select id="s-timepreset">${[["7.5", "set.time.morning"], ["12.5", "set.time.noon"], ["15.5", "set.time.afternoon"], ["18.5", "set.time.evening"], ["21.5", "set.time.night"], ["2", "set.time.late"]].map(([v, k]) => `<option value="${v}">${esc2(tp(k))}</option>`).join("")}</select>`) + row(tp("pause.hours"), "", slider2("hour", 0, 24, 0.25, G.hourNow || 18.5)) + row(tp("set.clock"), "", sw("clock", settings.clockRuns)) + `<h3>${esc2(tp("set.sec.gfx"))}</h3>` + row(tp("set.quality"), tp("set.needReload"), seg("quality", [["low", tp("set.q.low")], ["med", tp("set.q.med")], ["high", tp("set.q.high")]], settings.quality)) + row(tp("set.fov"), "", slider2("fov", 55, 105, 1, settings.fov)) + `<h3>${esc2(tp("set.sec.ctl"))}</h3>` + row(tp("set.sens"), "", slider2("sens", 0.2, 3, 0.05, settings.sens)) + row(tp("set.invert"), "", sw("invert", settings.invertY)) + row(tp("set.bob"), "", sw("bob", settings.bob)) + `<h3>${esc2(tp("set.sec.snd"))}</h3>` + row(tp("set.master"), "", slider2("master", 0, 1, 0.02, settings.master)) + row(tp("set.ambience"), "", slider2("ambience", 0, 1, 0.02, settings.ambience)) + row(tp("set.muted"), "", sw("muted", settings.muted)) + row(tp("set.musicOn"), "", sw("musicOn", settings.musicOn)) + row(tp("set.track"), "", `<select id="s-track">${MUSIC_TRACKS.map((tr, i) => `<option value="${i}" ${i === settings.track ? "selected" : ""}>${esc2(tr.name)}</option>`).join("")}</select>`) + row(tp("set.music"), "", slider2("music", 0, 1, 0.02, settings.music)) + row(tp("set.sfx"), "", slider2("sfx", 0, 1, 0.02, settings.sfx)) + `<h3>${esc2(tp("set.sec.play"))}</h3>` + row(tp("set.subtitles"), "", sw("subtitles", settings.subtitles)) + row(tp("set.romanize"), "", sw("romanize", settings.romanize)) + row(tp("set.voice"), "", sw("voice", settings.voice)) + row(tp("set.hints"), "", sw("hints", settings.hints)) + `<div class="row"><div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="s-reload">${esc2(tp("set.reload"))}</button><button class="btn" id="s-reset">${esc2(tp("set.reset"))}</button></div></div>`;
+    body.innerHTML = `<h3>${esc2(tp("set.sec.lang"))}</h3>` + row(tp("set.language"), tp("set.languageHelp"), seg("lang", [["en", "English"], ["th", "\u0E44\u0E17\u0E22"], ["both", "EN + \u0E44\u0E17\u0E22"]], lang.mode)) + row(tp("set.time"), "", `<select id="s-timepreset">${[["7.5", "set.time.morning"], ["12.5", "set.time.noon"], ["15.5", "set.time.afternoon"], ["18.5", "set.time.evening"], ["21.5", "set.time.night"], ["2", "set.time.late"]].map(([v, k]) => `<option value="${v}">${esc2(tp(k))}</option>`).join("")}</select>`) + row(tp("pause.hours"), "", slider2("hour", 0, 24, 0.25, G.hourNow || 18.5)) + row(tp("set.clock"), "", sw("clock", settings.clockRuns)) + `<h3>${esc2(tp("set.sec.gfx"))}</h3>` + row(tp("set.quality"), tp("set.needReload"), seg("quality", [["low", tp("set.q.low")], ["med", tp("set.q.med")], ["high", tp("set.q.high")]], settings.quality)) + row(tp("set.fov"), "", slider2("fov", 55, 105, 1, settings.fov)) + `<h3>${esc2(tp("set.sec.ctl"))}</h3>` + (input.touch ? "" : row(tp("set.look"), tp("set.lookHelp"), seg("mouselook", [["drag", tp("set.look.drag")], ["lock", tp("set.look.lock")]], settings.mouseLook))) + row(tp("set.sens"), "", slider2("sens", 0.2, 3, 0.05, settings.sens)) + row(tp("set.invert"), "", sw("invert", settings.invertY)) + row(tp("set.bob"), "", sw("bob", settings.bob)) + `<h3>${esc2(tp("set.sec.snd"))}</h3>` + row(tp("set.master"), "", slider2("master", 0, 1, 0.02, settings.master)) + row(tp("set.ambience"), "", slider2("ambience", 0, 1, 0.02, settings.ambience)) + row(tp("set.muted"), "", sw("muted", settings.muted)) + row(tp("set.musicOn"), "", sw("musicOn", settings.musicOn)) + row(tp("set.track"), "", `<select id="s-track">${MUSIC_TRACKS.map((tr, i) => `<option value="${i}" ${i === settings.track ? "selected" : ""}>${esc2(tr.name)}</option>`).join("")}</select>`) + row(tp("set.music"), "", slider2("music", 0, 1, 0.02, settings.music)) + row(tp("set.sfx"), "", slider2("sfx", 0, 1, 0.02, settings.sfx)) + `<h3>${esc2(tp("set.sec.play"))}</h3>` + row(tp("set.subtitles"), "", sw("subtitles", settings.subtitles)) + row(tp("set.romanize"), "", sw("romanize", settings.romanize)) + row(tp("set.voice"), "", sw("voice", settings.voice)) + row(tp("set.hints"), "", sw("hints", settings.hints)) + `<div class="row"><div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="s-reload">${esc2(tp("set.reload"))}</button><button class="btn" id="s-reset">${esc2(tp("set.reset"))}</button></div></div>`;
     const bind = (id, fn, evt = "input") => {
       const e = $("s-" + id);
       if (e) e.addEventListener(evt, () => fn(e));
@@ -36205,6 +36229,11 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     segBind("lang", (v) => changeLanguage(v));
     segBind("quality", (v) => {
       settings.quality = v;
+      markDirty();
+    });
+    if (!input.touch) segBind("mouselook", (v) => {
+      settings.mouseLook = v;
+      input.lockMode = v === "lock";
       markDirty();
     });
     bind("timepreset", (e) => {
@@ -38375,6 +38404,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     }
     initUI();
     initSoundPop();
+    input.lockMode = settings.mouseLook === "lock";
     initPanels();
     const WAKE = ["pointerdown", "keydown", "touchend"];
     const wake = () => {
@@ -38499,13 +38529,25 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     player.onStep = (k) => {
       if (player.pos.z < 0.2) sfx("step", k);
     };
+    onInput("mousedown", (button) => {
+      if (!input.lockMode || input.locked || input.touch || button !== 0) return;
+      if (!G.started || ui.panel || ui.popOpen || G.mode !== "play" && G.mode !== "inspect") return;
+      input.pressOnCanvas = false;
+      lockPointer();
+    });
     onInput("lockchange", (locked) => {
       if (locked) {
         el.clickcatch.hidden = true;
+        if (!input.lockTipShown) {
+          input.lockTipShown = true;
+          toast(tp("look.locked"), "", 2600);
+        }
         return;
       }
-      if (G.mode === "play" && !ui.panel && G.started) ui.open("pause");
-      else if (G.mode === "inspect" && !ui.panel) ui.open("pause");
+      if (G.started && (G.mode === "play" || G.mode === "inspect") && !ui.panel) toast(tp("look.freed"), "", 3200);
+    });
+    onInput("lockerror", () => {
+      if (input.lockMode) toast(tp("look.failed"), "warn", 3200);
     });
     onInput("click", () => {
       if (!G.started || ui.panel || ui.popOpen || performance.now() - (ui.popClosedAt || 0) < 450) return;
@@ -38535,6 +38577,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       }
       if (code === "Escape" && soundPopOpen()) {
         closeSoundPop();
+        return;
+      }
+      if (code === "Escape" && (input.locked || performance.now() - input.unlockedAt < 250)) {
+        exitLock();
         return;
       }
       if (!G.started) return;

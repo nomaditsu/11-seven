@@ -378,6 +378,7 @@ function buildSettings() {
     row(tp('set.quality'), tp('set.needReload'), seg('quality', [['low', tp('set.q.low')], ['med', tp('set.q.med')], ['high', tp('set.q.high')]], settings.quality)) +
     row(tp('set.fov'), '', slider('fov', 55, 105, 1, settings.fov)) +
     `<h3>${esc(tp('set.sec.ctl'))}</h3>` +
+    (input.touch ? '' : row(tp('set.look'), tp('set.lookHelp'), seg('mouselook', [['drag', tp('set.look.drag')], ['lock', tp('set.look.lock')]], settings.mouseLook))) +
     row(tp('set.sens'), '', slider('sens', 0.2, 3, 0.05, settings.sens)) +
     row(tp('set.invert'), '', sw('invert', settings.invertY)) +
     row(tp('set.bob'), '', sw('bob', settings.bob)) +
@@ -399,6 +400,7 @@ function buildSettings() {
   const segBind = (id, fn) => { const e = $('s-' + id); e.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { e.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); fn(b.dataset.v); })); };
   segBind('lang', (v) => changeLanguage(v));
   segBind('quality', (v) => { settings.quality = v; markDirty(); });
+  if (!input.touch) segBind('mouselook', (v) => { settings.mouseLook = v; input.lockMode = v === 'lock'; markDirty(); });
   bind('timepreset', (e) => { if (ui.hooks.setHour) ui.hooks.setHour(+e.value); $('s-hour').value = e.value; }, 'change');
   bind('hour', (e) => { if (ui.hooks.setHour) ui.hooks.setHour(+e.value); });
   bind('clock', (e) => { settings.clockRuns = e.checked; markDirty(); }, 'change');

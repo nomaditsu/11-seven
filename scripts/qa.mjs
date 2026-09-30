@@ -189,7 +189,7 @@ const errs = logs.filter((l) => /^\[(error|pageerror)\]/.test(l));
   let tillHits = 0;
   for (const p of picks) {
     const [id, tag] = p.split('|');
-    await ev(([id, tag]) => window.__sim.lookAtSku(id, tag), [id, tag]); await frames(3);
+    await ev(([id, tag]) => window.__sim.lookAtSku(id, tag), [id, tag]); await frames(6);   // let the target catch up (frames, not ms)
     if (await ev(() => { const t = window.__sim.interaction.target; return !!t && t.type === 'obj' && (t.obj.kind === 'npc' || t.obj.kind === 'pos'); })) tillHits++;
   }
   ok(picks.length > 0 && tillHits === 0, `impulse rack items never select the cashier (${tillHits}/${picks.length} did)`);
@@ -204,6 +204,21 @@ const errs = logs.filter((l) => /^\[(error|pageerror)\]/.test(l));
   await page.keyboard.down('KeyA'); await frames(6); await page.keyboard.up('KeyA');
   const b = await ev(() => ({ z: window.__sim.player.pos.z, yaw: window.__sim.player.yaw }));
   ok(b.z < a.z - 0.1 && b.yaw === a.yaw, `W moves forward and A does not turn (dz ${(b.z - a.z).toFixed(2)}, dyaw ${(b.yaw - a.yaw).toFixed(3)})`);
+}
+// Settings > Mouse look = Locked: a click captures the mouse, Esc frees it without opening the menu, a second Esc does
+{
+  await ev(() => window.__sim.close()); await ev(() => window.__sim.open('settings')); await frames(2);
+  await page.click('#s-mouselook [data-v=lock]'); await ev(() => window.__sim.close()); await frames(3);
+  await ev(() => window.__sim.tp(0.5, 3.5, 0, 0)); await frames(3);
+  await page.mouse.click(640, 360); await frames(4);
+  const locked = await ev(() => document.pointerLockElement === document.getElementById('gl'));
+  await page.keyboard.press('Escape'); await frames(4);
+  const freed = await ev(() => !document.pointerLockElement && document.getElementById('panels').hidden);
+  await new Promise((r) => setTimeout(r, 300)); await page.keyboard.press('Escape'); await frames(3);
+  const menu = await ev(() => document.getElementById('panel-pause').classList.contains('on'));
+  ok(locked && freed && menu, `Mouse look Locked: click captures (${locked}), Esc frees without the menu (${freed}), second Esc opens it (${menu})`);
+  await ev(() => window.__sim.close()); await ev(() => window.__sim.open('settings')); await frames(2);
+  await page.click('#s-mouselook [data-v=drag]'); await ev(() => window.__sim.close());
 }
 ok(errs.length === 0, 'no console errors' + (errs.length ? '\n' + errs.slice(0, 6).join('\n') : ''));
 console.log(fails ? `\n${fails} FAILED` : '\nALL OK');
