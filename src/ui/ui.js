@@ -138,11 +138,13 @@ export function toggleSound() {
   if (!ui.popOpen) toast(tp(settings.muted ? 'toast.soundOff' : 'toast.soundOn'), '', 1200);
 }
 export function toggleMusic() {
+  ui.musicTouched = true;   // the player chose: Walk in will not switch music on for them
   setMusicOn(!settings.musicOn); markDirty(); refreshTop();
   if (!ui.popOpen) toast(tp(settings.musicOn ? 'toast.musicOn' : 'toast.musicOff'), '', 1200);
   if (ui.panel === 'settings') buildSettings();
 }
 export function skipTrack(d = 1) {
+  ui.musicTouched = true;
   const tr = nextTrack(d); markDirty();
   if (!settings.musicOn) setMusicOn(true);
   if (!ui.popOpen) showNowPlaying(tr.name);
@@ -411,7 +413,7 @@ function buildSettings() {
   bind('bob', (e) => { settings.bob = e.checked; markDirty(); }, 'change');
   for (const k of ['master', 'ambience', 'music', 'sfx']) bind(k, (e) => { settings[k] = +e.value; markDirty(); if (ui.hooks.audioChanged) ui.hooks.audioChanged(); });
   bind('muted', (e) => { setMuted(e.checked); markDirty(); refreshTop(); }, 'change');
-  bind('musicOn', (e) => { setMusicOn(e.checked); markDirty(); refreshTop(); }, 'change');
+  bind('musicOn', (e) => { ui.musicTouched = true; setMusicOn(e.checked); markDirty(); refreshTop(); }, 'change');
   bind('track', (e) => { pickTrack(+e.value); }, 'change');
   bind('subtitles', (e) => { settings.subtitles = e.checked; markDirty(); }, 'change');
   bind('romanize', (e) => { settings.romanize = e.checked; markDirty(); }, 'change');

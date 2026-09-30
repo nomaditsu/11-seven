@@ -35979,6 +35979,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     if (!ui.popOpen) toast(tp(settings.muted ? "toast.soundOff" : "toast.soundOn"), "", 1200);
   }
   function toggleMusic() {
+    ui.musicTouched = true;
     setMusicOn(!settings.musicOn);
     markDirty();
     refreshTop();
@@ -35986,6 +35987,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     if (ui.panel === "settings") buildSettings();
   }
   function skipTrack(d = 1) {
+    ui.musicTouched = true;
     const tr = nextTrack(d);
     markDirty();
     if (!settings.musicOn) setMusicOn(true);
@@ -36306,6 +36308,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       refreshTop();
     }, "change");
     bind("musicOn", (e) => {
+      ui.musicTouched = true;
       setMusicOn(e.checked);
       markDirty();
       refreshTop();
@@ -38678,6 +38681,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       if (G.started && G.mode !== "title") return;
       initAudio();
       if (!ui.soundTouched && settings.muted) setMuted(false);
+      if (!ui.musicTouched && !settings.musicOn) setMusicOn(true);
       applyVolumes();
       refreshTop();
       G.started = true;

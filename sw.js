@@ -2,7 +2,7 @@
 // scripts/build.mjs writes this file to sw.js with the cache version and file list filled in. Never edit sw.js by hand.
 // Cache first: a launch always gets the saved copy at once. The browser checks sw.js for changes in the background;
 // a new build installs a new cache and drops the old one, so an update shows on the launch after it downloads.
-const CACHE = '11seven-1131484da89f';
+const CACHE = '11seven-809b94f2a40a';
 const FILES = ["index.html","manifest.webmanifest","icons/apple-touch-icon-180.png","icons/favicon-64.png","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png"];
 
 self.addEventListener('install', (e) => {

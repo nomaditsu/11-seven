@@ -155,12 +155,12 @@ for (const kind of ['atm', 'hotwater', 'microwave']) {
 await ev(() => window.__sim.setLang('both'));
 ok(await ev(() => document.documentElement.lang) === 'en', 'bilingual mode leads with English');
 await shot('20_both_hud', 2);
-ok(await ev(() => window.__sim.settings.muted === false && window.__sim.settings.musicOn === false), 'after Walk in: sound effects on (for the door greeting), music off');
+ok(await ev(() => window.__sim.settings.muted === false && window.__sim.settings.musicOn === true), 'after Walk in: sound effects on (for the door greeting) and music on');
 ok(await ev(() => window.__sim.settings.sfx > 0.05 && window.__sim.settings.sfx === window.__sim.settings.music), 'sound-effects volume starts at the music volume');
 await page.keyboard.press('KeyN'); ok(await ev(() => window.__sim.settings.muted) === true, 'N turns sound effects off');
 await page.keyboard.press('KeyN'); ok(await ev(() => window.__sim.settings.muted) === false, 'N turns sound effects on');
-await page.keyboard.press('KeyM'); ok(await ev(() => window.__sim.settings.musicOn) === true, 'M turns the music on');
 await page.keyboard.press('KeyM'); ok(await ev(() => window.__sim.settings.musicOn) === false, 'M turns the music off');
+await page.keyboard.press('KeyM'); ok(await ev(() => window.__sim.settings.musicOn) === true, 'M turns the music on');
 // flags draw their own colours: no icon stroke may leak onto them (this regressed once)
 ok(await ev(() => [...document.querySelectorAll('svg.flag rect')].every((r) => getComputedStyle(r).stroke === 'none')), 'flags have no outline');
 const t0 = await ev(() => window.__sim.settings.track); await page.keyboard.press('Period');

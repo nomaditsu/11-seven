@@ -24,7 +24,7 @@ import { initPanels, invalidateThumbs, renderBasket } from './ui/panels.js';
 import { Hands } from './game/hand.js';
 import { Interaction } from './game/interact.js';
 import { S, count, fmtClock, grantAch, alcoholAllowed } from './game/session.js';
-import { initAudio, updateAudio, sfx, applyVolumes, speakThai, speakGreeting, setMuted, audio } from './game/audio.js';
+import { initAudio, updateAudio, sfx, applyVolumes, speakThai, speakGreeting, setMuted, setMusicOn, audio } from './game/audio.js';
 import { talkKey, cleanup as talkCleanup, talkActive } from './game/talk.js';
 import { initTouch, syncTouchMode } from './ui/touch.js';
 import { initSoundPop, soundPopOpen, closeSoundPop } from './ui/soundpop.js';
@@ -214,9 +214,10 @@ async function boot() {
   function startGame() {
     if (G.started && G.mode !== 'title') return;
     initAudio();
-    // Walk in is a click, so the browser now allows audio: switch sound effects on (the door greeting needs them),
-    // unless the player already set them on the start screen. Music stays as they left it.
+    // Walk in is a click, so the browser now allows audio: switch sound effects (the door greeting needs them) and
+    // music on together, unless the player already set either one on the start screen.
     if (!ui.soundTouched && settings.muted) setMuted(false);
+    if (!ui.musicTouched && !settings.musicOn) setMusicOn(true);
     applyVolumes(); refreshTop();
     G.started = true; G.mode = 'play';
     hideTitle();
