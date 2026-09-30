@@ -214,11 +214,11 @@ kbd{display:inline-block;min-width:1.6em;padding:.05em .45em;border-radius:.4em;
 #subtitle .th{font-size:clamp(16px,1.8vw,20px);color:#cfe8dd;margin-top:.15em}
 #subtitle .en:empty{display:none}
 #subtitle .en:empty+.rom+.th,#subtitle .th:only-child{font-size:clamp(20px,2.6vw,28px);color:#fff}
-#zonebanner{position:absolute;top:16%;left:0;right:0;text-align:center;font-weight:700;font-size:clamp(24px,4vw,44px);letter-spacing:.02em;text-shadow:0 3px 14px rgba(0,0,0,.7);opacity:0;transition:opacity .5s}
+#zonebanner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max-content;max-width:92vw;pointer-events:none;text-align:center;font-weight:700;font-size:clamp(24px,4vw,44px);letter-spacing:.02em;text-shadow:0 3px 14px rgba(0,0,0,.7);opacity:0;transition:opacity .5s}
 #zonebanner.on{opacity:1}
 #zonebanner small{display:block;font-size:.36em;letter-spacing:.3em;color:#ffd7ad;text-transform:uppercase;font-weight:500}
 #zonebanner .zsub{display:block;font-size:.46em;font-weight:500;letter-spacing:.06em;color:#f4ece2;margin-top:.15em}
-#toasts{position:absolute;z-index:50;pointer-events:none;top:70px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;width:min(92vw,560px)}
+#toasts{position:absolute;z-index:50;pointer-events:none;top:var(--toast-top,70px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;width:var(--toast-w,min(92vw,560px))}
 .toast{background:var(--glass);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:.5em 1em;font-size:15px;animation:toastin .25s ease-out;backdrop-filter:blur(6px);text-align:center}
 .toast.good{border-color:#7dff9c}.toast.warn,.toast.bad{background:rgba(170,22,28,.94);border-color:#ff8a8a;color:#fff;font-weight:600}
 .toast.ach{background:linear-gradient(90deg,#00602f,#0a7a45);border-color:#ffd76a;display:flex;gap:.8em;align-items:center;text-align:left}
@@ -356,16 +356,13 @@ kbd{display:inline-block;min-width:1.6em;padding:.05em .45em;border-radius:.4em;
 #topbar{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:3}
 #topbar>*{pointer-events:none}
 .tleft{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;min-width:0}
-.tright{display:flex;gap:8px;align-items:flex-start;flex:none}
+.tright{display:flex;gap:6px;align-items:flex-start;flex:none}
 .chip{background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:auto}
-.brand{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:6px 16px 6px 10px;cursor:pointer;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:auto}
-.brand:hover{border-color:var(--o)}
+.brand{box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:6px 16px 6px 10px;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:none}
 .brand .bm svg{display:block;height:34px;width:auto}
 .brand .bt{display:flex;flex-direction:column;line-height:1.05}
 .brand .word{font:400 16px 'Archivo Black',Kanit,sans-serif}.brand .word em{font-style:normal;color:#5be0a0}
-.brand .by{font:300 11px Kanit;letter-spacing:.24em;color:#e9ded0;margin-top:3px;text-transform:uppercase}
-.brand .by u{text-decoration:none;font-weight:500;color:#fff;border-bottom:1px solid rgba(255,255,255,.4)}
-.brand:hover .by u{color:var(--o);border-color:var(--o)}
+.brand .sub,#phead .sub{font:500 12px Kanit,sans-serif;letter-spacing:.04em;color:rgba(255,255,255,.8);margin-top:2px}
 .stat{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:6px 14px;pointer-events:auto;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff}
 button.stat{cursor:pointer}button.stat:hover{border-color:var(--o)}
 .stat b{display:block;font-size:20px;font-weight:700;line-height:1.1}
@@ -380,10 +377,62 @@ button.stat{cursor:pointer}button.stat:hover{border-color:var(--o)}
 .ib svg .f{fill:currentColor;stroke:none}
 .ib small{position:absolute;right:4px;bottom:2px;font-size:10px;font-weight:700;color:var(--mutedl);line-height:1}
 .ib.off{color:#ffb0a8;background:rgba(120,20,24,.55);border-color:rgba(255,90,95,.55)}
-.ib .stack{position:relative;width:100%;height:100%}.ib .stack .flag{position:absolute}
-.gap{width:8px;flex:none}
-.nowplaying{position:absolute;top:82px;right:14px;z-index:3;padding:7px 14px;font-size:14px;font-weight:500;opacity:0;transform:translateY(-6px);transition:.25s;pointer-events:none}
-.nowplaying.show{opacity:1;transform:none}
+/* one Sound button: small moving bars while music plays (hidden when music is off), orange while its popover is open */
+.ib.snd .mini{position:absolute;right:5px;top:5px;display:flex;gap:1.5px;align-items:flex-end;height:9px;pointer-events:none}
+.ib.snd .mini i{width:2.5px;background:#5be0a0;border-radius:1px;height:40%;animation:sbob .9s ease-in-out infinite}
+.ib.snd .mini i:nth-child(2){animation-delay:-.3s}.ib.snd .mini i:nth-child(3){animation-delay:-.6s}
+.ib.snd.nomus .mini,.ib.snd.off .mini{display:none}
+.ib.snd.open{border-color:var(--o);background:rgba(245,130,32,.22)}
+@keyframes sbob{0%,100%{height:30%}50%{height:100%}}
+
+/* ---------- sound popover (src/ui/soundpop.js) ---------- */
+.soundpop{position:fixed;z-index:60;display:flex;flex-direction:column;color:#fff;font-family:Kanit,sans-serif;background:rgba(14,22,18,.97);border:1px solid rgba(255,255,255,.2);border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.6);animation:spopin .16s ease-out}
+.soundpop[hidden]{display:none}
+@keyframes spopin{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.soundpop .caret{position:absolute;top:-8px;left:var(--cx,300px);width:14px;height:14px;margin-left:-7px;transform:rotate(45deg);background:rgba(14,22,18,.97);border-left:1px solid rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.2);border-radius:3px 0 0 0}
+.soundpop .pin{overflow:auto;padding:14px 14px 12px;border-radius:20px;overscroll-behavior:contain}
+.soundpop .phd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.soundpop .phd h3{margin:0;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--cream);flex:1;display:flex;gap:8px;align-items:center}
+.soundpop .phd h3:before{content:"";width:5px;height:16px;border-radius:3px;background:var(--o)}
+.soundpop .xx{all:unset;box-sizing:border-box;width:36px;height:36px;border-radius:10px;border:1px solid var(--edge);background:rgba(255,255,255,.08);display:none;place-items:center;font-size:16px;cursor:pointer}
+.soundpop .psec{border:1px solid var(--edge);border-radius:16px;padding:10px 12px;background:rgba(255,255,255,.04)}
+.soundpop .psec+.psec{margin-top:10px}
+.soundpop .prow{display:flex;align-items:center;gap:12px}
+.soundpop .si svg{width:22px;height:22px;display:block;fill:none;stroke:var(--cream);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.soundpop .si svg .f{fill:var(--cream);stroke:none}
+.soundpop .off .si svg{stroke:#8a918d}.soundpop .off .si svg .f{fill:#8a918d}
+.soundpop .sl{flex:1;min-width:0}.soundpop .sl b{display:block;font-size:17px;font-weight:500;line-height:1.15}.soundpop .sl small{display:block;font-size:12px;color:var(--mutedl)}
+.soundpop .off .sl b{color:#c9cfcb}
+.soundpop .tog{all:unset;box-sizing:border-box;width:56px;height:32px;border-radius:999px;background:#4a4e4c;position:relative;cursor:pointer;flex:none;transition:background .2s}
+.soundpop .tog:after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+.soundpop .tog.on{background:var(--gl)}.soundpop .tog.on:after{left:28px}
+.soundpop .fold{display:grid;grid-template-rows:1fr;transition:grid-template-rows .24s ease,opacity .2s}
+.soundpop .fold>div{overflow:hidden;min-height:0}
+.soundpop .off .fold{grid-template-rows:0fr;opacity:0;visibility:hidden}
+.soundpop .nowc{display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 8px 8px 10px;border-radius:16px;background:linear-gradient(135deg,rgba(245,130,32,.2),rgba(0,135,74,.14));border:1px solid rgba(245,130,32,.35)}
+.soundpop .eq{width:42px;height:42px;border-radius:12px;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;gap:3px;padding:8px 7px;flex:none}
+.soundpop .eq i{flex:1;border-radius:2px;background:var(--o);height:30%;animation:sbob 1s ease-in-out infinite}
+.soundpop .eq i:nth-child(3n+2){background:var(--gl);animation-delay:-.35s}.soundpop .eq i:nth-child(3n){background:#ff5a5f;animation-delay:-.7s}.soundpop .eq i:nth-child(4){animation-delay:-.2s}
+.soundpop .nt{min-width:0;flex:1}
+.soundpop .nt b{display:block;font-size:18px;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.soundpop .nt small{display:block;font-size:13px;color:var(--mutedl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.soundpop .tb{all:unset;box-sizing:border-box;width:40px;height:40px;border-radius:50%;border:1px solid var(--edge);background:rgba(255,255,255,.09);display:grid;place-items:center;cursor:pointer;flex:none}
+.soundpop .tb:active{transform:scale(.94)}.soundpop .tb svg{width:18px;height:18px;fill:#fff}
+.soundpop .tl{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.soundpop .tr{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;border:1px solid var(--edge);background:rgba(255,255,255,.06);border-radius:12px;padding:7px 10px;font:500 15px Kanit,sans-serif;cursor:pointer;min-height:48px}
+.soundpop .tr i{font-style:normal;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:12px;flex:none}
+.soundpop .tr.on{border-color:var(--o);background:rgba(245,130,32,.18)}.soundpop .tr.on i{background:var(--o);color:#1a0f05}
+.soundpop .tr small{display:block;font-size:12px;color:var(--mutedl);line-height:1.1}
+.soundpop .vl{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px}
+.soundpop .vl svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--cream);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.soundpop .vl svg .f{fill:var(--cream);stroke:none}
+.soundpop .vl input{flex:1;accent-color:var(--o);height:28px;min-width:0}
+.soundpop .vl output{width:32px;text-align:right;font-weight:500}
+.soundpop .kh{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mutedl)}
+.soundpop .kh kbd{font:700 11px Kanit,sans-serif;background:linear-gradient(#fff,#ececec);color:#15110e;border-radius:5px;padding:1px 6px;margin-right:4px;box-shadow:0 2px 0 #9a9184}
+html[data-touch] .soundpop .kh{display:none}
+@media (prefers-reduced-motion:reduce){.soundpop .fold{transition:none}.soundpop .eq i,.ib.snd .mini i{animation:none;height:70%}}
+
+/* ---------- phone header (portrait phones only; see the 640px block below) ---------- */
+#phead{display:none}
 #objective{top:82px}
 
 /* ---------- movement pad + key hints ---------- */
@@ -561,9 +610,9 @@ body[data-mode=ui] .hint,body[data-mode=ui] .pad kbd,body[data-mode=inspect] .hi
 /* Stick bottom-left with Crouch beside it (both movement); Take bottom-right with Inspect, Put back and Hands on an
    even arc around it. --sl / --sb / --ss place the stick, --tc-band and --tc-side are the space the controls take
    at the bottom and at each side, so cards can stay clear of them. */
-html[data-touch]{--sl:22px;--sb:26px;--ss:150px;--tc-band:212px;--tc-side:220px}
+html[data-tc]{--sl:22px;--sb:26px;--ss:150px;--tc-band:212px;--tc-side:220px}
 #touch{display:none;position:absolute;inset:0;z-index:2;pointer-events:none;touch-action:none}
-html[data-touch] body[data-mode=play] #touch,html[data-touch] body[data-mode=inspect] #touch{display:block}
+html[data-tc] body[data-mode=play] #touch,html[data-tc] body[data-mode=inspect] #touch{display:block}
 #touch .stick{position:absolute;left:var(--sl);bottom:var(--sb);width:var(--ss);height:var(--ss);border-radius:50%;background:rgba(16,22,19,.34);border:2px solid rgba(255,255,255,.8);box-shadow:0 0 0 1.5px rgba(0,0,0,.3),inset 0 0 0 1.5px rgba(0,0,0,.2),0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(4px);display:grid;place-items:center;pointer-events:auto;touch-action:none}
 #touch .stick i{width:42.5%;height:42.5%;border-radius:50%;background:rgba(255,255,255,.92);border:2px solid rgba(0,0,0,.28);box-shadow:0 2px 10px rgba(0,0,0,.45);transition:transform .05s;pointer-events:none}
 #touch .stick span{position:absolute;top:-24px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 8px rgba(0,0,0,.5);letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
@@ -572,8 +621,12 @@ html[data-touch] body[data-mode=play] #touch,html[data-touch] body[data-mode=ins
 #touch .act svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin:0;flex:none;display:block}
 #touch .act svg .f{fill:currentColor;stroke:none}
 #touch .act small{display:block;font-size:12px;font-weight:700;line-height:1.05;color:#fff;opacity:1}
-#touch .act.take{right:0;bottom:0;width:104px;height:104px;background:var(--glass);transition:background .15s}
-#touch .act.take.hot{background:linear-gradient(#ffa03c,#e46c0b);border-color:#ffc98a}
+#touch .act .em{font-size:26px;line-height:1;display:block;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+#touch .act.take{right:0;bottom:0;width:104px;height:104px;background:linear-gradient(#2fbf7a,#00874a);border-color:#9be8c2}
+#touch .act.take .em{font-size:34px}
+#touch .act.take.hot{animation:tring 1.6s ease-out infinite}
+@keyframes tring{0%{box-shadow:0 0 0 0 rgba(47,191,122,.6)}100%{box-shadow:0 0 0 14px rgba(47,191,122,0)}}
+@media (prefers-reduced-motion:reduce){#touch .act.take.hot{animation:none;box-shadow:0 0 0 4px rgba(47,191,122,.45)}}
 #touch .act.take svg{width:34px;height:34px}
 #touch .act.take small{font-size:15px}
 /* 66px buttons 96px from Take's centre, at 180, 135 and 90 degrees */
@@ -582,49 +635,60 @@ html[data-touch] body[data-mode=play] #touch,html[data-touch] body[data-mode=ins
 #touch .act.a4{right:19px;bottom:115px;width:66px;height:66px}
 /* Crouch up and to the right of the stick, 8px clear of its rim */
 #touch .act.crouch{width:58px;height:58px;left:calc(var(--sl) + var(--ss) / 2 + .7071 * (var(--ss) / 2 + 37px) - 29px);bottom:calc(var(--sb) + var(--ss) / 2 + .7071 * (var(--ss) / 2 + 37px) - 29px)}
-#touch .act.crouch svg{width:22px;height:22px}
+#touch .act.crouch .em{font-size:22px}
 #touch .act.crouch small{font-size:11px}
 #touch .act .l2,#touch .act .rom{display:none}
 body[data-mode=inspect] #touch .stick,body[data-mode=inspect] #touch .a3,body[data-mode=inspect] #touch .crouch{display:none}
 
 /* The hover card sits between the two control groups, or above them where the screen is too narrow */
-html[data-touch] #prompt{bottom:12px;width:min(520px,calc(100vw - 2 * var(--tc-side)))}
+html[data-tc] #prompt{bottom:12px;width:min(520px,calc(100vw - 2 * var(--tc-side)))}
 
 /* Inspect on touch: the card sits above a row of Flip, Put back and Take. Phones: a bottom sheet across the screen.
    Wider screens: a side card on the right. interact.js frameInspect() centres the pack in the space left free. */
-html[data-touch] #inspect-ui{left:auto;right:8px;top:auto;bottom:76px;transform:none;width:min(360px,44vw)}
-html[data-touch] .ins-card{max-height:calc(100vh - 76px - 64px);padding:.9em 1.1em}
-html[data-touch] .ins-desc{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+html[data-tc] #inspect-ui{left:auto;right:8px;top:auto;bottom:76px;transform:none;width:min(360px,44vw)}
+html[data-tc] .ins-card{max-height:calc(100vh - 76px - 64px);padding:.9em 1.1em}
+html[data-tc] .ins-desc{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 body[data-mode=inspect] #touch .acts{left:auto;right:8px;bottom:8px;width:min(360px,44vw);height:60px;display:flex;gap:8px;transform:none}
 body[data-mode=inspect] #touch .act{position:static;flex:1 1 0;width:auto;height:60px;border-radius:16px;flex-direction:row;gap:8px}
-body[data-mode=inspect] #touch .act svg{width:24px;height:24px}
+body[data-mode=inspect] #touch .act .em{font-size:22px}
 body[data-mode=inspect] #touch .act small{font-size:15px}
 body[data-mode=inspect] #touch .act.a2{order:1}
 body[data-mode=inspect] #touch .act.a4{order:2}
-body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa03c,#e46c0b);border-color:#ffc98a}
+body[data-mode=inspect] #touch .act.take{order:3}
 @media (max-width:700px){
-  html[data-touch] #prompt{bottom:calc(var(--tc-band) + 8px);width:calc(100vw - 16px)}
-  html[data-touch] #inspect-ui{left:8px;width:auto}
-  html[data-touch] .ins-card{max-height:46vh}
-  html[data-touch] .ins-card h2{font-size:22px}
-  html[data-touch] .ins-row b{font-size:26px}
-  html[data-touch] .ins-desc{-webkit-line-clamp:3}
+  html[data-tc] #prompt{bottom:calc(var(--tc-band) + 8px);width:calc(100vw - 16px)}
+  html[data-tc] #inspect-ui{left:8px;width:auto}
+  html[data-tc] .ins-card{max-height:46vh}
+  html[data-tc] .ins-card h2{font-size:22px}
+  html[data-tc] .ins-row b{font-size:26px}
+  html[data-tc] .ins-desc{-webkit-line-clamp:3}
   body[data-mode=inspect] #touch .acts{left:8px;width:auto}
 }
 @media (max-height:440px){
-  html[data-touch] .ins-card{padding:.6em .9em}
-  html[data-touch] .ins-card h2{font-size:19px}
-  html[data-touch] .ins-row{margin:.25em 0;padding:.2em 0}
-  html[data-touch] .ins-row b{font-size:21px}
-  html[data-touch] .ins-desc{-webkit-line-clamp:2;font-size:13px}
-  html[data-touch] .ins-dl{display:none}
+  html[data-tc] .ins-card{padding:.6em .9em}
+  html[data-tc] .ins-card h2{font-size:19px}
+  html[data-tc] .ins-row{margin:.25em 0;padding:.2em 0}
+  html[data-tc] .ins-row b{font-size:21px}
+  html[data-tc] .ins-desc{-webkit-line-clamp:2;font-size:13px}
+  html[data-tc] .ins-dl{display:none}
   body[data-mode=inspect] #touch .acts{height:52px}
   body[data-mode=inspect] #touch .act{height:52px}
-  html[data-touch] #inspect-ui{bottom:66px}
+  html[data-tc] #inspect-ui{bottom:66px}
 }
 
 /* ---------- responsive ---------- */
-@media (max-width:1099px){.brand .bt{display:none}.brand{padding:6px 10px}#hud-temp{display:none}}
+/* As the window narrows, the chips lose their less essential text step by step, the on-screen controls replace the
+   key hints at 899px (html[data-tc], touch.js), the wordmark goes at 799px, and phones get the header bar at 640px. */
+@media (max-width:1199px){#hud-temp{display:none}}
+@media (max-width:1023px){
+  .stat small{display:none}
+  #hud-codex b{display:none}
+  #hud-codex small{display:block;font-size:20px;font-weight:700;color:#fff;line-height:1.1}
+  #hud-codex .of{font-size:.72em;font-weight:500;color:var(--mutedl)}
+  .stat{padding:6px 12px}
+}
+@media (max-width:899px){#hud-codex small{font-size:17px}}
+@media (max-width:799px){.brand .bt{display:none}.brand{padding:6px 10px}}
 @media (max-width:899px),(hover:none) and (pointer:coarse){
   .movepad,.hintbar{display:none}
   .stat b{font-size:17px}
@@ -638,7 +702,19 @@ body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa
   #hud .pkeys{display:none}
 }
 @media (max-width:640px){
-  .brand,.ib.lang,.snackchip,#btn-sound,#btn-music,#btn-next,.gap{display:none}
+  .brand{display:none}
+  /* header bar across the top; the .tright buttons (About, Sound, Menu) sit in it, the chips drop below */
+  #phead{display:flex;position:absolute;left:0;right:0;top:0;z-index:3;height:calc(60px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 10px 0 12px;align-items:center;gap:10px;pointer-events:none;
+    background:linear-gradient(rgba(10,16,13,.94),rgba(10,16,13,.86));backdrop-filter:blur(10px);border-bottom:1px solid var(--edge)}
+  #phead:after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:3px;background:linear-gradient(90deg,var(--o) 0 33.3%,#00874a 33.3% 66.6%,#e31e24 66.6%);opacity:.9}
+  #phead .bm svg{display:block;width:38px;height:38px;border-radius:9px}
+  #phead .lock{display:flex;flex-direction:column;line-height:1.05}
+  #phead .word{font:400 20px 'Archivo Black',Kanit,sans-serif;letter-spacing:.02em;color:#fff}#phead .word em{font-style:normal;color:#5be0a0}
+  #topbar{top:calc(74px + env(safe-area-inset-top,0px));left:10px;right:10px}
+  .tright{position:absolute;top:-66px;right:0;gap:6px}
+  .tright .ib{width:44px;height:44px;border-radius:12px}
+  #objective{top:calc(128px + env(safe-area-inset-top,0px))}
+  .soundpop .xx{display:grid}
   .stat{padding:6px 10px;gap:6px}.stat small{display:none}.ci svg{width:20px;height:20px}
   .stat b{font-size:17px}
   .tleft{flex-wrap:nowrap;gap:6px}
@@ -648,14 +724,17 @@ body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa
   .tracks{grid-template-columns:1fr}
   .trio{grid-template-columns:1fr 1fr}.trio>:last-child:nth-child(odd){grid-column:1/-1}
   .vol{grid-template-columns:100px 1fr}
-  html[data-touch]{--sl:16px;--sb:22px;--ss:132px;--tc-band:204px;--tc-side:208px}
+  html[data-tc]{--sl:16px;--sb:22px;--ss:132px;--tc-band:204px;--tc-side:208px}
   #touch .acts{right:12px;bottom:20px}
   .tk .face{width:52px;height:52px}.tk .who b{font-size:19px}.tk .tbtn span{display:none}.tk .say{font-size:19px}.tk .choice{font-size:17px}
-  .nowplaying{top:70px}
+  .stat{padding:6px 8px;gap:5px}.ci svg{width:18px;height:18px}
+}
+@media (max-width:365px){
+  #topbar{left:6px;right:6px}.tleft{gap:4px}.stat{padding:5px 7px}.stat b,#hud-codex small{font-size:16px}
 }
 @media (max-height:440px){
   #topbar{top:8px}.ib{width:42px;height:42px}
-  html[data-touch]{--sl:16px;--sb:14px;--ss:112px;--tc-band:160px;--tc-side:170px}
+  html[data-tc]{--sl:16px;--sb:14px;--ss:112px;--tc-band:160px;--tc-side:170px}
   #touch .acts{transform:scale(.8);transform-origin:100% 100%;bottom:8px;right:8px}
   .panel.dark header{padding:8px 14px}.panel.dark h2{font-size:20px}
   .panel.dark .pbody{padding:12px 14px}
@@ -663,6 +742,18 @@ body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa
   .tk .choices{flex-direction:row;flex-wrap:wrap}.tk .choice{flex:1 1 30%;min-height:40px;font-size:15px;padding:4px 12px}
   .panel.talk{width:min(720px,calc(100vw - 20px));bottom:8px}
   .reward{display:none!important}
+  /* short screens: the quest card shows only its title and the location title is smaller, so the message column,
+     the centred location title and the controls all fit */
+  #objective{top:58px}#objective ul{display:none}
+  #zonebanner{font-size:26px}
+  /* short screens (phones held sideways): effects on the left, music on the right, compact track rows */
+  .soundpop .pin{display:grid;grid-template-columns:200px 1fr;gap:0 10px;align-items:start;padding:10px 12px}
+  .soundpop .phd,.soundpop .kh{grid-column:1/-1}.soundpop .phd{margin-bottom:6px}
+  .soundpop .psec+.psec{margin-top:0}.soundpop .sl small{display:none}
+  .soundpop .nowc{margin-top:6px;padding:6px 8px}.soundpop .eq{width:36px;height:36px}.soundpop .nt b{font-size:16px}.soundpop .tb{width:34px;height:34px}
+  .soundpop .tl{display:grid;grid-template-columns:1fr 1fr;margin-top:6px}
+  .soundpop .tr{min-height:36px;padding:4px 8px;font-size:14px;white-space:nowrap;min-width:0}.soundpop .tr div{overflow:hidden;text-overflow:ellipsis}.soundpop .tr small{display:none}.soundpop .tr i{width:22px;height:22px}
+  .soundpop .vl{margin-top:6px}
 }
 
 /* keep the HUD quiet while a panel or a conversation is open */
@@ -676,7 +767,7 @@ body[data-mode=ui] .movepad,body[data-mode=ui] .hintbar,body[data-mode=ui] #prom
 .byline{margin:6px 0 10px}
 .tagline{margin-bottom:12px}
 .tip{min-height:0}
-html[data-touch] .ins-keys{display:none}
+html[data-tc] .ins-keys{display:none}
 #hud .ins-keys kbd{min-width:30px;height:30px;font-size:14px;padding:0 8px;margin:0;box-shadow:0 3px 0 #9a9184}
 body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}
 
@@ -689,9 +780,7 @@ body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}
   <!-- ============================================================ TITLE / LOADING -->
   <section id="title" class="screen">
     <div class="title-audio">
-      <button class="ib" id="t-sound" type="button"><span class="ii"></span><small>N</small></button>
-      <button class="ib" id="t-music" type="button"><span class="ii"></span><small>M</small></button>
-      <button class="ib" id="t-next" type="button"><span class="ii"></span><small>.</small></button>
+      <button class="ib snd" id="t-sound" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="ii"></span><span class="mini"><i></i><i></i><i></i></span></button>
     </div>
     <div class="title-wrap">
       <div class="brandmark" id="brandmark"></div>
@@ -727,26 +816,23 @@ body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}
     <div id="xhair"><i></i></div>
     <div id="zoomframe"></div>
 
+    <!-- phones held upright: a header bar across the top; CSS places the .tright buttons (About, Sound, Menu) into it -->
+    <div id="phead"><span class="bm" id="phead-logo"></span><span class="lock"><span class="word">11 <em>SEVEN</em></span><span class="sub">7 Eleven Simulator</span></span></div>
     <div id="topbar">
       <div class="tleft">
-        <button class="chip brand" id="hud-brand" type="button" data-open="about"><span class="bm" id="hud-logo"></span>
-          <span class="bt"><span class="word">11 <em>SEVEN</em></span><span class="by"><span data-by></span> <u>Nomaditsu</u></span></span></button>
+        <div class="chip brand" id="hud-brand"><span class="bm" id="hud-logo"></span>
+          <span class="bt"><span class="word">11 <em>SEVEN</em></span><span class="sub">7 Eleven Simulator</span></span></div>
         <button class="chip stat clockchip" id="hud-time" type="button" data-open="time"><span class="ci" data-icon="clock"></span><div><b id="hud-clock">18:30</b><small id="hud-temp"></small></div></button>
-        <button class="chip stat snackchip" id="hud-codex" type="button" data-open="codex"><span class="ci" data-icon="book"></span><div><b data-i18n="hud.codex"></b><small id="hud-codex-n">0/0</small></div></button>
+        <button class="chip stat snackchip" id="hud-codex" type="button" data-open="codex"><span class="ci" data-icon="book"></span><div><b data-i18n="hud.codex"></b><small id="hud-codex-n">0<span class="of">/0</span></small></div></button>
         <div class="chip stat cashchip"><span class="ci" data-icon="cash"></span><div><b id="w-cash">500</b><small data-i18n="hud.cash"></small></div></div>
         <button class="chip stat basketchip" id="hud-basket" type="button" data-open="basket"><span class="ci" id="w-basket-i" data-icon="hand"></span><div><b id="w-basket">0</b><small id="w-basket-l"></small></div></button>
       </div>
       <div class="tright" id="hud-right">
-        <button class="ib lang" id="hud-lang" type="button" data-btn="lang"><span class="ii"></span><small>L</small></button>
-        <span class="gap"></span>
-        <button class="ib" id="btn-sound" type="button" data-btn="sound"><span class="ii"></span><small>N</small></button>
-        <button class="ib" id="btn-music" type="button" data-btn="music"><span class="ii"></span><small>M</small></button>
-        <button class="ib" id="btn-next" type="button" data-btn="next"><span class="ii"></span><small>.</small></button>
-        <span class="gap"></span>
+        <button class="ib info" id="btn-info" type="button" data-open="about"><span class="ii"></span></button>
+        <button class="ib snd" id="btn-sound" type="button" data-btn="sound" aria-haspopup="dialog" aria-expanded="false"><span class="ii"></span><span class="mini"><i></i><i></i><i></i></span></button>
         <button class="ib" id="btn-menu" type="button" data-btn="menu"><span class="ii"></span><small>Esc</small></button>
       </div>
     </div>
-    <div class="chip nowplaying" id="nowplaying"></div>
 
     <div id="objective" hidden></div>
 
@@ -781,6 +867,9 @@ body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}
 
   <!-- toasts sit above the panels so warnings show during checkout too -->
   <div id="toasts"></div>
+
+  <!-- ============================================================ SOUND POPOVER (opened by #btn-sound / #t-sound) -->
+  <div id="soundpop" class="soundpop" role="dialog" hidden></div>
 
   <!-- ============================================================ PANELS -->
   <div id="panels" hidden>
@@ -5790,7 +5879,7 @@ void main() {
     "tch.basketD": { en: "See what you are carrying", th: "\u0E14\u0E39\u0E02\u0E2D\u0E07\u0E43\u0E19\u0E15\u0E30\u0E01\u0E23\u0E49\u0E32", rom: "duu k\u0254\u030C\u0254ng nai dt\xE0-gr\xE2a" },
     "tch.snack": { en: "Snack Book chip", th: "\u0E0A\u0E34\u0E1B\u0E2A\u0E21\u0E38\u0E14\u0E02\u0E19\u0E21", rom: "ch\xEDp s\xE0-m\xF9t k\xE0-n\u01D2m" },
     "tch.snackD": { en: "Top bar, or the pause menu", th: "\u0E41\u0E16\u0E1A\u0E14\u0E49\u0E32\u0E19\u0E1A\u0E19 \u0E2B\u0E23\u0E37\u0E2D\u0E40\u0E21\u0E19\u0E39\u0E2B\u0E22\u0E38\u0E14", rom: "t\u025B\u0300\u025Bp d\xE2an bon r\u0289\u030C\u0289 me-nuu y\xF9t" },
-    "tch.audioD": { en: "Sound, music and tracks live in the menu", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07 \u0E40\u0E1E\u0E25\u0E07 \u0E2D\u0E22\u0E39\u0E48\u0E43\u0E19\u0E40\u0E21\u0E19\u0E39", rom: "s\u01D0ang phleeng y\xF9u nai me-nuu" },
+    "tch.audioD": { en: "Sound button on the top bar: effects, music and tracks", th: "\u0E1B\u0E38\u0E48\u0E21\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E17\u0E35\u0E48\u0E41\u0E16\u0E1A\u0E1A\u0E19 \u0E40\u0E2D\u0E1F\u0E40\u0E1F\u0E01\u0E15\u0E4C \u0E40\u0E1E\u0E25\u0E07 \u0E41\u0E25\u0E30\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E40\u0E1E\u0E25\u0E07", rom: "bp\xF9m s\u01D0ang t\xEEi t\u025B\u0300\u025Bp bon, \u025B-f\xE9k, phleeng l\u025B\u0301 raai-gaan phleeng" },
     "tch.menu": { en: "Menu button", th: "\u0E1B\u0E38\u0E48\u0E21\u0E40\u0E21\u0E19\u0E39", rom: "bp\xF9m me-nuu" },
     "tch.menuD": { en: "Pause, sound, language, settings", th: "\u0E2B\u0E22\u0E38\u0E14 \u0E40\u0E2A\u0E35\u0E22\u0E07 \u0E20\u0E32\u0E29\u0E32 \u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32", rom: "y\xF9t s\u01D0ang paa-s\u01CEa dt\xE2ng-k\xE2a" },
     // ---------------------------------------------------------------- about + badge
@@ -5827,7 +5916,32 @@ void main() {
     "ach.friendly": { en: "Friendly Regular", th: "\u0E02\u0E32\u0E1B\u0E23\u0E30\u0E08\u0E33\u0E43\u0E08\u0E14\u0E35", rom: "k\u01CEa-bpr\xE0-jam jai-dii" },
     "ach.friendlyDesc": { en: "Chat with everyone in the store.", th: "\u0E04\u0E38\u0E22\u0E01\u0E31\u0E1A\u0E17\u0E38\u0E01\u0E04\u0E19\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19", rom: "kui g\xE0p t\xFAk kon nai r\xE1an" },
     "ach.tipper": { en: "Good Tipper", th: "\u0E43\u0E08\u0E14\u0E35\u0E43\u0E2B\u0E49\u0E17\u0E34\u0E1B", rom: "jai-dii h\xE2i t\xEDp" },
-    "ach.tipperDesc": { en: "Say thanks the Thai way.", th: "\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E41\u0E1A\u0E1A\u0E44\u0E17\u0E22\u0E46", rom: "k\u0254\u0300\u0254p-kun b\u025B\u0300\u025Bp tai-tai" }
+    "ach.tipperDesc": { en: "Say thanks the Thai way.", th: "\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E41\u0E1A\u0E1A\u0E44\u0E17\u0E22\u0E46", rom: "k\u0254\u0300\u0254p-kun b\u025B\u0300\u025Bp tai-tai" },
+    // one Sound button + popover (effects and music), About button on phones
+    "btn.soundPop": { en: "Sound and music", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E41\u0E25\u0E30\u0E40\u0E1E\u0E25\u0E07", rom: "s\u01D0ang l\u025B\u0301 phleeng" },
+    "btn.about": { en: "About", th: "\u0E40\u0E01\u0E35\u0E48\u0E22\u0E27\u0E01\u0E31\u0E1A\u0E40\u0E01\u0E21", rom: "g\xECao-g\xE0p geem" },
+    "btn.prev": { en: "Previous track (,)", th: "\u0E40\u0E1E\u0E25\u0E07\u0E01\u0E48\u0E2D\u0E19\u0E2B\u0E19\u0E49\u0E32 (,)", rom: "phleeng g\u0254\u0300\u0254n n\xE2a (,)" },
+    "pop.sfxSub": { en: "Store sounds and voices", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E41\u0E25\u0E30\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1E\u0E39\u0E14", rom: "s\u01D0ang nai r\xE1an l\u025B\u0301 s\u01D0ang ph\xFBut" },
+    "pop.on": { en: "On", th: "\u0E40\u0E1B\u0E34\u0E14", rom: "bp\u0259\u0300\u0259t" },
+    "pop.off": { en: "Off", th: "\u0E1B\u0E34\u0E14", rom: "bp\xECt" },
+    "pop.track": { en: "Track", th: "\u0E40\u0E1E\u0E25\u0E07", rom: "phleeng" },
+    "pop.close": { en: "Close", th: "\u0E1B\u0E34\u0E14", rom: "bp\xECt" },
+    // the big touch action button: idle label, then a short verb for what is in reach
+    "tv.interact": { en: "Interact", th: "\u0E42\u0E15\u0E49\u0E15\u0E2D\u0E1A", rom: "dt\xF4o-dt\u0254\u0300\u0254p" },
+    "tv.take": { en: "Take", th: "\u0E2B\u0E22\u0E34\u0E1A", rom: "y\xECp" },
+    "tv.talk": { en: "Talk", th: "\u0E04\u0E38\u0E22", rom: "kui" },
+    "tv.pay": { en: "Pay", th: "\u0E08\u0E48\u0E32\u0E22", rom: "j\xE0ai" },
+    "tv.withdraw": { en: "Withdraw", th: "\u0E16\u0E2D\u0E19\u0E40\u0E07\u0E34\u0E19", rom: "t\u0254\u030C\u0254n ng\u0259n" },
+    "tv.heat": { en: "Heat", th: "\u0E2D\u0E38\u0E48\u0E19", rom: "\xF9n" },
+    "tv.pour": { en: "Pour", th: "\u0E40\u0E15\u0E34\u0E21\u0E19\u0E49\u0E33", rom: "t\u0259\u0259m n\xE1am" },
+    "tv.order": { en: "Order", th: "\u0E2A\u0E31\u0E48\u0E07", rom: "s\xE0ng" },
+    "tv.pet": { en: "Pet", th: "\u0E25\u0E39\u0E1A\u0E2B\u0E31\u0E27", rom: "l\xFBup h\u01D4a" },
+    "tv.sit": { en: "Sit", th: "\u0E19\u0E31\u0E48\u0E07", rom: "n\xE2ng" },
+    "tv.grab": { en: "Grab", th: "\u0E2B\u0E22\u0E34\u0E1A", rom: "y\xECp" },
+    "tv.drop": { en: "Drop", th: "\u0E27\u0E32\u0E07", rom: "waang" },
+    "tv.use": { en: "Use", th: "\u0E43\u0E0A\u0E49", rom: "ch\xE1i" },
+    "tv.flip": { en: "Flip", th: "\u0E1E\u0E25\u0E34\u0E01", rom: "pl\xECk" },
+    "tv.crouch": { en: "Crouch", th: "\u0E22\u0E48\u0E2D", rom: "y\u0254\u0302\u0254" }
   };
 
   // src/core/rom_data.js
@@ -14535,7 +14649,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     const spread = Math.min(1, seqW / cap);
     const target = shelves.map((sh) => sh.len * fillFrac * spread);
     let k0 = 0;
-    const place = (sku, sh, k) => {
+    const place2 = (sku, sh, k) => {
       const list = perShelf[k], last = list[list.length - 1];
       if (last && last.sku === sku) last.n++;
       else list.push({ sku, n: 1 });
@@ -14548,14 +14662,14 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       for (let k = k0; k < shelves.length && !done; k++) {
         const sh = shelves[k];
         if (!fitsShelf(sku, sh) || used[k] + w > sh.len * fillFrac + 1e-6) continue;
-        place(sku, sh, k);
+        place2(sku, sh, k);
         done = true;
       }
       if (!done && it.first) {
         for (let k = 0; k < shelves.length && !done; k++) {
           const sh = shelves[k];
           if (!fitsShelf(sku, sh) || used[k] + w > sh.len * fillFrac + 1e-6) continue;
-          place(sku, sh, k);
+          place2(sku, sh, k);
           done = true;
         }
       }
@@ -34890,6 +35004,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     music: '<svg viewBox="0 0 24 24"><circle class="f" cx="8" cy="17.5" r="3.2"/><path d="M11.2 17.5V4.5c0 3.2 6.3 3 6.3 8"/></svg>',
     next: '<svg viewBox="0 0 24 24"><path class="f" d="M5 5.5v13l9-6.5z"/><path class="f" d="M16 5.5h3v13h-3z"/></svg>',
     prev: '<svg viewBox="0 0 24 24"><path class="f" d="M19 5.5v13l-9-6.5z"/><path class="f" d="M5 5.5h3v13H5z"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle class="f" cx="12" cy="7.8" r="1.3"/></svg>',
     menu: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>',
     voice: '<svg viewBox="0 0 24 24"><path class="f" d="M12 3.5a3 3 0 013 3v5a3 3 0 01-6 0v-5a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v3.5"/></svg>',
     clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.2l3.2 2"/></svg>',
@@ -35535,20 +35650,12 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   function buildPause() {
     const body = $("pause-body");
     const btn2 = (cls, id, key, extra = "") => `<button class="${cls}" data-act="${id}" ${extra}>${D(key)}</button>`;
-    body.innerHTML = `<button class="big" data-act="resume">${D("menu.resumeStore")}</button><div class="trio">${btn2("gbtn", "settings", "menu.settings")}${btn2("gbtn", "controls", "menu.controls")}${btn2("gbtn", "about", "menu.about")}</div><div class="trio">${btn2("gbtn", "codex", "menu.codex")}${btn2("gbtn", "quests", "menu.quests")}${btn2("gbtn ghost", "title", "menu.title")}</div><div class="sec"><h3>${esc2(tp("pause.sound"))}</h3><div class="sw"><span>${D("pause.sfx")}</span><button class="tog ${settings.muted ? "" : "on"}" data-act="sound" aria-label="sound"></button></div><div class="sw"><span>${D("pause.music")}</span><button class="tog ${settings.musicOn ? "on" : ""}" data-act="music" aria-label="music"></button></div><div class="tracks">${MUSIC_TRACKS.map((tr, i) => `<button class="trk ${i === settings.track ? "on" : ""}" data-track="${i}"><i>${i === settings.track ? "\u266A" : i + 1}</i><div>${esc2(tr.name)}<small>${D(tr.moodKey)}</small></div></button>`).join("")}</div><div class="vol">${esc2(tp("pause.musicVol"))}<input type="range" min="0" max="1" step="0.02" value="${settings.music}" data-vol="music"></div><div class="vol">${esc2(tp("pause.sfxVol"))}<input type="range" min="0" max="1" step="0.02" value="${settings.sfx}" data-vol="sfx"></div></div><div class="sec"><h3>${esc2(tp("pause.language"))}</h3><div class="seg wideseg">${["en", "both", "th"].map((m2) => `<button data-lang="${m2}" class="${lang.mode === m2 ? "on" : ""}">${flagsFor(m2, 24)}<span>${m2 === "en" ? "English" : m2 === "th" ? "\u0E44\u0E17\u0E22" : "EN + \u0E44\u0E17\u0E22"}</span></button>`).join("")}</div></div>`;
+    body.innerHTML = `<button class="big" data-act="resume">${D("menu.resumeStore")}</button><div class="trio">${btn2("gbtn", "settings", "menu.settings")}${btn2("gbtn", "controls", "menu.controls")}${btn2("gbtn", "about", "menu.about")}</div><div class="trio">${btn2("gbtn", "codex", "menu.codex")}${btn2("gbtn", "quests", "menu.quests")}${btn2("gbtn ghost", "title", "menu.title")}</div><div class="sec"><h3>${esc2(tp("pause.language"))}</h3><div class="seg wideseg">${["en", "both", "th"].map((m2) => `<button data-lang="${m2}" class="${lang.mode === m2 ? "on" : ""}">${flagsFor(m2, 24)}<span>${m2 === "en" ? "English" : m2 === "th" ? "\u0E44\u0E17\u0E22" : "EN + \u0E44\u0E17\u0E22"}</span></button>`).join("")}</div></div>`;
     body.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => {
       const a = b.dataset.act;
       if (a === "resume") ui.close();
       else if (a === "title") ui.hooks.toTitle && ui.hooks.toTitle();
-      else if (a === "sound") toggleSound();
-      else if (a === "music") toggleMusic();
       else ui.open(a);
-    }));
-    body.querySelectorAll("[data-track]").forEach((b) => b.addEventListener("click", () => pickTrack(+b.dataset.track)));
-    body.querySelectorAll("[data-vol]").forEach((r) => r.addEventListener("input", () => {
-      settings[r.dataset.vol] = +r.value;
-      markDirty();
-      applyVolumes();
     }));
     body.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => changeLanguage(b.dataset.lang)));
   }
@@ -35668,7 +35775,6 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       "w-basket-i",
       "hud-clock",
       "hud-temp",
-      "hud-lang",
       "hud-codex-n",
       "hud-codex",
       "hud-logo",
@@ -35676,13 +35782,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       "brandmark",
       "btn-by-title",
       "btn-sound",
-      "btn-music",
-      "btn-next",
+      "btn-info",
       "btn-menu",
       "t-sound",
-      "t-music",
-      "t-next",
-      "nowplaying",
+      "phead-logo",
       "movepad",
       "touch",
       "btn-start",
@@ -35708,17 +35811,12 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     el.scr = document.querySelector(".scrim");
     el.brandmark.innerHTML = logoSvg(132);
     el["hud-logo"].innerHTML = logoSvg(34, { rounded: true });
+    el["phead-logo"].innerHTML = logoSvg(38, { rounded: true });
     document.querySelectorAll("[data-icon]").forEach((n) => {
       n.innerHTML = ICON[n.dataset.icon] || "";
     });
     el["btn-by-title"].addEventListener("click", () => ui.open("about"));
     el["title-lang"].querySelectorAll("button").forEach((b) => b.addEventListener("click", () => changeLanguage(b.dataset.lang)));
-    el["hud-lang"].addEventListener("click", () => changeLanguage(lang.mode === "en" ? "th" : lang.mode === "th" ? "both" : "en"));
-    for (const p of ["btn", "t"]) {
-      el[p + "-sound"].addEventListener("click", () => toggleSound());
-      el[p + "-music"].addEventListener("click", () => toggleMusic());
-      el[p + "-next"].addEventListener("click", () => skipTrack(1));
-    }
     el["btn-menu"].addEventListener("click", () => ui.panel === "pause" ? ui.close() : ui.open("pause"));
     document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => ui.close()));
     document.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => ui.open(b.dataset.open)));
@@ -35754,6 +35852,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       });
       for (const ev of ["pointerup", "pointercancel", "lostpointercapture"]) k.addEventListener(ev, up);
     });
+    addEventListener("resize", placeToasts);
     onLanguageChange(refreshLanguage);
     refreshLanguage();
     rotateTips();
@@ -35807,14 +35906,14 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       b.setAttribute("aria-label", title);
       b.classList.toggle("off", !!off);
     };
-    const inner = lang.mode === "both" ? `<div class="stack">${FLAG.uk(28, 19, "left:3px;top:6px")}${FLAG.th(28, 19, "left:21px;top:18px")}</div>` : flagsFor(lang.mode, 30);
-    setBtn("hud-lang", inner, t("btn.lang"));
+    const silent = settings.muted && !settings.musicOn;
     for (const p of ["btn", "t"]) {
-      setBtn(p + "-sound", settings.muted ? ICON.soundoff : ICON.sound, t("btn.sound"), settings.muted);
-      setBtn(p + "-music", ICON.music, t("btn.music"), !settings.musicOn);
-      setBtn(p + "-next", ICON.next, t("btn.next"));
+      setBtn(p + "-sound", silent ? ICON.soundoff : ICON.sound, t("btn.soundPop"), silent);
+      el[p + "-sound"].classList.toggle("nomus", !settings.musicOn);
     }
+    setBtn("btn-info", ICON.info, t("btn.about"));
     setBtn("btn-menu", ICON.menu, t("btn.menu"));
+    if (ui.onAudioUi) ui.onAudioUi();
     if (el["hud-codex"]) el["hud-codex"].title = t("btn.snackbook");
   }
   function toggleSound() {
@@ -35822,24 +35921,21 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     setMuted(!settings.muted);
     markDirty();
     refreshTop();
-    toast(tp(settings.muted ? "toast.soundOff" : "toast.soundOn"), "", 1200);
-    if (ui.panel === "pause") buildPause();
+    if (!ui.popOpen) toast(tp(settings.muted ? "toast.soundOff" : "toast.soundOn"), "", 1200);
   }
   function toggleMusic() {
     setMusicOn(!settings.musicOn);
     markDirty();
     refreshTop();
-    toast(tp(settings.musicOn ? "toast.musicOn" : "toast.musicOff"), "", 1200);
-    if (ui.panel === "pause") buildPause();
+    if (!ui.popOpen) toast(tp(settings.musicOn ? "toast.musicOn" : "toast.musicOff"), "", 1200);
     if (ui.panel === "settings") buildSettings();
   }
   function skipTrack(d = 1) {
     const tr = nextTrack(d);
     markDirty();
     if (!settings.musicOn) setMusicOn(true);
-    showNowPlaying(tr.name);
+    if (!ui.popOpen) showNowPlaying(tr.name);
     refreshTop();
-    if (ui.panel === "pause") buildPause();
     if (ui.panel === "settings") buildSettings();
   }
   function pickTrack(i) {
@@ -35847,14 +35943,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     settings.track = (i % n + n) % n;
     return skipTrack(0);
   }
-  var npTimer = 0;
   function showNowPlaying(name) {
-    const n = el.nowplaying;
-    if (!n) return;
-    n.innerHTML = `${ICON.music.replace("<svg", '<svg style="width:16px;height:16px;fill:none;stroke:#ffe2b8;stroke-width:2.2;vertical-align:-3px;margin-right:6px"')} ${esc2(tp("toast.track", { name }))}`;
-    n.classList.add("show");
-    clearTimeout(npTimer);
-    npTimer = setTimeout(() => n.classList.remove("show"), 2200);
+    el.toasts.querySelectorAll(".toast.np").forEach((n) => n.remove());
+    toast("", "np", 2200);
+    el.toasts.lastChild.innerHTML = `${ICON.music.replace("<svg", '<svg style="width:16px;height:16px;fill:none;stroke:#ffe2b8;stroke-width:2.2;vertical-align:-3px;margin-right:6px"')} ${esc2(tp("toast.track", { name }))}`;
   }
   function setProgress(p, ready = false) {
     el.loadfill.style.width = Math.round(p * 100) + "%";
@@ -35867,11 +35959,13 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     }
   }
   function hideTitle() {
+    if (ui.closePop) ui.closePop();
     el.title.classList.add("gone");
     setTimeout(() => el.title.hidden = true, 700);
     el.hud.hidden = false;
   }
   function showTitle() {
+    if (ui.closePop) ui.closePop();
     el.title.hidden = false;
     requestAnimationFrame(() => el.title.classList.remove("gone"));
     el.hud.hidden = true;
@@ -35880,6 +35974,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   var panelIds = ["pause", "settings", "controls", "about", "time", "talk", "codex", "quests", "basket", "checkout", "receipt"];
   ui.open = function open(id) {
     if (ui.panel && ui.panel !== id && ui.panel === "checkout") return;
+    if (ui.closePop) ui.closePop();
     ui.prevPanel = ui.panel && ui.panel !== id ? ui.panel : ui.prevPanel;
     if (ui.panel === "pause" && id !== "pause") ui.returnToPause = true;
     else if (id === "pause") ui.returnToPause = false;
@@ -35933,12 +36028,37 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     else ui.open(id);
   };
   ui.isOpen = () => !!ui.panel;
+  function placeToasts() {
+    let top = 14, w = Math.min(innerWidth * 0.92, 560);
+    if (!el.hud.hidden) {
+      for (const s of [".tleft", "#hud-right"]) top = Math.max(top, document.querySelector(s).getBoundingClientRect().bottom);
+      const o = el.objective;
+      if (!o.hidden) {
+        const r = o.getBoundingClientRect();
+        if (r.right > (innerWidth - w) / 2) {
+          const fit = innerWidth - 2 * (r.right + 8);
+          if (fit >= 300) w = Math.min(w, fit);
+          else top = Math.max(top, r.bottom);
+        }
+      }
+    }
+    document.documentElement.style.setProperty("--toast-top", Math.round(top + 10) + "px");
+    document.documentElement.style.setProperty("--toast-w", Math.round(w) + "px");
+  }
+  var MAX_TOASTS = 3;
+  function fitToasts() {
+    while (el.toasts.children.length > MAX_TOASTS) el.toasts.firstChild.remove();
+    const half = el.zonebanner.offsetHeight ? el.zonebanner.offsetHeight / 2 : 66;
+    const limit = innerHeight / 2 - half - 12;
+    while (el.toasts.children.length > 1 && el.toasts.lastElementChild.getBoundingClientRect().bottom > limit) el.toasts.firstChild.remove();
+  }
   function toast(msg, kind = "", ms = 2600) {
+    placeToasts();
     const d = document.createElement("div");
     d.className = "toast " + kind;
     d.textContent = msg;
     el.toasts.appendChild(d);
-    while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
+    fitToasts();
     setTimeout(() => {
       d.style.transition = "opacity .4s";
       d.style.opacity = 0;
@@ -35946,10 +36066,12 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     }, ms);
   }
   function achievement(id) {
+    placeToasts();
     const d = document.createElement("div");
     d.className = "toast ach";
     d.innerHTML = `<span class="medal">\u{1F3C5}</span><div><small>${esc2(tp("ach.unlocked"))}</small><b>${esc2(tp("ach." + id))}</b><div style="font-size:12px;opacity:.85">${esc2(tp("ach." + id + "Desc"))}</div></div>`;
     el.toasts.appendChild(d);
+    fitToasts();
     setTimeout(() => {
       d.style.transition = "opacity .5s";
       d.style.opacity = 0;
@@ -36025,6 +36147,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       return;
     }
     el.objective.hidden = false;
+    requestAnimationFrame(placeToasts);
     el.objective.innerHTML = `<h4>${esc2(tp("quest.active"))}</h4><b>${esc2(pick(q.title))}</b><ul>${q.goals.map((g2, i) => `<li class="${S.questGot.includes(i) ? "done" : ""}">${S.questGot.includes(i) ? "\u2714" : "\u25CB"} ${esc2(pick(g2.label))}</li>`).join("")}</ul>`;
   }
   function updateHud(info) {
@@ -36033,7 +36156,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     el["w-cash"].textContent = save.cash;
     el["w-basket"].textContent = count();
     if (S.hasBasket !== carried) refreshCarry();
-    el["hud-codex-n"].textContent = `${discoveredCount()}/${SKUS.length}`;
+    el["hud-codex-n"].innerHTML = `${discoveredCount()}<span class="of">/${SKUS.length}</span>`;
   }
   var TIME_PRESETS = [[7.5, "set.time.morning", "\u{1F305}"], [12.5, "set.time.noon", "\u2600\uFE0F"], [15.5, "set.time.afternoon", "\u{1F324}\uFE0F"], [18.5, "set.time.evening", "\u{1F307}"], [21.5, "set.time.night", "\u{1F319}"], [2, "set.time.late", "\u{1F30C}"]];
   function buildTime() {
@@ -36070,10 +36193,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   function buildSettings() {
     const body = $("settings-body");
     const row = (label, help, control) => `<div class="row"><div><label>${esc2(label)}</label>${help ? `<small>${esc2(help)}</small>` : ""}</div>${control}</div>`;
-    const slider = (id, min, max, step, val) => `<input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}">`;
+    const slider2 = (id, min, max, step, val) => `<input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}">`;
     const sw = (id, on) => `<label class="switch"><input type="checkbox" id="s-${id}" ${on ? "checked" : ""}><i></i></label>`;
     const seg = (id, opts, cur2) => `<div class="seg" id="s-${id}">${opts.map(([v, l]) => `<button data-v="${v}" class="${v === cur2 ? "on" : ""}">${esc2(l)}</button>`).join("")}</div>`;
-    body.innerHTML = `<h3>${esc2(tp("set.sec.lang"))}</h3>` + row(tp("set.language"), tp("set.languageHelp"), seg("lang", [["en", "English"], ["th", "\u0E44\u0E17\u0E22"], ["both", "EN + \u0E44\u0E17\u0E22"]], lang.mode)) + row(tp("set.time"), "", `<select id="s-timepreset">${[["7.5", "set.time.morning"], ["12.5", "set.time.noon"], ["15.5", "set.time.afternoon"], ["18.5", "set.time.evening"], ["21.5", "set.time.night"], ["2", "set.time.late"]].map(([v, k]) => `<option value="${v}">${esc2(tp(k))}</option>`).join("")}</select>`) + row(tp("pause.hours"), "", slider("hour", 0, 24, 0.25, G.hourNow || 18.5)) + row(tp("set.clock"), "", sw("clock", settings.clockRuns)) + `<h3>${esc2(tp("set.sec.gfx"))}</h3>` + row(tp("set.quality"), tp("set.needReload"), seg("quality", [["low", tp("set.q.low")], ["med", tp("set.q.med")], ["high", tp("set.q.high")]], settings.quality)) + row(tp("set.fov"), "", slider("fov", 55, 105, 1, settings.fov)) + `<h3>${esc2(tp("set.sec.ctl"))}</h3>` + row(tp("set.sens"), "", slider("sens", 0.2, 3, 0.05, settings.sens)) + row(tp("set.invert"), "", sw("invert", settings.invertY)) + row(tp("set.bob"), "", sw("bob", settings.bob)) + `<h3>${esc2(tp("set.sec.snd"))}</h3>` + row(tp("set.master"), "", slider("master", 0, 1, 0.02, settings.master)) + row(tp("set.ambience"), "", slider("ambience", 0, 1, 0.02, settings.ambience)) + row(tp("set.muted"), "", sw("muted", settings.muted)) + row(tp("set.musicOn"), "", sw("musicOn", settings.musicOn)) + row(tp("set.track"), "", `<select id="s-track">${MUSIC_TRACKS.map((tr, i) => `<option value="${i}" ${i === settings.track ? "selected" : ""}>${esc2(tr.name)}</option>`).join("")}</select>`) + row(tp("set.music"), "", slider("music", 0, 1, 0.02, settings.music)) + row(tp("set.sfx"), "", slider("sfx", 0, 1, 0.02, settings.sfx)) + `<h3>${esc2(tp("set.sec.play"))}</h3>` + row(tp("set.subtitles"), "", sw("subtitles", settings.subtitles)) + row(tp("set.romanize"), "", sw("romanize", settings.romanize)) + row(tp("set.voice"), "", sw("voice", settings.voice)) + row(tp("set.hints"), "", sw("hints", settings.hints)) + `<div class="row"><div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="s-reload">${esc2(tp("set.reload"))}</button><button class="btn" id="s-reset">${esc2(tp("set.reset"))}</button></div></div>`;
+    body.innerHTML = `<h3>${esc2(tp("set.sec.lang"))}</h3>` + row(tp("set.language"), tp("set.languageHelp"), seg("lang", [["en", "English"], ["th", "\u0E44\u0E17\u0E22"], ["both", "EN + \u0E44\u0E17\u0E22"]], lang.mode)) + row(tp("set.time"), "", `<select id="s-timepreset">${[["7.5", "set.time.morning"], ["12.5", "set.time.noon"], ["15.5", "set.time.afternoon"], ["18.5", "set.time.evening"], ["21.5", "set.time.night"], ["2", "set.time.late"]].map(([v, k]) => `<option value="${v}">${esc2(tp(k))}</option>`).join("")}</select>`) + row(tp("pause.hours"), "", slider2("hour", 0, 24, 0.25, G.hourNow || 18.5)) + row(tp("set.clock"), "", sw("clock", settings.clockRuns)) + `<h3>${esc2(tp("set.sec.gfx"))}</h3>` + row(tp("set.quality"), tp("set.needReload"), seg("quality", [["low", tp("set.q.low")], ["med", tp("set.q.med")], ["high", tp("set.q.high")]], settings.quality)) + row(tp("set.fov"), "", slider2("fov", 55, 105, 1, settings.fov)) + `<h3>${esc2(tp("set.sec.ctl"))}</h3>` + row(tp("set.sens"), "", slider2("sens", 0.2, 3, 0.05, settings.sens)) + row(tp("set.invert"), "", sw("invert", settings.invertY)) + row(tp("set.bob"), "", sw("bob", settings.bob)) + `<h3>${esc2(tp("set.sec.snd"))}</h3>` + row(tp("set.master"), "", slider2("master", 0, 1, 0.02, settings.master)) + row(tp("set.ambience"), "", slider2("ambience", 0, 1, 0.02, settings.ambience)) + row(tp("set.muted"), "", sw("muted", settings.muted)) + row(tp("set.musicOn"), "", sw("musicOn", settings.musicOn)) + row(tp("set.track"), "", `<select id="s-track">${MUSIC_TRACKS.map((tr, i) => `<option value="${i}" ${i === settings.track ? "selected" : ""}>${esc2(tr.name)}</option>`).join("")}</select>`) + row(tp("set.music"), "", slider2("music", 0, 1, 0.02, settings.music)) + row(tp("set.sfx"), "", slider2("sfx", 0, 1, 0.02, settings.sfx)) + `<h3>${esc2(tp("set.sec.play"))}</h3>` + row(tp("set.subtitles"), "", sw("subtitles", settings.subtitles)) + row(tp("set.romanize"), "", sw("romanize", settings.romanize)) + row(tp("set.voice"), "", sw("voice", settings.voice)) + row(tp("set.hints"), "", sw("hints", settings.hints)) + `<div class="row"><div></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="s-reload">${esc2(tp("set.reload"))}</button><button class="btn" id="s-reset">${esc2(tp("set.reset"))}</button></div></div>`;
     const bind = (id, fn, evt = "input") => {
       const e = $("s-" + id);
       if (e) e.addEventListener(evt, () => fn(e));
@@ -37477,7 +37600,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
           if (ui.hooks.touchAction) ui.hooks.touchAction("talk");
         } else {
           showPrompt({ name: t("interact." + ob.kind), sub: "", price: "", cat: "", keys: [["T", this.actionLabel(ob)]] });
-          if (ui.hooks.touchAction) ui.hooks.touchAction("use");
+          if (ui.hooks.touchAction) ui.hooks.touchAction("use", ob.kind);
         }
       }
     }
@@ -37913,41 +38036,71 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   var STICK_R = 56;
   var LOOK_GAIN = 1.5;
   var actionKind = null;
+  var actionObj = null;
   var inter = null;
   var crouch = false;
   function touchWanted() {
     if (new URLSearchParams(location.search).has("touch")) return true;
     return matchMedia("(hover: none) and (pointer: coarse)").matches;
   }
+  var NARROW = matchMedia("(max-width: 899px)");
   function initTouch(interaction) {
-    if (!touchWanted()) return false;
     inter = interaction;
-    document.documentElement.setAttribute("data-touch", "1");
-    input.touch = true;
+    const touch = touchWanted();
+    const setTc = () => document.documentElement.toggleAttribute("data-tc", touch || NARROW.matches);
+    setTc();
+    NARROW.addEventListener("change", setTc);
+    if (touch) {
+      document.documentElement.setAttribute("data-touch", "1");
+      input.touch = true;
+      bindLook($("gl"));
+    }
     render2();
     ui.refreshers.set("touch", render2);
-    ui.hooks.touchAction = (k) => {
-      if (k !== actionKind) {
+    ui.hooks.touchAction = (k, obj = null) => {
+      if (k !== actionKind || obj !== actionObj) {
         actionKind = k;
+        actionObj = obj;
         refreshTake();
       }
     };
-    bindLook($("gl"));
-    return true;
+    return touch;
   }
-  function btn(id, cls, icon, label) {
-    return `<button class="act ${cls}" id="${id}" type="button">${ICON[icon] || ""}<small>${label}</small></button>`;
+  function btn(id, cls, emoji, label) {
+    return `<button class="act ${cls}" id="${id}" type="button"><span class="em" aria-hidden="true">${emoji}</span><small>${label}</small></button>`;
   }
+  var carryFace = () => S.hasBasket ? ["\u{1F9FA}", "hud.basket"] : ["\u{1F932}", "hud.hands"];
+  var USE = {
+    pos: ["\u{1F4B3}", "tv.pay"],
+    atm: ["\u{1F3E7}", "tv.withdraw"],
+    microwave: ["\u2668\uFE0F", "tv.heat"],
+    hotwater: ["\u{1F4A7}", "tv.pour"],
+    coffee: ["\u2615", "tv.order"],
+    dog: ["\u{1F43E}", "tv.pet"],
+    stool: ["\u{1FA91}", "tv.sit"]
+  };
+  function takeFace() {
+    if (actionKind === "sku") return ["\u270B", "tv.take"];
+    if (actionKind === "talk") return ["\u{1F4AC}", "tv.talk"];
+    if (actionKind === "use") return actionObj === "basket" ? ["\u{1F9FA}", S.hasBasket ? "tv.drop" : "tv.grab"] : USE[actionObj] || ["\u{1F446}", "tv.use"];
+    return ["\u{1F446}", "tv.interact"];
+  }
+  var setFace = (id, [emoji, key]) => {
+    const b = $(id);
+    if (!b) return;
+    b.querySelector(".em").textContent = emoji;
+    b.querySelector("small").textContent = tp(key);
+  };
   function render2() {
     const box3 = $("touch");
     if (!box3) return;
     box3.innerHTML = `<div class="stick" id="t-stick"><span>${tp("hud.move")}</span><i></i></div>
-    ${btn("t-crouch", "crouch", "crouch", tp("ctl.crouch").split(" ")[0])}
+    ${btn("t-crouch", "crouch", "\u{1F9CE}", tp("tv.crouch"))}
     <div class="acts">
-      ${btn("t-take", "take", "hand", tp("hud.take"))}
-      ${btn("t-inspect", "a2", "search", tp("hud.inspect"))}
-      ${btn("t-back", "a3", "undo", tp("tch.back"))}
-      ${btn("t-basket", "a4", S.hasBasket ? "basket" : "hand", tp(S.hasBasket ? "hud.basket" : "hud.hands"))}
+      ${btn("t-take", "take", "\u{1F446}", tp("tv.interact"))}
+      ${btn("t-inspect", "a2", "\u{1F50D}", tp("hud.inspect"))}
+      ${btn("t-back", "a3", "\u21A9\uFE0F", tp("tch.back"))}
+      ${btn("t-basket", "a4", carryFace()[0], tp(carryFace()[1]))}
     </div>`;
     bindStick($("t-stick"));
     press("t-take", () => G.mode === "inspect" ? inter.inspectTake() : inter.primary());
@@ -37964,6 +38117,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       $("t-crouch").classList.toggle("hot", crouch);
     });
     refreshTake();
+    syncTouchMode();
   }
   function press(id, fn) {
     const b = $(id);
@@ -37977,27 +38131,20 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   function refreshTake() {
     const b = $("t-take");
     if (!b) return;
-    const talk = actionKind === "talk";
-    b.querySelector("svg").outerHTML = talk ? ICON.talk : ICON.hand;
-    b.querySelector("small").textContent = talk ? tp("hud.tapToTalk") : actionKind === "use" ? tp("hud.use") : tp("hud.take");
-    b.classList.toggle("hot", !!actionKind);
+    if (G.mode !== "inspect") setFace("t-take", takeFace());
+    b.classList.toggle("hot", !!actionKind && G.mode !== "inspect");
   }
   function syncTouchMode() {
     const inspect = G.mode === "inspect";
-    const set = (id, icon, label) => {
-      const b = $(id);
-      if (!b) return;
-      const s = b.querySelector("svg");
-      if (s) s.outerHTML = ICON[icon];
-      b.querySelector("small").textContent = label;
-    };
     if (inspect) {
-      set("t-inspect", "undo", tp("ctl.flip").split(" ")[0]);
-      set("t-basket", "crouch", tp("tch.back"));
+      setFace("t-inspect", ["\u{1F504}", "tv.flip"]);
+      setFace("t-basket", ["\u21A9\uFE0F", "tch.back"]);
+      setFace("t-take", ["\u270B", "tv.take"]);
     } else {
-      set("t-inspect", "search", tp("hud.inspect"));
-      set("t-basket", S.hasBasket ? "basket" : "hand", tp(S.hasBasket ? "hud.basket" : "hud.hands"));
+      setFace("t-inspect", ["\u{1F50D}", "hud.inspect"]);
+      setFace("t-basket", carryFace());
     }
+    refreshTake();
   }
   function bindStick(el2) {
     if (!el2) return;
@@ -38089,6 +38236,137 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     return Math.hypot(a.x - b.x, a.y - b.y) || 1;
   };
 
+  // src/ui/soundpop.js
+  var $2 = (id) => document.getElementById(id);
+  var esc3 = (s) => String(s).replace(/[&<>"]/g, (c2) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c2]);
+  var TP = {
+    prev: '<svg viewBox="0 0 24 24"><path d="M19 5.5v13l-9-6.5z"/><rect x="5.5" y="5.5" width="3" height="13" rx=".8"/></svg>',
+    next: '<svg viewBox="0 0 24 24"><path d="M5 5.5v13l9-6.5z"/><rect x="15.5" y="5.5" width="3" height="13" rx=".8"/></svg>'
+  };
+  var pop = null;
+  var anchor = null;
+  function initSoundPop() {
+    pop = $2("soundpop");
+    for (const id of ["btn-sound", "t-sound"]) {
+      const b = $2(id);
+      if (b) b.addEventListener("click", () => toggleSoundPop(b));
+    }
+    pop.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-a],[data-track]");
+      if (!b) return;
+      const a = b.dataset.a;
+      if (b.dataset.track) pickTrack(+b.dataset.track);
+      else if (a === "sfx") {
+        toggleSound();
+        if (!settings.muted) sfx("pop");
+      } else if (a === "music") toggleMusic();
+      else if (a === "prev") skipTrack(-1);
+      else if (a === "next") skipTrack(1);
+      else if (a === "close") closeSoundPop();
+    });
+    pop.addEventListener("input", (e) => {
+      const k = e.target.dataset.vol;
+      if (!k) return;
+      settings[k] = +e.target.value;
+      markDirty();
+      applyVolumes();
+      const o = e.target.nextElementSibling;
+      if (o) o.textContent = Math.round(settings[k] * 100);
+    });
+    pop.addEventListener("change", (e) => {
+      if (e.target.dataset.vol === "sfx") sfx("pop");
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (!anchor || pop.contains(e.target) || anchor.contains(e.target)) return;
+      closeSoundPop();
+      ui.popClosedAt = performance.now();
+      e.stopPropagation();
+      e.preventDefault();
+    }, true);
+    addEventListener("resize", () => {
+      if (anchor) place();
+    });
+    ui.onAudioUi = () => {
+      if (anchor) sync();
+    };
+    ui.closePop = closeSoundPop;
+  }
+  var soundPopOpen = () => !!anchor;
+  function toggleSoundPop(btn2) {
+    const same = anchor === btn2;
+    closeSoundPop();
+    if (!same) openSoundPop(btn2);
+  }
+  function openSoundPop(btn2) {
+    anchor = btn2;
+    ui.popOpen = true;
+    render3();
+    pop.hidden = false;
+    place();
+    btn2.setAttribute("aria-expanded", "true");
+    btn2.classList.add("open");
+  }
+  function closeSoundPop() {
+    if (!anchor) return;
+    anchor.setAttribute("aria-expanded", "false");
+    anchor.classList.remove("open");
+    anchor = null;
+    ui.popOpen = false;
+    pop.hidden = true;
+    pop.innerHTML = "";
+  }
+  var slider = (k, label) => `<div class="vl">${ICON.sound}<input type="range" min="0" max="1" step="0.02" value="${settings[k]}" data-vol="${k}" aria-label="${esc3(label)}"><output>${Math.round(settings[k] * 100)}</output></div>`;
+  var tog = (a, on, label) => `<button class="tog ${on ? "on" : ""}" data-a="${a}" type="button" role="switch" aria-checked="${on}" aria-label="${esc3(label)}"></button>`;
+  function render3() {
+    const T5 = currentTrack(), fx = !settings.muted, mu = settings.musicOn;
+    pop.innerHTML = `<div class="caret"></div><div class="pin">
+    <div class="phd"><h3>${esc3(tp("pause.sound"))}</h3><button class="xx" data-a="close" type="button" aria-label="${esc3(tp("pop.close"))}">\u2715</button></div>
+    <div class="psec ssec ${fx ? "" : "off"}"><div class="prow"><span class="si">${ICON.sound}</span><div class="sl"><b>${esc3(tp("pause.sfx"))}</b><small>${esc3(tp("pop.sfxSub"))}</small></div>${tog("sfx", fx, tp("pause.sfx"))}</div>
+      <div class="fold"><div>${slider("sfx", tp("pause.sfxVol"))}</div></div></div>
+    <div class="psec msec ${mu ? "" : "off"}"><div class="prow"><span class="si">${ICON.music}</span><div class="sl"><b>${esc3(tp("pause.music"))}</b><small class="mstate">${esc3(tp(mu ? "pop.on" : "pop.off"))}</small></div>${tog("music", mu, tp("pause.music"))}</div>
+      <div class="fold"><div>
+        <div class="nowc"><div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="nt"><b class="tname">${esc3(T5.name)}</b><small class="tmood">${esc3(tp(T5.moodKey))}</small></div>
+          <button class="tb" data-a="prev" type="button" aria-label="${esc3(tp("btn.prev"))}">${TP.prev}</button><button class="tb" data-a="next" type="button" aria-label="${esc3(tp("btn.next"))}">${TP.next}</button></div>
+        <div class="tl">${MUSIC_TRACKS.map((tr, i) => `<button class="tr" data-track="${i}" type="button"><i></i><div>${esc3(tr.name)}<small>${esc3(tp(tr.moodKey))}</small></div></button>`).join("")}</div>
+        ${slider("music", tp("pause.musicVol"))}
+      </div></div></div>
+    <div class="kh"><span><kbd>N</kbd>${esc3(tp("pause.sfx"))}</span><span><kbd>M</kbd>${esc3(tp("pause.music"))}</span><span><kbd>,</kbd><kbd>.</kbd>${esc3(tp("pop.track"))}</span></div>
+  </div>`;
+    sync();
+  }
+  function sync() {
+    const fx = !settings.muted, mu = settings.musicOn, T5 = currentTrack();
+    const set = (sel, on) => {
+      const s = pop.querySelector(sel);
+      s.classList.toggle("off", !on);
+      const g2 = s.querySelector(".tog");
+      g2.classList.toggle("on", on);
+      g2.setAttribute("aria-checked", on);
+    };
+    set(".ssec", fx);
+    set(".msec", mu);
+    pop.querySelector(".mstate").textContent = tp(mu ? "pop.on" : "pop.off");
+    pop.querySelector(".tname").textContent = T5.name;
+    pop.querySelector(".tmood").textContent = tp(T5.moodKey);
+    pop.querySelectorAll(".tr").forEach((b, i) => {
+      const on = MUSIC_TRACKS[i] === T5;
+      b.classList.toggle("on", on);
+      b.querySelector("i").textContent = on ? "\u266A" : i + 1;
+    });
+  }
+  function place() {
+    const r = anchor.getBoundingClientRect(), W = innerWidth, H2 = innerHeight;
+    const w = W <= 640 ? W - 16 : Math.min(H2 <= 440 ? 560 : 360, W - 16);
+    const left = W <= 640 ? 8 : Math.min(W - 8 - w, Math.max(8, r.right - w + 8));
+    const top = r.bottom + 10;
+    pop.style.left = left + "px";
+    pop.style.top = top + "px";
+    pop.style.width = w + "px";
+    pop.style.setProperty("--cx", r.left + r.width / 2 - left + "px");
+    pop.querySelector(".pin").style.maxHeight = H2 - top - 8 + "px";
+  }
+
   // src/main.js
   var params = new URLSearchParams(location.search);
   G.debug = params.has("debug");
@@ -38111,6 +38389,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       return;
     }
     initUI();
+    initSoundPop();
     initPanels();
     const WAKE = ["pointerdown", "keydown", "touchend"];
     const wake = () => {
@@ -38244,7 +38523,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       else if (G.mode === "inspect" && !ui.panel) ui.open("pause");
     });
     onInput("click", () => {
-      if (!G.started || ui.panel) return;
+      if (!G.started || ui.panel || ui.popOpen || performance.now() - (ui.popClosedAt || 0) < 450) return;
       if (G.mode === "play") interaction.primary();
       else if (G.mode === "inspect") interaction.inspectTake();
     });
@@ -38267,6 +38546,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       if (code === "Comma") {
         initAudio();
         skipTrack(-1);
+        return;
+      }
+      if (code === "Escape" && soundPopOpen()) {
+        closeSoundPop();
         return;
       }
       if (!G.started) return;
@@ -38396,6 +38679,12 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
       },
       open(id) {
         ui.open(id);
+      },
+      toast(msg, kind) {
+        toast(msg, kind, 6e3);
+      },
+      zone() {
+        showZone("zone.outside", "zone.outsideSub");
       },
       close() {
         ui.close();

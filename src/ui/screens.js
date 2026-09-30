@@ -1,10 +1,7 @@
-// The dark panels: pause + audio, controls (keyboard / touch) and About with the employee badge.
+// The dark panels: pause (sound lives in the Sound popover, soundpop.js), controls (keyboard / touch) and About with the employee badge.
 import { STR } from '../core/strings.js';
 import { lang, tp, dual, showRom } from '../core/i18n.js';
-import { settings, markDirty } from '../core/settings.js';
-import { MUSIC_TRACKS } from '../data/music.js';
-import { ui, esc, $, changeLanguage, toggleSound, toggleMusic, pickTrack } from './ui.js';
-import { applyVolumes } from '../game/audio.js';
+import { ui, esc, $, changeLanguage } from './ui.js';
 import { ICON, FLAG, flagsFor, logoSvg, LINKS, SUPPORT } from './icons.js';
 import AVATAR from '../assets/nomaditsu-avatar.jpg';
 
@@ -19,23 +16,13 @@ export function buildPause() {
     `<button class="big" data-act="resume">${D('menu.resumeStore')}</button>` +
     `<div class="trio">${btn('gbtn', 'settings', 'menu.settings')}${btn('gbtn', 'controls', 'menu.controls')}${btn('gbtn', 'about', 'menu.about')}</div>` +
     `<div class="trio">${btn('gbtn', 'codex', 'menu.codex')}${btn('gbtn', 'quests', 'menu.quests')}${btn('gbtn ghost', 'title', 'menu.title')}</div>` +
-    `<div class="sec"><h3>${esc(tp('pause.sound'))}</h3>` +
-    `<div class="sw"><span>${D('pause.sfx')}</span><button class="tog ${settings.muted ? '' : 'on'}" data-act="sound" aria-label="sound"></button></div>` +
-    `<div class="sw"><span>${D('pause.music')}</span><button class="tog ${settings.musicOn ? 'on' : ''}" data-act="music" aria-label="music"></button></div>` +
-    `<div class="tracks">${MUSIC_TRACKS.map((tr, i) => `<button class="trk ${i === settings.track ? 'on' : ''}" data-track="${i}"><i>${i === settings.track ? '♪' : i + 1}</i><div>${esc(tr.name)}<small>${D(tr.moodKey)}</small></div></button>`).join('')}</div>` +
-    `<div class="vol">${esc(tp('pause.musicVol'))}<input type="range" min="0" max="1" step="0.02" value="${settings.music}" data-vol="music"></div>` +
-    `<div class="vol">${esc(tp('pause.sfxVol'))}<input type="range" min="0" max="1" step="0.02" value="${settings.sfx}" data-vol="sfx"></div></div>` +
     `<div class="sec"><h3>${esc(tp('pause.language'))}</h3><div class="seg wideseg">${['en', 'both', 'th'].map((m) => `<button data-lang="${m}" class="${lang.mode === m ? 'on' : ''}">${flagsFor(m, 24)}<span>${m === 'en' ? 'English' : m === 'th' ? 'ไทย' : 'EN + ไทย'}</span></button>`).join('')}</div></div>`;
   body.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => {
     const a = b.dataset.act;
     if (a === 'resume') ui.close();
     else if (a === 'title') ui.hooks.toTitle && ui.hooks.toTitle();
-    else if (a === 'sound') toggleSound();
-    else if (a === 'music') toggleMusic();
     else ui.open(a);
   }));
-  body.querySelectorAll('[data-track]').forEach((b) => b.addEventListener('click', () => pickTrack(+b.dataset.track)));
-  body.querySelectorAll('[data-vol]').forEach((r) => r.addEventListener('input', () => { settings[r.dataset.vol] = +r.value; markDirty(); applyVolumes(); }));
   body.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => changeLanguage(b.dataset.lang)));
 }
 

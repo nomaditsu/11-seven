@@ -16,16 +16,13 @@
 #topbar{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:3}
 #topbar>*{pointer-events:none}
 .tleft{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;min-width:0}
-.tright{display:flex;gap:8px;align-items:flex-start;flex:none}
+.tright{display:flex;gap:6px;align-items:flex-start;flex:none}
 .chip{background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:auto}
-.brand{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:6px 16px 6px 10px;cursor:pointer;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:auto}
-.brand:hover{border-color:var(--o)}
+.brand{box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:6px 16px 6px 10px;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff;pointer-events:none}
 .brand .bm svg{display:block;height:34px;width:auto}
 .brand .bt{display:flex;flex-direction:column;line-height:1.05}
 .brand .word{font:400 16px 'Archivo Black',Kanit,sans-serif}.brand .word em{font-style:normal;color:#5be0a0}
-.brand .by{font:300 11px Kanit;letter-spacing:.24em;color:#e9ded0;margin-top:3px;text-transform:uppercase}
-.brand .by u{text-decoration:none;font-weight:500;color:#fff;border-bottom:1px solid rgba(255,255,255,.4)}
-.brand:hover .by u{color:var(--o);border-color:var(--o)}
+.brand .sub,#phead .sub{font:500 12px Kanit,sans-serif;letter-spacing:.04em;color:rgba(255,255,255,.8);margin-top:2px}
 .stat{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:6px 14px;pointer-events:auto;background:var(--glass);border:1px solid var(--edge);border-radius:16px;backdrop-filter:blur(8px);color:#fff}
 button.stat{cursor:pointer}button.stat:hover{border-color:var(--o)}
 .stat b{display:block;font-size:20px;font-weight:700;line-height:1.1}
@@ -40,10 +37,62 @@ button.stat{cursor:pointer}button.stat:hover{border-color:var(--o)}
 .ib svg .f{fill:currentColor;stroke:none}
 .ib small{position:absolute;right:4px;bottom:2px;font-size:10px;font-weight:700;color:var(--mutedl);line-height:1}
 .ib.off{color:#ffb0a8;background:rgba(120,20,24,.55);border-color:rgba(255,90,95,.55)}
-.ib .stack{position:relative;width:100%;height:100%}.ib .stack .flag{position:absolute}
-.gap{width:8px;flex:none}
-.nowplaying{position:absolute;top:82px;right:14px;z-index:3;padding:7px 14px;font-size:14px;font-weight:500;opacity:0;transform:translateY(-6px);transition:.25s;pointer-events:none}
-.nowplaying.show{opacity:1;transform:none}
+/* one Sound button: small moving bars while music plays (hidden when music is off), orange while its popover is open */
+.ib.snd .mini{position:absolute;right:5px;top:5px;display:flex;gap:1.5px;align-items:flex-end;height:9px;pointer-events:none}
+.ib.snd .mini i{width:2.5px;background:#5be0a0;border-radius:1px;height:40%;animation:sbob .9s ease-in-out infinite}
+.ib.snd .mini i:nth-child(2){animation-delay:-.3s}.ib.snd .mini i:nth-child(3){animation-delay:-.6s}
+.ib.snd.nomus .mini,.ib.snd.off .mini{display:none}
+.ib.snd.open{border-color:var(--o);background:rgba(245,130,32,.22)}
+@keyframes sbob{0%,100%{height:30%}50%{height:100%}}
+
+/* ---------- sound popover (src/ui/soundpop.js) ---------- */
+.soundpop{position:fixed;z-index:60;display:flex;flex-direction:column;color:#fff;font-family:Kanit,sans-serif;background:rgba(14,22,18,.97);border:1px solid rgba(255,255,255,.2);border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.6);animation:spopin .16s ease-out}
+.soundpop[hidden]{display:none}
+@keyframes spopin{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.soundpop .caret{position:absolute;top:-8px;left:var(--cx,300px);width:14px;height:14px;margin-left:-7px;transform:rotate(45deg);background:rgba(14,22,18,.97);border-left:1px solid rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.2);border-radius:3px 0 0 0}
+.soundpop .pin{overflow:auto;padding:14px 14px 12px;border-radius:20px;overscroll-behavior:contain}
+.soundpop .phd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.soundpop .phd h3{margin:0;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--cream);flex:1;display:flex;gap:8px;align-items:center}
+.soundpop .phd h3:before{content:"";width:5px;height:16px;border-radius:3px;background:var(--o)}
+.soundpop .xx{all:unset;box-sizing:border-box;width:36px;height:36px;border-radius:10px;border:1px solid var(--edge);background:rgba(255,255,255,.08);display:none;place-items:center;font-size:16px;cursor:pointer}
+.soundpop .psec{border:1px solid var(--edge);border-radius:16px;padding:10px 12px;background:rgba(255,255,255,.04)}
+.soundpop .psec+.psec{margin-top:10px}
+.soundpop .prow{display:flex;align-items:center;gap:12px}
+.soundpop .si svg{width:22px;height:22px;display:block;fill:none;stroke:var(--cream);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.soundpop .si svg .f{fill:var(--cream);stroke:none}
+.soundpop .off .si svg{stroke:#8a918d}.soundpop .off .si svg .f{fill:#8a918d}
+.soundpop .sl{flex:1;min-width:0}.soundpop .sl b{display:block;font-size:17px;font-weight:500;line-height:1.15}.soundpop .sl small{display:block;font-size:12px;color:var(--mutedl)}
+.soundpop .off .sl b{color:#c9cfcb}
+.soundpop .tog{all:unset;box-sizing:border-box;width:56px;height:32px;border-radius:999px;background:#4a4e4c;position:relative;cursor:pointer;flex:none;transition:background .2s}
+.soundpop .tog:after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+.soundpop .tog.on{background:var(--gl)}.soundpop .tog.on:after{left:28px}
+.soundpop .fold{display:grid;grid-template-rows:1fr;transition:grid-template-rows .24s ease,opacity .2s}
+.soundpop .fold>div{overflow:hidden;min-height:0}
+.soundpop .off .fold{grid-template-rows:0fr;opacity:0;visibility:hidden}
+.soundpop .nowc{display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 8px 8px 10px;border-radius:16px;background:linear-gradient(135deg,rgba(245,130,32,.2),rgba(0,135,74,.14));border:1px solid rgba(245,130,32,.35)}
+.soundpop .eq{width:42px;height:42px;border-radius:12px;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;gap:3px;padding:8px 7px;flex:none}
+.soundpop .eq i{flex:1;border-radius:2px;background:var(--o);height:30%;animation:sbob 1s ease-in-out infinite}
+.soundpop .eq i:nth-child(3n+2){background:var(--gl);animation-delay:-.35s}.soundpop .eq i:nth-child(3n){background:#ff5a5f;animation-delay:-.7s}.soundpop .eq i:nth-child(4){animation-delay:-.2s}
+.soundpop .nt{min-width:0;flex:1}
+.soundpop .nt b{display:block;font-size:18px;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.soundpop .nt small{display:block;font-size:13px;color:var(--mutedl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.soundpop .tb{all:unset;box-sizing:border-box;width:40px;height:40px;border-radius:50%;border:1px solid var(--edge);background:rgba(255,255,255,.09);display:grid;place-items:center;cursor:pointer;flex:none}
+.soundpop .tb:active{transform:scale(.94)}.soundpop .tb svg{width:18px;height:18px;fill:#fff}
+.soundpop .tl{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.soundpop .tr{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;border:1px solid var(--edge);background:rgba(255,255,255,.06);border-radius:12px;padding:7px 10px;font:500 15px Kanit,sans-serif;cursor:pointer;min-height:48px}
+.soundpop .tr i{font-style:normal;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:12px;flex:none}
+.soundpop .tr.on{border-color:var(--o);background:rgba(245,130,32,.18)}.soundpop .tr.on i{background:var(--o);color:#1a0f05}
+.soundpop .tr small{display:block;font-size:12px;color:var(--mutedl);line-height:1.1}
+.soundpop .vl{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px}
+.soundpop .vl svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--cream);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.soundpop .vl svg .f{fill:var(--cream);stroke:none}
+.soundpop .vl input{flex:1;accent-color:var(--o);height:28px;min-width:0}
+.soundpop .vl output{width:32px;text-align:right;font-weight:500}
+.soundpop .kh{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mutedl)}
+.soundpop .kh kbd{font:700 11px Kanit,sans-serif;background:linear-gradient(#fff,#ececec);color:#15110e;border-radius:5px;padding:1px 6px;margin-right:4px;box-shadow:0 2px 0 #9a9184}
+html[data-touch] .soundpop .kh{display:none}
+@media (prefers-reduced-motion:reduce){.soundpop .fold{transition:none}.soundpop .eq i,.ib.snd .mini i{animation:none;height:70%}}
+
+/* ---------- phone header (portrait phones only; see the 640px block below) ---------- */
+#phead{display:none}
 #objective{top:82px}
 
 /* ---------- movement pad + key hints ---------- */
@@ -221,9 +270,9 @@ body[data-mode=ui] .hint,body[data-mode=ui] .pad kbd,body[data-mode=inspect] .hi
 /* Stick bottom-left with Crouch beside it (both movement); Take bottom-right with Inspect, Put back and Hands on an
    even arc around it. --sl / --sb / --ss place the stick, --tc-band and --tc-side are the space the controls take
    at the bottom and at each side, so cards can stay clear of them. */
-html[data-touch]{--sl:22px;--sb:26px;--ss:150px;--tc-band:212px;--tc-side:220px}
+html[data-tc]{--sl:22px;--sb:26px;--ss:150px;--tc-band:212px;--tc-side:220px}
 #touch{display:none;position:absolute;inset:0;z-index:2;pointer-events:none;touch-action:none}
-html[data-touch] body[data-mode=play] #touch,html[data-touch] body[data-mode=inspect] #touch{display:block}
+html[data-tc] body[data-mode=play] #touch,html[data-tc] body[data-mode=inspect] #touch{display:block}
 #touch .stick{position:absolute;left:var(--sl);bottom:var(--sb);width:var(--ss);height:var(--ss);border-radius:50%;background:rgba(16,22,19,.34);border:2px solid rgba(255,255,255,.8);box-shadow:0 0 0 1.5px rgba(0,0,0,.3),inset 0 0 0 1.5px rgba(0,0,0,.2),0 4px 14px rgba(0,0,0,.25);backdrop-filter:blur(4px);display:grid;place-items:center;pointer-events:auto;touch-action:none}
 #touch .stick i{width:42.5%;height:42.5%;border-radius:50%;background:rgba(255,255,255,.92);border:2px solid rgba(0,0,0,.28);box-shadow:0 2px 10px rgba(0,0,0,.45);transition:transform .05s;pointer-events:none}
 #touch .stick span{position:absolute;top:-24px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 8px rgba(0,0,0,.5);letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
@@ -232,8 +281,12 @@ html[data-touch] body[data-mode=play] #touch,html[data-touch] body[data-mode=ins
 #touch .act svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin:0;flex:none;display:block}
 #touch .act svg .f{fill:currentColor;stroke:none}
 #touch .act small{display:block;font-size:12px;font-weight:700;line-height:1.05;color:#fff;opacity:1}
-#touch .act.take{right:0;bottom:0;width:104px;height:104px;background:var(--glass);transition:background .15s}
-#touch .act.take.hot{background:linear-gradient(#ffa03c,#e46c0b);border-color:#ffc98a}
+#touch .act .em{font-size:26px;line-height:1;display:block;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+#touch .act.take{right:0;bottom:0;width:104px;height:104px;background:linear-gradient(#2fbf7a,#00874a);border-color:#9be8c2}
+#touch .act.take .em{font-size:34px}
+#touch .act.take.hot{animation:tring 1.6s ease-out infinite}
+@keyframes tring{0%{box-shadow:0 0 0 0 rgba(47,191,122,.6)}100%{box-shadow:0 0 0 14px rgba(47,191,122,0)}}
+@media (prefers-reduced-motion:reduce){#touch .act.take.hot{animation:none;box-shadow:0 0 0 4px rgba(47,191,122,.45)}}
 #touch .act.take svg{width:34px;height:34px}
 #touch .act.take small{font-size:15px}
 /* 66px buttons 96px from Take's centre, at 180, 135 and 90 degrees */
@@ -242,49 +295,60 @@ html[data-touch] body[data-mode=play] #touch,html[data-touch] body[data-mode=ins
 #touch .act.a4{right:19px;bottom:115px;width:66px;height:66px}
 /* Crouch up and to the right of the stick, 8px clear of its rim */
 #touch .act.crouch{width:58px;height:58px;left:calc(var(--sl) + var(--ss) / 2 + .7071 * (var(--ss) / 2 + 37px) - 29px);bottom:calc(var(--sb) + var(--ss) / 2 + .7071 * (var(--ss) / 2 + 37px) - 29px)}
-#touch .act.crouch svg{width:22px;height:22px}
+#touch .act.crouch .em{font-size:22px}
 #touch .act.crouch small{font-size:11px}
 #touch .act .l2,#touch .act .rom{display:none}
 body[data-mode=inspect] #touch .stick,body[data-mode=inspect] #touch .a3,body[data-mode=inspect] #touch .crouch{display:none}
 
 /* The hover card sits between the two control groups, or above them where the screen is too narrow */
-html[data-touch] #prompt{bottom:12px;width:min(520px,calc(100vw - 2 * var(--tc-side)))}
+html[data-tc] #prompt{bottom:12px;width:min(520px,calc(100vw - 2 * var(--tc-side)))}
 
 /* Inspect on touch: the card sits above a row of Flip, Put back and Take. Phones: a bottom sheet across the screen.
    Wider screens: a side card on the right. interact.js frameInspect() centres the pack in the space left free. */
-html[data-touch] #inspect-ui{left:auto;right:8px;top:auto;bottom:76px;transform:none;width:min(360px,44vw)}
-html[data-touch] .ins-card{max-height:calc(100vh - 76px - 64px);padding:.9em 1.1em}
-html[data-touch] .ins-desc{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+html[data-tc] #inspect-ui{left:auto;right:8px;top:auto;bottom:76px;transform:none;width:min(360px,44vw)}
+html[data-tc] .ins-card{max-height:calc(100vh - 76px - 64px);padding:.9em 1.1em}
+html[data-tc] .ins-desc{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 body[data-mode=inspect] #touch .acts{left:auto;right:8px;bottom:8px;width:min(360px,44vw);height:60px;display:flex;gap:8px;transform:none}
 body[data-mode=inspect] #touch .act{position:static;flex:1 1 0;width:auto;height:60px;border-radius:16px;flex-direction:row;gap:8px}
-body[data-mode=inspect] #touch .act svg{width:24px;height:24px}
+body[data-mode=inspect] #touch .act .em{font-size:22px}
 body[data-mode=inspect] #touch .act small{font-size:15px}
 body[data-mode=inspect] #touch .act.a2{order:1}
 body[data-mode=inspect] #touch .act.a4{order:2}
-body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa03c,#e46c0b);border-color:#ffc98a}
+body[data-mode=inspect] #touch .act.take{order:3}
 @media (max-width:700px){
-  html[data-touch] #prompt{bottom:calc(var(--tc-band) + 8px);width:calc(100vw - 16px)}
-  html[data-touch] #inspect-ui{left:8px;width:auto}
-  html[data-touch] .ins-card{max-height:46vh}
-  html[data-touch] .ins-card h2{font-size:22px}
-  html[data-touch] .ins-row b{font-size:26px}
-  html[data-touch] .ins-desc{-webkit-line-clamp:3}
+  html[data-tc] #prompt{bottom:calc(var(--tc-band) + 8px);width:calc(100vw - 16px)}
+  html[data-tc] #inspect-ui{left:8px;width:auto}
+  html[data-tc] .ins-card{max-height:46vh}
+  html[data-tc] .ins-card h2{font-size:22px}
+  html[data-tc] .ins-row b{font-size:26px}
+  html[data-tc] .ins-desc{-webkit-line-clamp:3}
   body[data-mode=inspect] #touch .acts{left:8px;width:auto}
 }
 @media (max-height:440px){
-  html[data-touch] .ins-card{padding:.6em .9em}
-  html[data-touch] .ins-card h2{font-size:19px}
-  html[data-touch] .ins-row{margin:.25em 0;padding:.2em 0}
-  html[data-touch] .ins-row b{font-size:21px}
-  html[data-touch] .ins-desc{-webkit-line-clamp:2;font-size:13px}
-  html[data-touch] .ins-dl{display:none}
+  html[data-tc] .ins-card{padding:.6em .9em}
+  html[data-tc] .ins-card h2{font-size:19px}
+  html[data-tc] .ins-row{margin:.25em 0;padding:.2em 0}
+  html[data-tc] .ins-row b{font-size:21px}
+  html[data-tc] .ins-desc{-webkit-line-clamp:2;font-size:13px}
+  html[data-tc] .ins-dl{display:none}
   body[data-mode=inspect] #touch .acts{height:52px}
   body[data-mode=inspect] #touch .act{height:52px}
-  html[data-touch] #inspect-ui{bottom:66px}
+  html[data-tc] #inspect-ui{bottom:66px}
 }
 
 /* ---------- responsive ---------- */
-@media (max-width:1099px){.brand .bt{display:none}.brand{padding:6px 10px}#hud-temp{display:none}}
+/* As the window narrows, the chips lose their less essential text step by step, the on-screen controls replace the
+   key hints at 899px (html[data-tc], touch.js), the wordmark goes at 799px, and phones get the header bar at 640px. */
+@media (max-width:1199px){#hud-temp{display:none}}
+@media (max-width:1023px){
+  .stat small{display:none}
+  #hud-codex b{display:none}
+  #hud-codex small{display:block;font-size:20px;font-weight:700;color:#fff;line-height:1.1}
+  #hud-codex .of{font-size:.72em;font-weight:500;color:var(--mutedl)}
+  .stat{padding:6px 12px}
+}
+@media (max-width:899px){#hud-codex small{font-size:17px}}
+@media (max-width:799px){.brand .bt{display:none}.brand{padding:6px 10px}}
 @media (max-width:899px),(hover:none) and (pointer:coarse){
   .movepad,.hintbar{display:none}
   .stat b{font-size:17px}
@@ -298,7 +362,19 @@ body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa
   #hud .pkeys{display:none}
 }
 @media (max-width:640px){
-  .brand,.ib.lang,.snackchip,#btn-sound,#btn-music,#btn-next,.gap{display:none}
+  .brand{display:none}
+  /* header bar across the top; the .tright buttons (About, Sound, Menu) sit in it, the chips drop below */
+  #phead{display:flex;position:absolute;left:0;right:0;top:0;z-index:3;height:calc(60px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 10px 0 12px;align-items:center;gap:10px;pointer-events:none;
+    background:linear-gradient(rgba(10,16,13,.94),rgba(10,16,13,.86));backdrop-filter:blur(10px);border-bottom:1px solid var(--edge)}
+  #phead:after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:3px;background:linear-gradient(90deg,var(--o) 0 33.3%,#00874a 33.3% 66.6%,#e31e24 66.6%);opacity:.9}
+  #phead .bm svg{display:block;width:38px;height:38px;border-radius:9px}
+  #phead .lock{display:flex;flex-direction:column;line-height:1.05}
+  #phead .word{font:400 20px 'Archivo Black',Kanit,sans-serif;letter-spacing:.02em;color:#fff}#phead .word em{font-style:normal;color:#5be0a0}
+  #topbar{top:calc(74px + env(safe-area-inset-top,0px));left:10px;right:10px}
+  .tright{position:absolute;top:-66px;right:0;gap:6px}
+  .tright .ib{width:44px;height:44px;border-radius:12px}
+  #objective{top:calc(128px + env(safe-area-inset-top,0px))}
+  .soundpop .xx{display:grid}
   .stat{padding:6px 10px;gap:6px}.stat small{display:none}.ci svg{width:20px;height:20px}
   .stat b{font-size:17px}
   .tleft{flex-wrap:nowrap;gap:6px}
@@ -308,14 +384,17 @@ body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa
   .tracks{grid-template-columns:1fr}
   .trio{grid-template-columns:1fr 1fr}.trio>:last-child:nth-child(odd){grid-column:1/-1}
   .vol{grid-template-columns:100px 1fr}
-  html[data-touch]{--sl:16px;--sb:22px;--ss:132px;--tc-band:204px;--tc-side:208px}
+  html[data-tc]{--sl:16px;--sb:22px;--ss:132px;--tc-band:204px;--tc-side:208px}
   #touch .acts{right:12px;bottom:20px}
   .tk .face{width:52px;height:52px}.tk .who b{font-size:19px}.tk .tbtn span{display:none}.tk .say{font-size:19px}.tk .choice{font-size:17px}
-  .nowplaying{top:70px}
+  .stat{padding:6px 8px;gap:5px}.ci svg{width:18px;height:18px}
+}
+@media (max-width:365px){
+  #topbar{left:6px;right:6px}.tleft{gap:4px}.stat{padding:5px 7px}.stat b,#hud-codex small{font-size:16px}
 }
 @media (max-height:440px){
   #topbar{top:8px}.ib{width:42px;height:42px}
-  html[data-touch]{--sl:16px;--sb:14px;--ss:112px;--tc-band:160px;--tc-side:170px}
+  html[data-tc]{--sl:16px;--sb:14px;--ss:112px;--tc-band:160px;--tc-side:170px}
   #touch .acts{transform:scale(.8);transform-origin:100% 100%;bottom:8px;right:8px}
   .panel.dark header{padding:8px 14px}.panel.dark h2{font-size:20px}
   .panel.dark .pbody{padding:12px 14px}
@@ -323,6 +402,18 @@ body[data-mode=inspect] #touch .act.take{order:3;background:linear-gradient(#ffa
   .tk .choices{flex-direction:row;flex-wrap:wrap}.tk .choice{flex:1 1 30%;min-height:40px;font-size:15px;padding:4px 12px}
   .panel.talk{width:min(720px,calc(100vw - 20px));bottom:8px}
   .reward{display:none!important}
+  /* short screens: the quest card shows only its title and the location title is smaller, so the message column,
+     the centred location title and the controls all fit */
+  #objective{top:58px}#objective ul{display:none}
+  #zonebanner{font-size:26px}
+  /* short screens (phones held sideways): effects on the left, music on the right, compact track rows */
+  .soundpop .pin{display:grid;grid-template-columns:200px 1fr;gap:0 10px;align-items:start;padding:10px 12px}
+  .soundpop .phd,.soundpop .kh{grid-column:1/-1}.soundpop .phd{margin-bottom:6px}
+  .soundpop .psec+.psec{margin-top:0}.soundpop .sl small{display:none}
+  .soundpop .nowc{margin-top:6px;padding:6px 8px}.soundpop .eq{width:36px;height:36px}.soundpop .nt b{font-size:16px}.soundpop .tb{width:34px;height:34px}
+  .soundpop .tl{display:grid;grid-template-columns:1fr 1fr;margin-top:6px}
+  .soundpop .tr{min-height:36px;padding:4px 8px;font-size:14px;white-space:nowrap;min-width:0}.soundpop .tr div{overflow:hidden;text-overflow:ellipsis}.soundpop .tr small{display:none}.soundpop .tr i{width:22px;height:22px}
+  .soundpop .vl{margin-top:6px}
 }
 
 /* keep the HUD quiet while a panel or a conversation is open */
@@ -336,6 +427,6 @@ body[data-mode=ui] .movepad,body[data-mode=ui] .hintbar,body[data-mode=ui] #prom
 .byline{margin:6px 0 10px}
 .tagline{margin-bottom:12px}
 .tip{min-height:0}
-html[data-touch] .ins-keys{display:none}
+html[data-tc] .ins-keys{display:none}
 #hud .ins-keys kbd{min-width:30px;height:30px;font-size:14px;padding:0 8px;margin:0;box-shadow:0 3px 0 #9a9184}
 body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}

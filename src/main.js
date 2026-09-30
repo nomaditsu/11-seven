@@ -27,6 +27,7 @@ import { S, count, fmtClock, grantAch, alcoholAllowed } from './game/session.js'
 import { initAudio, updateAudio, sfx, applyVolumes, speakThai, speakGreeting, setMuted, audio } from './game/audio.js';
 import { talkKey, cleanup as talkCleanup, talkActive } from './game/talk.js';
 import { initTouch, syncTouchMode } from './ui/touch.js';
+import { initSoundPop, soundPopOpen, closeSoundPop } from './ui/soundpop.js';
 import { checkoutActive, checkoutKey } from './game/checkout.js';
 import { drawReceipt } from './game/receipt.js';
 import { QUESTS } from './data/quests.js';
@@ -52,6 +53,7 @@ async function boot() {
   if (params.has('sheet')) { showSheet(params); return; }
 
   initUI();
+  initSoundPop();
   initPanels();
   // Sound and music are on from the first page load. Browsers hold audio until the first click / key press, so
   // (re)start it on the first gesture anywhere, including the title-screen sound buttons.
@@ -160,7 +162,7 @@ async function boot() {
   });
   // A click (press without dragging) on the world takes / talks / uses; dragging only looks around.
   onInput('click', () => {
-    if (!G.started || ui.panel) return;
+    if (!G.started || ui.panel || ui.popOpen || performance.now() - (ui.popClosedAt || 0) < 450) return;   // a tap that closed the sound popover does nothing else
     if (G.mode === 'play') interaction.primary();
     else if (G.mode === 'inspect') interaction.inspectTake();
   });
@@ -170,6 +172,7 @@ async function boot() {
     if (code === 'KeyN') { initAudio(); toggleSound(); return; }   // N = sound effects (+ ambience, voices)
     if (code === 'Period') { initAudio(); skipTrack(1); return; }
     if (code === 'Comma') { initAudio(); skipTrack(-1); return; }
+    if (code === 'Escape' && soundPopOpen()) { closeSoundPop(); return; }
     if (!G.started) return;
     if (ui.panel === 'talk') { if (talkKey(code)) return; }
     if (ui.panel === 'checkout' && /^Digit[1-9]$/.test(code)) { const b = document.querySelectorAll('#co-choices button')[+code.slice(5) - 1]; if (b) b.click(); return; }
@@ -243,6 +246,8 @@ async function boot() {
     paintAll() { return debugPaintAll(); },
     pending() { return localizedPending(); },
     open(id) { ui.open(id); },
+    toast(msg, kind) { toast(msg, kind, 6000); },
+    zone() { showZone('zone.outside', 'zone.outsideSub'); },
     close() { ui.close(); },
   };
 

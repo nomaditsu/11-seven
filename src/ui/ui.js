@@ -8,7 +8,7 @@ import { S, count, fmtClock, discoveredCount } from '../game/session.js';
 import { SKUS } from '../data/skus.js';
 import { QUESTS } from '../data/quests.js';
 import { MUSIC_TRACKS } from '../data/music.js';
-import { ICON, FLAG, flagsFor, logoSvg } from './icons.js';
+import { ICON, flagsFor, logoSvg } from './icons.js';
 import { applyVolumes, setMuted, setMusicOn, nextTrack, currentTrack } from '../game/audio.js';
 import { buildPause, buildControls, buildAbout } from './screens.js';
 
@@ -26,7 +26,7 @@ export const ui = {
 // ------------------------------------------------------------------------------------------ init
 export function initUI() {
   for (const id of ['title', 'hud', 'panels', 'xhair', 'zoomframe', 'prompt', 'p-name', 'p-sub', 'p-price', 'p-cat', 'p-keys', 'pcard', 'subtitle', 'sub-th', 'sub-rom', 'sub-en',
-    'zonebanner', 'toasts', 'hints', 'objective', 'w-cash', 'w-basket', 'w-basket-l', 'w-basket-i', 'hud-clock', 'hud-temp', 'hud-lang', 'hud-codex-n', 'hud-codex', 'hud-logo', 'hud-brand', 'brandmark', 'btn-by-title', 'btn-sound', 'btn-music', 'btn-next', 'btn-menu', 't-sound', 't-music', 't-next', 'nowplaying', 'movepad', 'touch',
+    'zonebanner', 'toasts', 'hints', 'objective', 'w-cash', 'w-basket', 'w-basket-l', 'w-basket-i', 'hud-clock', 'hud-temp', 'hud-codex-n', 'hud-codex', 'hud-logo', 'hud-brand', 'brandmark', 'btn-by-title', 'btn-sound', 'btn-info', 'btn-menu', 't-sound', 'phead-logo', 'movepad', 'touch',
     'btn-start', 'btn-settings', 'btn-controls', 'btn-about', 'loadfill', 'tip', 'title-lang', 'clickcatch', 'fade',
     'inspect-ui', 'ins-brand', 'ins-name', 'ins-second', 'ins-price', 'ins-size', 'ins-tags', 'ins-desc', 'ins-dl', 'ins-keys']) el[id] = $(id);
   el.scr = document.querySelector('.scrim');
@@ -34,19 +34,14 @@ export function initUI() {
   // brand marks + inline icons
   el.brandmark.innerHTML = logoSvg(132);
   el['hud-logo'].innerHTML = logoSvg(34, { rounded: true });
+  el['phead-logo'].innerHTML = logoSvg(38, { rounded: true });
   document.querySelectorAll('[data-icon]').forEach((n) => { n.innerHTML = ICON[n.dataset.icon] || ''; });
   el['btn-by-title'].addEventListener('click', () => ui.open('about'));
 
   // language segmented control (title screen)
   el['title-lang'].querySelectorAll('button').forEach((b) => b.addEventListener('click', () => changeLanguage(b.dataset.lang)));
 
-  // always-on top-right buttons
-  el['hud-lang'].addEventListener('click', () => changeLanguage(lang.mode === 'en' ? 'th' : lang.mode === 'th' ? 'both' : 'en'));
-  for (const p of ['btn', 't']) {   // HUD and title-screen copies of the sound / music buttons
-    el[p + '-sound'].addEventListener('click', () => toggleSound());
-    el[p + '-music'].addEventListener('click', () => toggleMusic());
-    el[p + '-next'].addEventListener('click', () => skipTrack(1));
-  }
+  // top-right buttons: About (data-open), Sound (opens the popover in soundpop.js) and Menu
   el['btn-menu'].addEventListener('click', () => (ui.panel === 'pause' ? ui.close() : ui.open('pause')));
 
   // panels
@@ -72,6 +67,7 @@ export function initUI() {
     for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) k.addEventListener(ev, up);
   });
 
+  addEventListener('resize', placeToasts);
   onLanguageChange(refreshLanguage);
   refreshLanguage();
   rotateTips();
@@ -116,52 +112,49 @@ function refreshLanguage() {
 }
 
 // ------------------------------------------------------------------------------------------ top-right buttons
-// Language flag(s), sound / music state and the tooltips. Called whenever any of them changes.
+// Sound state and the tooltips of the top-right buttons. Called whenever they change.
 export function refreshTop() {
   const setBtn = (id, svg, title, off) => {
     const b = el[id]; if (!b) return;
     b.querySelector('.ii').innerHTML = svg; b.title = title; b.setAttribute('aria-label', title); b.classList.toggle('off', !!off);
   };
-  const inner = lang.mode === 'both'
-    ? `<div class="stack">${FLAG.uk(28, 19, 'left:3px;top:6px')}${FLAG.th(28, 19, 'left:21px;top:18px')}</div>`
-    : flagsFor(lang.mode, 30);
-  setBtn('hud-lang', inner, t('btn.lang'));
+  // one Sound button: red only when effects and music are both off; small moving bars while music plays
+  const silent = settings.muted && !settings.musicOn;
   for (const p of ['btn', 't']) {
-    setBtn(p + '-sound', settings.muted ? ICON.soundoff : ICON.sound, t('btn.sound'), settings.muted);
-    setBtn(p + '-music', ICON.music, t('btn.music'), !settings.musicOn);
-    setBtn(p + '-next', ICON.next, t('btn.next'));
+    setBtn(p + '-sound', silent ? ICON.soundoff : ICON.sound, t('btn.soundPop'), silent);
+    el[p + '-sound'].classList.toggle('nomus', !settings.musicOn);
   }
+  setBtn('btn-info', ICON.info, t('btn.about'));
   setBtn('btn-menu', ICON.menu, t('btn.menu'));
+  if (ui.onAudioUi) ui.onAudioUi();
   if (el['hud-codex']) el['hud-codex'].title = t('btn.snackbook');
 }
 export function toggleSound() {
   ui.soundTouched = true;   // the player chose: Walk in will not switch sound on for them
   setMuted(!settings.muted); markDirty(); refreshTop();
-  toast(tp(settings.muted ? 'toast.soundOff' : 'toast.soundOn'), '', 1200);
-  if (ui.panel === 'pause') buildPause();
+  if (!ui.popOpen) toast(tp(settings.muted ? 'toast.soundOff' : 'toast.soundOn'), '', 1200);
 }
 export function toggleMusic() {
   setMusicOn(!settings.musicOn); markDirty(); refreshTop();
-  toast(tp(settings.musicOn ? 'toast.musicOn' : 'toast.musicOff'), '', 1200);
-  if (ui.panel === 'pause') buildPause();
+  if (!ui.popOpen) toast(tp(settings.musicOn ? 'toast.musicOn' : 'toast.musicOff'), '', 1200);
   if (ui.panel === 'settings') buildSettings();
 }
 export function skipTrack(d = 1) {
   const tr = nextTrack(d); markDirty();
   if (!settings.musicOn) setMusicOn(true);
-  showNowPlaying(tr.name); refreshTop();
-  if (ui.panel === 'pause') buildPause();
+  if (!ui.popOpen) showNowPlaying(tr.name);
+  refreshTop();
   if (ui.panel === 'settings') buildSettings();
 }
 export function pickTrack(i) {
   const n = MUSIC_TRACKS.length; settings.track = ((i % n) + n) % n;
   return skipTrack(0);
 }
-let npTimer = 0;
+// "Now playing" is a toast too (one at a time), so it shares the message column.
 export function showNowPlaying(name) {
-  const n = el.nowplaying; if (!n) return;
-  n.innerHTML = `${ICON.music.replace('<svg', '<svg style="width:16px;height:16px;fill:none;stroke:#ffe2b8;stroke-width:2.2;vertical-align:-3px;margin-right:6px"')} ${esc(tp('toast.track', { name }))}`;
-  n.classList.add('show'); clearTimeout(npTimer); npTimer = setTimeout(() => n.classList.remove('show'), 2200);
+  el.toasts.querySelectorAll('.toast.np').forEach((n) => n.remove());
+  toast('', 'np', 2200);
+  el.toasts.lastChild.innerHTML = `${ICON.music.replace('<svg', '<svg style="width:16px;height:16px;fill:none;stroke:#ffe2b8;stroke-width:2.2;vertical-align:-3px;margin-right:6px"')} ${esc(tp('toast.track', { name }))}`;
 }
 
 // ------------------------------------------------------------------------------------------ loading / title
@@ -175,14 +168,15 @@ export function setProgress(p, ready = false) {
     ui.started = true;
   }
 }
-export function hideTitle() { el.title.classList.add('gone'); setTimeout(() => (el.title.hidden = true), 700); el.hud.hidden = false; }
-export function showTitle() { el.title.hidden = false; requestAnimationFrame(() => el.title.classList.remove('gone')); el.hud.hidden = true; }
+export function hideTitle() { if (ui.closePop) ui.closePop(); el.title.classList.add('gone'); setTimeout(() => (el.title.hidden = true), 700); el.hud.hidden = false; }
+export function showTitle() { if (ui.closePop) ui.closePop(); el.title.hidden = false; requestAnimationFrame(() => el.title.classList.remove('gone')); el.hud.hidden = true; }
 
 // ------------------------------------------------------------------------------------------ panels
 const PANEL_BUILD = { settings: () => buildSettings(), pause: () => buildPause(), controls: () => buildControls(), about: () => buildAbout(), time: () => buildTime() };
 export const panelIds = ['pause', 'settings', 'controls', 'about', 'time', 'talk', 'codex', 'quests', 'basket', 'checkout', 'receipt'];
 ui.open = function open(id) {
   if (ui.panel && ui.panel !== id && (ui.panel === 'checkout')) return;
+  if (ui.closePop) ui.closePop();
   ui.prevPanel = ui.panel && ui.panel !== id ? ui.panel : ui.prevPanel;
   if (ui.panel === 'pause' && id !== 'pause') ui.returnToPause = true; else if (id === 'pause') ui.returnToPause = false;
   ui.panel = id;
@@ -218,18 +212,46 @@ ui.toggle = function toggle(id) { if (ui.panel === id) ui.close(); else ui.open(
 ui.isOpen = () => !!ui.panel;
 
 // ------------------------------------------------------------------------------------------ HUD
+// Short messages (tips, achievements, now playing) stack in one centred column just below the top bar. If the quest
+// card is in the column's way, the column narrows to clear it, or, when that would leave it too narrow, starts below it.
+// The location title is centred in the window and the column stops above it (fitToasts), so they never meet.
+export function placeToasts() {
+  let top = 14, w = Math.min(innerWidth * 0.92, 560);
+  if (!el.hud.hidden) {
+    for (const s of ['.tleft', '#hud-right']) top = Math.max(top, document.querySelector(s).getBoundingClientRect().bottom);
+    const o = el.objective;
+    if (!o.hidden) {
+      const r = o.getBoundingClientRect();
+      if (r.right > (innerWidth - w) / 2) { const fit = innerWidth - 2 * (r.right + 8); if (fit >= 300) w = Math.min(w, fit); else top = Math.max(top, r.bottom); }
+    }
+  }
+  document.documentElement.style.setProperty('--toast-top', Math.round(top + 10) + 'px');
+  document.documentElement.style.setProperty('--toast-w', Math.round(w) + 'px');
+}
+// The column never reaches the centred location title (measured; 66px is its half height on a wide screen before the
+// first title has been shown): when a new message does not fit, the oldest goes.
+const MAX_TOASTS = 3;
+function fitToasts() {
+  while (el.toasts.children.length > MAX_TOASTS) el.toasts.firstChild.remove();
+  const half = el.zonebanner.offsetHeight ? el.zonebanner.offsetHeight / 2 : 66;
+  const limit = innerHeight / 2 - half - 12;
+  while (el.toasts.children.length > 1 && el.toasts.lastElementChild.getBoundingClientRect().bottom > limit) el.toasts.firstChild.remove();
+}
 export function toast(msg, kind = '', ms = 2600) {
+  placeToasts();
   const d = document.createElement('div');
   d.className = 'toast ' + kind; d.textContent = msg;
   el.toasts.appendChild(d);
-  while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
+  fitToasts();
   setTimeout(() => { d.style.transition = 'opacity .4s'; d.style.opacity = 0; setTimeout(() => d.remove(), 450); }, ms);
 }
 export function achievement(id) {
+  placeToasts();
   const d = document.createElement('div');
   d.className = 'toast ach';
   d.innerHTML = `<span class="medal">🏅</span><div><small>${esc(tp('ach.unlocked'))}</small><b>${esc(tp('ach.' + id))}</b><div style="font-size:12px;opacity:.85">${esc(tp('ach.' + id + 'Desc'))}</div></div>`;
   el.toasts.appendChild(d);
+  fitToasts();
   setTimeout(() => { d.style.transition = 'opacity .5s'; d.style.opacity = 0; setTimeout(() => d.remove(), 550); }, 4800);
 }
 
@@ -293,6 +315,7 @@ export function updateObjective() {
   const q = S.activeQuest ? QUESTS.find((x) => x.id === S.activeQuest) : null;
   if (!q) { el.objective.hidden = true; return; }
   el.objective.hidden = false;
+  requestAnimationFrame(placeToasts);
   el.objective.innerHTML = `<h4>${esc(tp('quest.active'))}</h4><b>${esc(pick(q.title))}</b><ul>${q.goals.map((g, i) => `<li class="${S.questGot.includes(i) ? 'done' : ''}">${S.questGot.includes(i) ? '✔' : '○'} ${esc(pick(g.label))}</li>`).join('')}</ul>`;
 }
 
@@ -302,7 +325,7 @@ export function updateHud(info) {
   el['w-cash'].textContent = save.cash;
   el['w-basket'].textContent = count();
   if (S.hasBasket !== carried) refreshCarry();
-  el['hud-codex-n'].textContent = `${discoveredCount()}/${SKUS.length}`;
+  el['hud-codex-n'].innerHTML = `${discoveredCount()}<span class="of">/${SKUS.length}</span>`;
 }
 
 // ------------------------------------------------------------------------------------------ time of day (clock chip)

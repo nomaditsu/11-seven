@@ -148,7 +148,12 @@ await page.keyboard.press('KeyM'); ok(await ev(() => window.__sim.settings.music
 ok(await ev(() => [...document.querySelectorAll('svg.flag rect')].every((r) => getComputedStyle(r).stroke === 'none')), 'flags have no outline');
 const t0 = await ev(() => window.__sim.settings.track); await page.keyboard.press('Period');
 ok(await ev(() => window.__sim.settings.track) === (t0 + 1) % 4, '. skips to the next track');
-ok(await ev(() => ['hud-lang', 'btn-sound', 'btn-music', 'btn-next', 'btn-menu'].every((id) => !!document.getElementById(id))), 'always-on audio / language / menu buttons exist');
+ok(await ev(() => ['btn-info', 'btn-sound', 'btn-menu'].every((id) => !!document.getElementById(id))), 'always-on about / sound / menu buttons exist');
+// one Sound button opens a popover with an effects switch and a music switch; a switch that is off folds its section
+ok(await ev(() => { document.getElementById('btn-sound').click(); return !document.getElementById('soundpop').hidden; }), 'the Sound button opens the sound popover');
+ok(await ev(() => { const on = window.__sim.settings.musicOn; document.querySelector('#soundpop [data-a=music]').click();
+  return window.__sim.settings.musicOn === !on && document.querySelector('#soundpop .msec').classList.contains('off') === on; }), 'the popover music switch toggles music and folds its controls');
+ok(await ev(() => { document.querySelector('#soundpop [data-a=music]').click(); document.querySelector('#soundpop [data-a=close]').click(); return document.getElementById('soundpop').hidden; }), 'the popover closes');
 await ev(() => window.__sim.tp(3.5, -2.75, -Math.PI / 2, 0)); await frames(3);
 await ev(() => window.__sim.key('KeyE')); await frames(2);
 ok((await state()).panel === 'panel-talk', 'a conversation opens with E');

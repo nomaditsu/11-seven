@@ -18,9 +18,7 @@
   <!-- ============================================================ TITLE / LOADING -->
   <section id="title" class="screen">
     <div class="title-audio">
-      <button class="ib" id="t-sound" type="button"><span class="ii"></span><small>N</small></button>
-      <button class="ib" id="t-music" type="button"><span class="ii"></span><small>M</small></button>
-      <button class="ib" id="t-next" type="button"><span class="ii"></span><small>.</small></button>
+      <button class="ib snd" id="t-sound" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="ii"></span><span class="mini"><i></i><i></i><i></i></span></button>
     </div>
     <div class="title-wrap">
       <div class="brandmark" id="brandmark"></div>
@@ -56,26 +54,23 @@
     <div id="xhair"><i></i></div>
     <div id="zoomframe"></div>
 
+    <!-- phones held upright: a header bar across the top; CSS places the .tright buttons (About, Sound, Menu) into it -->
+    <div id="phead"><span class="bm" id="phead-logo"></span><span class="lock"><span class="word">11 <em>SEVEN</em></span><span class="sub">7 Eleven Simulator</span></span></div>
     <div id="topbar">
       <div class="tleft">
-        <button class="chip brand" id="hud-brand" type="button" data-open="about"><span class="bm" id="hud-logo"></span>
-          <span class="bt"><span class="word">11 <em>SEVEN</em></span><span class="by"><span data-by></span> <u>Nomaditsu</u></span></span></button>
+        <div class="chip brand" id="hud-brand"><span class="bm" id="hud-logo"></span>
+          <span class="bt"><span class="word">11 <em>SEVEN</em></span><span class="sub">7 Eleven Simulator</span></span></div>
         <button class="chip stat clockchip" id="hud-time" type="button" data-open="time"><span class="ci" data-icon="clock"></span><div><b id="hud-clock">18:30</b><small id="hud-temp"></small></div></button>
-        <button class="chip stat snackchip" id="hud-codex" type="button" data-open="codex"><span class="ci" data-icon="book"></span><div><b data-i18n="hud.codex"></b><small id="hud-codex-n">0/0</small></div></button>
+        <button class="chip stat snackchip" id="hud-codex" type="button" data-open="codex"><span class="ci" data-icon="book"></span><div><b data-i18n="hud.codex"></b><small id="hud-codex-n">0<span class="of">/0</span></small></div></button>
         <div class="chip stat cashchip"><span class="ci" data-icon="cash"></span><div><b id="w-cash">500</b><small data-i18n="hud.cash"></small></div></div>
         <button class="chip stat basketchip" id="hud-basket" type="button" data-open="basket"><span class="ci" id="w-basket-i" data-icon="hand"></span><div><b id="w-basket">0</b><small id="w-basket-l"></small></div></button>
       </div>
       <div class="tright" id="hud-right">
-        <button class="ib lang" id="hud-lang" type="button" data-btn="lang"><span class="ii"></span><small>L</small></button>
-        <span class="gap"></span>
-        <button class="ib" id="btn-sound" type="button" data-btn="sound"><span class="ii"></span><small>N</small></button>
-        <button class="ib" id="btn-music" type="button" data-btn="music"><span class="ii"></span><small>M</small></button>
-        <button class="ib" id="btn-next" type="button" data-btn="next"><span class="ii"></span><small>.</small></button>
-        <span class="gap"></span>
+        <button class="ib info" id="btn-info" type="button" data-open="about"><span class="ii"></span></button>
+        <button class="ib snd" id="btn-sound" type="button" data-btn="sound" aria-haspopup="dialog" aria-expanded="false"><span class="ii"></span><span class="mini"><i></i><i></i><i></i></span></button>
         <button class="ib" id="btn-menu" type="button" data-btn="menu"><span class="ii"></span><small>Esc</small></button>
       </div>
     </div>
-    <div class="chip nowplaying" id="nowplaying"></div>
 
     <div id="objective" hidden></div>
 
@@ -110,6 +105,9 @@
 
   <!-- toasts sit above the panels so warnings show during checkout too -->
   <div id="toasts"></div>
+
+  <!-- ============================================================ SOUND POPOVER (opened by #btn-sound / #t-sound) -->
+  <div id="soundpop" class="soundpop" role="dialog" hidden></div>
 
   <!-- ============================================================ PANELS -->
   <div id="panels" hidden>

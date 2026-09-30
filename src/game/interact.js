@@ -105,7 +105,7 @@ export class Interaction {
         if (ui.hooks.touchAction) ui.hooks.touchAction('talk');
       } else {
         showPrompt({ name: t('interact.' + ob.kind), sub: '', price: '', cat: '', keys: [['T', this.actionLabel(ob)]] });
-        if (ui.hooks.touchAction) ui.hooks.touchAction('use');
+        if (ui.hooks.touchAction) ui.hooks.touchAction('use', ob.kind);
       }
     }
   }

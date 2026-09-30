@@ -6,6 +6,7 @@ export const ICON = {
   music: '<svg viewBox="0 0 24 24"><circle class="f" cx="8" cy="17.5" r="3.2"/><path d="M11.2 17.5V4.5c0 3.2 6.3 3 6.3 8"/></svg>',
   next: '<svg viewBox="0 0 24 24"><path class="f" d="M5 5.5v13l9-6.5z"/><path class="f" d="M16 5.5h3v13h-3z"/></svg>',
   prev: '<svg viewBox="0 0 24 24"><path class="f" d="M19 5.5v13l-9-6.5z"/><path class="f" d="M5 5.5h3v13H5z"/></svg>',
+  info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle class="f" cx="12" cy="7.8" r="1.3"/></svg>',
   menu: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>',
   voice: '<svg viewBox="0 0 24 24"><path class="f" d="M12 3.5a3 3 0 013 3v5a3 3 0 01-6 0v-5a3 3 0 013-3z"/><path d="M6 11a6 6 0 0012 0M12 17v3.5"/></svg>',
   clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.2l3.2 2"/></svg>',
