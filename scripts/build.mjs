@@ -176,8 +176,9 @@ let html = template
 fs.writeFileSync(path.join(root, 'index.html'), html);
 
 // Service worker (src/sw.js -> sw.js): the files it keeps for offline play, and a version that changes with any of
-// them, so each new build replaces the copy on players' phones. Icons come from scripts/icons.mjs.
-const offline = ['index.html', 'manifest.webmanifest', ...fs.readdirSync(path.join(root, 'icons')).filter((f) => f.endsWith('.png')).sort().map((f) => `icons/${f}`)];
+// them, so each new build replaces the copy on players' phones. Icons come from scripts/icons.mjs. The social card is
+// only for link previews, so it stays online.
+const offline = ['index.html', 'manifest.webmanifest', ...fs.readdirSync(path.join(root, 'icons')).filter((f) => f.endsWith('.png') && f !== 'social-card.png').sort().map((f) => `icons/${f}`)];
 const hash = crypto.createHash('sha1');
 for (const f of offline) hash.update(f === 'index.html' ? html : fs.readFileSync(path.join(root, f)));
 const version = hash.digest('hex').slice(0, 12);

@@ -43,8 +43,8 @@ await page.goto(base + 'index.html?sw&debug&q=low');
 await page.waitForFunction(() => window.__ready === true, null, { timeout: 240000 });
 await page.waitForFunction(async () => navigator.serviceWorker.controller && (await caches.keys()).length > 0, null, { timeout: 60000 });
 const saved = await page.evaluate(async () => { const c = await caches.open((await caches.keys())[0]); return (await c.keys()).map((r) => new URL(r.url).pathname); });
-// index.html, the manifest and every icon (the same list scripts/build.mjs gives the service worker).
-const expected = 2 + fs.readdirSync(path.join(root, 'icons')).filter((f) => f.endsWith('.png')).length;
+// index.html, the manifest and every icon but the social card (the same list scripts/build.mjs gives the service worker).
+const expected = 2 + fs.readdirSync(path.join(root, 'icons')).filter((f) => f.endsWith('.png') && f !== 'social-card.png').length;
 check(saved.length === expected && saved.some((p) => p.endsWith('/index.html')), `saved for offline: ${saved.join(', ')}`);
 check(await page.evaluate(() => document.getElementById('install-hint').hidden), 'install hint hidden on desktop Chrome');
 

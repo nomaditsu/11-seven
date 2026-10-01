@@ -1,5 +1,6 @@
 // Renders the home-screen icons listed in manifest.webmanifest from the 11 SEVEN badge painter (src/gfx/logo11seven.js)
 // in headless Chromium, so the icons stay drawn in code like everything else. Writes icons/*.png (committed).
+// Also renders icons/social-card.png, the 1200x630 link preview image named by the og:image tag in src/template.html.
 // Rerun after changing the badge: node scripts/icons.mjs, then npm run build (the service worker lists the icons).
 import { build } from 'esbuild';
 import { chromium } from 'playwright-core';
@@ -26,13 +27,15 @@ const logo = await build({
   entryPoints: [path.join(root, 'src/gfx/logo11seven.js')],
   bundle: true, format: 'iife', globalName: 'LOGO', write: false, logLevel: 'error',
 });
-const font = fs.readFileSync(path.join(root, 'node_modules/@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2'));
+const fontFile = (f) => fs.readFileSync(path.join(root, 'node_modules/@fontsource', f)).toString('base64');
+const font = fontFile('archivo-black/files/archivo-black-latin-400-normal.woff2');
+const kanit = (w) => `@font-face{font-family:'Kanit';font-weight:${w};src:url(data:font/woff2;base64,${fontFile(`kanit/files/kanit-latin-${w}-normal.woff2`)}) format('woff2')}`;
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH, args: ['--no-sandbox'] });
 const page = await browser.newPage();
-await page.setContent(`<style>@font-face{font-family:'Archivo Black';src:url(data:font/woff2;base64,${font.toString('base64')}) format('woff2')}</style>`);
+await page.setContent(`<style>@font-face{font-family:'Archivo Black';src:url(data:font/woff2;base64,${font}) format('woff2')}${kanit(500)}${kanit(800)}</style>`);
 await page.addScriptTag({ content: logo.outputFiles[0].text });
-await page.evaluate(() => document.fonts.load('400 42px "Archivo Black"'));
+await page.evaluate(() => Promise.all(['400 42px "Archivo Black"', '500 20px Kanit', '800 20px Kanit'].map((f) => document.fonts.load(f))));
 fs.mkdirSync(out, { recursive: true });
 for (const icon of ICONS) {
   const dataUrl = await page.evaluate(({ size, inset, radius = 0 }) => {
@@ -47,4 +50,36 @@ for (const icon of ICONS) {
   fs.writeFileSync(path.join(out, icon.file), Buffer.from(dataUrl.split(',')[1], 'base64'));
   console.log(`icons/${icon.file}`);
 }
+
+// Link preview card (Linktree, iMessage, Slack, X, Facebook): the title screen's dark green, the badge, the name and
+// the three stripes. 1200x630 is the size every major unfurler accepts at full width.
+const card = await page.evaluate(() => {
+  const W = 1200, H = 630, c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d'), B = LOGO.BRAND;
+  ctx.fillStyle = '#04120d'; ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(330, 300, 40, 330, 300, 520);
+  glow.addColorStop(0, 'rgba(0,135,74,.55)'); glow.addColorStop(1, 'rgba(0,135,74,0)');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+  LOGO.drawStripes(ctx, 0, H - 36, W, 36);
+  LOGO.drawLogo(ctx, 90, 125, 340, { radius: 28, shadow: true });
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  const x = 500;
+  ctx.fillStyle = '#fff'; ctx.font = '400 104px "Archivo Black"'; ctx.fillText('11 SEVEN', x, 265);
+  ctx.font = '800 60px Kanit'; ctx.fillText('7 Eleven ', x, 352);
+  ctx.fillStyle = B.orange; ctx.fillText('Simulator', x + ctx.measureText('7 Eleven ').width, 352);
+  const grad = ctx.createLinearGradient(x, 0, x + 40, 0);
+  grad.addColorStop(0, B.orange); grad.addColorStop(1, B.red);
+  ctx.fillStyle = grad; ctx.fillRect(x, 412, 40, 4);
+  ctx.fillStyle = '#ffe2b8'; ctx.font = '500 30px Kanit';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '5px';
+  ctx.fillText('BY NOMADITSU', x + 56, 424);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.fillStyle = 'rgba(255,255,255,.72)'; ctx.font = '500 26px Kanit';
+  ctx.fillText('Walk into a Bangkok convenience store.', x, 486);
+  ctx.fillText('Free in your browser.', x, 522);
+  return c.toDataURL('image/png');
+});
+fs.writeFileSync(path.join(out, 'social-card.png'), Buffer.from(card.split(',')[1], 'base64'));
+console.log('icons/social-card.png');
 await browser.close();

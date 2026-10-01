@@ -13,7 +13,7 @@ like a first-person RPG. Everything printed on a sign, price tag or package can 
 
 ## Play
 
-**Play it online: https://nomaditsu.github.io/11-seven/**
+**Play it online: https://7.nomaditsu.com/**
 
 Or download `index.html` and open it in a modern browser (Chrome, Edge, Firefox, Safari) and press **Walk in**. It also runs on phones and tablets with on-screen touch controls.
 
