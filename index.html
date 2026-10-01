@@ -193,6 +193,10 @@ kbd{display:inline-block;min-width:1.6em;padding:.05em .45em;border-radius:.4em;
 .btn.big{font-size:clamp(18px,2.2vw,24px);padding:.7em 2em;border-radius:18px;min-width:min(340px,80vw)}
 .btn.ghost{background:transparent}
 .btn:disabled{opacity:.6;cursor:progress}
+/* loading spinner in Walk in while the store builds (setProgress replaces the button's content when ready) */
+.btn .spin{display:inline-block;width:.85em;height:.85em;margin-right:.6em;vertical-align:-.1em;border:.16em solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.btn .spin{animation-duration:2.4s}}
 .loadbar{margin-top:22px;height:5px;width:min(340px,80vw);background:rgba(255,255,255,.15);border-radius:9px;overflow:hidden}
 .loadbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--o),var(--r));transition:width .25s}
 .tip{margin-top:14px;font-size:13.5px;color:#bcd6ca;min-height:3.2em;max-width:34em;line-height:1.5}
@@ -443,9 +447,13 @@ html[data-touch] .ib.look{display:none}
 .soundpop .vl svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--cream);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.soundpop .vl svg .f{fill:var(--cream);stroke:none}
 .soundpop .vl input{flex:1;accent-color:var(--o);height:28px;min-width:0}
 .soundpop .vl output{width:32px;text-align:right;font-weight:500}
+.soundpop .vlab{width:100px;flex:none;line-height:1.15}.soundpop .vlab small{display:block;font-size:11px;color:var(--mutedl)}
 .soundpop .kh{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mutedl)}
 .soundpop .kh kbd{font:700 11px Kanit,sans-serif;background:linear-gradient(#fff,#ececec);color:#15110e;border-radius:5px;padding:1px 6px;margin-right:4px;box-shadow:0 2px 0 #9a9184}
 html[data-touch] .soundpop .kh{display:none}
+.soundpop .nowc.paused .eq i{animation-play-state:paused}
+/* narrow phones: three transport buttons leave the track name too little room, so the bars tile goes */
+@media (max-width:400px){.soundpop .nowc .eq{display:none}.soundpop .nowc{gap:6px;padding-left:12px}.soundpop .nowc .tb{width:38px;height:38px}.soundpop .nowc .nt b{white-space:normal;font-size:17px}}
 @media (prefers-reduced-motion:reduce){.soundpop .fold{transition:none}.soundpop .eq i,.ib.snd .mini i{animation:none;height:70%}}
 
 /* ---------- phone header (portrait phones only; see the 640px block below) ---------- */
@@ -776,7 +784,7 @@ body[data-mode=inspect] #touch .act.take{order:3}
   .soundpop .nowc{margin-top:6px;padding:6px 8px}.soundpop .eq{width:36px;height:36px}.soundpop .nt b{font-size:16px}.soundpop .tb{width:34px;height:34px}
   .soundpop .tl{display:grid;grid-template-columns:1fr 1fr;margin-top:6px}
   .soundpop .tr{min-height:36px;padding:4px 8px;font-size:14px;white-space:nowrap;min-width:0}.soundpop .tr div{overflow:hidden;text-overflow:ellipsis}.soundpop .tr small{display:none}.soundpop .tr i{width:22px;height:22px}
-  .soundpop .vl{margin-top:6px}
+  .soundpop .vl{margin-top:6px}.soundpop .vl:has(.vlab){flex-wrap:wrap;row-gap:0}.soundpop .vlab{width:100%;order:-1;font-size:13px}.soundpop .vlab small{display:none}
 }
 
 /* keep the HUD quiet while a panel or a conversation is open */
@@ -820,7 +828,7 @@ body[data-mode=inspect] .movepad,body[data-mode=inspect] .hintbar{opacity:0}
       </div>
 
       <div class="btns">
-        <button id="btn-start" class="btn primary big" disabled><span data-i18n="title.loading"></span></button>
+        <button id="btn-start" class="btn primary big" disabled><i class="spin" aria-hidden="true"></i><span data-i18n="title.loading"></span></button>
         <div class="btnrow">
           <button id="btn-settings" class="btn" data-i18n="title.settings"></button>
           <button id="btn-controls" class="btn" data-i18n="title.controls"></button>
@@ -5377,16 +5385,19 @@ void main() {
     invertY: false,
     bob: true,
     master: 0.8,
-    ambience: 0.8,
-    music: 0.7,
+    ambience: 0.3,
+    // air con, fridge hum and street (the Ambience slider); lower it for a quieter store
+    music: 0.2,
     musicOn: true,
     // background chiptune on / off
     track: 0,
     // index into MUSIC_TRACKS
     muted: false,
     // master mute (everything, including voices)
-    sfx: 0.7,
-    // same as music: every session re-levels them (see main.js boot)
+    sfx: 0.75,
+    // beeps and voices (the Effects slider)
+    levels: 0,
+    // which default mix the saved levels come from (see main.js boot)
     subtitles: true,
     voice: true,
     hints: true,
@@ -5945,7 +5956,14 @@ void main() {
     "btn.soundPop": { en: "Sound and music", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E41\u0E25\u0E30\u0E40\u0E1E\u0E25\u0E07", rom: "s\u01D0ang l\u025B\u0301 phleeng" },
     "btn.about": { en: "About", th: "\u0E40\u0E01\u0E35\u0E48\u0E22\u0E27\u0E01\u0E31\u0E1A\u0E40\u0E01\u0E21", rom: "g\xECao-g\xE0p geem" },
     "btn.prev": { en: "Previous track (,)", th: "\u0E40\u0E1E\u0E25\u0E07\u0E01\u0E48\u0E2D\u0E19\u0E2B\u0E19\u0E49\u0E32 (,)", rom: "phleeng g\u0254\u0300\u0254n n\xE2a (,)" },
-    "pop.sfxSub": { en: "Store sounds and voices", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E41\u0E25\u0E30\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1E\u0E39\u0E14", rom: "s\u01D0ang nai r\xE1an l\u025B\u0301 s\u01D0ang ph\xFBut" },
+    "pop.sfxSub": { en: "Store sounds, voices and air con", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19 \u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1E\u0E39\u0E14 \u0E41\u0E25\u0E30\u0E41\u0E2D\u0E23\u0E4C", rom: "s\u01D0ang nai r\xE1an, s\u01D0ang ph\xFBut l\u025B\u0301 \u025B\u025B" },
+    "pop.fx": { en: "Effects", th: "\u0E40\u0E2D\u0E1F\u0E40\u0E1F\u0E01\u0E15\u0E4C", rom: "\xE9f-f\xE8k" },
+    "pop.fxSub": { en: "Beeps and voices", th: "\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1A\u0E35\u0E4A\u0E1A\u0E41\u0E25\u0E30\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1E\u0E39\u0E14", rom: "s\u01D0ang b\xEDip l\u025B\u0301 s\u01D0ang ph\xFBut" },
+    "pop.amb": { en: "Ambience", th: "\u0E1A\u0E23\u0E23\u0E22\u0E32\u0E01\u0E32\u0E28", rom: "ban-yaa-g\xE0at" },
+    "pop.ambSub": { en: "Air con, fridges, street", th: "\u0E41\u0E2D\u0E23\u0E4C \u0E15\u0E39\u0E49\u0E40\u0E22\u0E47\u0E19 \u0E16\u0E19\u0E19", rom: "\u025B\u025B, dt\xFBu-yen, th\xE0-n\u01D2n" },
+    "pop.ambVol": { en: "Ambience volume", th: "\u0E23\u0E30\u0E14\u0E31\u0E1A\u0E40\u0E2A\u0E35\u0E22\u0E07\u0E1A\u0E23\u0E23\u0E22\u0E32\u0E01\u0E32\u0E28", rom: "r\xE1-d\xE0p s\u01D0ang ban-yaa-g\xE0at" },
+    "btn.play": { en: "Play", th: "\u0E40\u0E25\u0E48\u0E19", rom: "l\xEAn" },
+    "btn.pause": { en: "Pause", th: "\u0E2B\u0E22\u0E38\u0E14\u0E0A\u0E31\u0E48\u0E27\u0E04\u0E23\u0E32\u0E27", rom: "y\xF9t ch\xFBa-kraao" },
     "pop.on": { en: "On", th: "\u0E40\u0E1B\u0E34\u0E14", rom: "bp\u0259\u0300\u0259t" },
     "pop.off": { en: "Off", th: "\u0E1B\u0E34\u0E14", rom: "bp\xECt" },
     // Mouse look (L or the look button): pointer lock on / off
@@ -5974,7 +5992,8 @@ void main() {
     "tv.drop": { en: "Drop", th: "\u0E27\u0E32\u0E07", rom: "waang" },
     "tv.use": { en: "Use", th: "\u0E43\u0E0A\u0E49", rom: "ch\xE1i" },
     "tv.flip": { en: "Flip", th: "\u0E1E\u0E25\u0E34\u0E01", rom: "pl\xECk" },
-    "tv.crouch": { en: "Crouch", th: "\u0E22\u0E48\u0E2D", rom: "y\u0254\u0302\u0254" }
+    "tv.crouch": { en: "Crouch", th: "\u0E22\u0E48\u0E2D", rom: "y\u0254\u0302\u0254" },
+    "tv.stand": { en: "Stand", th: "\u0E22\u0E37\u0E19", rom: "y\u0289\u0289n" }
   };
 
   // src/core/rom_data.js
@@ -6401,6 +6420,8 @@ void main() {
     // when the lock was last released (main.js ignores the Esc that released it)
     touch: false,
     // set by the touch layer on phones / tablets (no pointer lock, taps are handled there)
+    crouch: false,
+    // crouch toggle: C or the touch Crouch button (Ctrl still crouches only while held)
     dragLook: false,
     // true once play starts: look while the left button is held
     dragPx: 0,
@@ -6693,7 +6714,7 @@ void main() {
         if (down("ArrowLeft", "KeyA")) ix -= 1;
         if (down("ArrowRight", "KeyD")) ix += 1;
       }
-      const wantCrouch = active && !this.frozen && down("KeyC", "ControlLeft", "ControlRight");
+      const wantCrouch = active && !this.frozen && (input.crouch || down("ControlLeft", "ControlRight"));
       this.crouchT = damp(this.crouchT, wantCrouch ? 1 : 0, 9, dt);
       const sprint = active && !this.frozen && down("ShiftLeft", "ShiftRight") && iz < 0 && !wantCrouch;
       this.sprinting = sprint && (ix || iz);
@@ -35061,6 +35082,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   var ICON = {
     sound: '<svg viewBox="0 0 24 24"><path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 010 6M18 6.5a8 8 0 010 11"/></svg>',
     soundoff: '<svg viewBox="0 0 24 24"><path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>',
+    air: '<svg viewBox="0 0 24 24"><path d="M3.5 8h11a2.5 2.5 0 10-2.5-2.5M3.5 12h15a2.5 2.5 0 11-2.5 2.5M3.5 16h8a2.5 2.5 0 11-2.5 2.5"/></svg>',
     music: '<svg viewBox="0 0 24 24"><circle class="f" cx="8" cy="17.5" r="3.2"/><path d="M11.2 17.5V4.5c0 3.2 6.3 3 6.3 8"/></svg>',
     next: '<svg viewBox="0 0 24 24"><path class="f" d="M5 5.5v13l9-6.5z"/><path class="f" d="M16 5.5h3v13h-3z"/></svg>',
     prev: '<svg viewBox="0 0 24 24"><path class="f" d="M19 5.5v13l-9-6.5z"/><path class="f" d="M5 5.5h3v13H5z"/></svg>',
@@ -35237,6 +35259,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     sfxBus: null,
     ambBus: null,
     musBus: null,
+    paused: false,
     nodes: {},
     voices: [],
     lastVoiceCheck: 0,
@@ -35399,7 +35422,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     audio.master.gain.setTargetAtTime(settings.master, t3, 0.05);
     audio.sfxBus.gain.setTargetAtTime(settings.muted ? 0 : settings.sfx, t3, 0.05);
     audio.ambBus.gain.setTargetAtTime(settings.muted ? 0 : settings.ambience * 0.9, t3, 0.05);
-    audio.musBus.gain.setTargetAtTime(settings.musicOn ? settings.music * 0.55 : 0, t3, 0.08);
+    audio.musBus.gain.setTargetAtTime(settings.musicOn && !audio.paused ? settings.music * 0.55 : 0, t3, 0.08);
     if (settings.muted && "speechSynthesis" in window) speechSynthesis.cancel();
   }
   function updateAudio(dt, st) {
@@ -35563,7 +35586,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   var currentTrack = () => MUSIC_TRACKS[(settings.track % MUSIC_TRACKS.length + MUSIC_TRACKS.length) % MUSIC_TRACKS.length];
   function scheduleMusic() {
     const c2 = audio.ctx;
-    if (!audio.ready || !settings.musicOn || settings.music < 0.01) return;
+    if (!audio.ready || !settings.musicOn || audio.paused || settings.music < 0.01) return;
     const T5 = currentTrack(), sp = stepSeconds(T5);
     if (audio.nextNote < c2.currentTime - 0.5) audio.nextNote = c2.currentTime + 0.08;
     while (audio.nextNote < c2.currentTime + 0.3) {
@@ -35583,8 +35606,13 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     return currentTrack();
   }
   var nextTrack = (d = 1) => setTrack(settings.track + d);
+  function setMusicPaused(on) {
+    audio.paused = !!on;
+    applyVolumes();
+  }
   function setMusicOn(on) {
     settings.musicOn = !!on;
+    audio.paused = false;
     applyVolumes();
   }
   function setMuted(on) {
@@ -35973,7 +36001,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     const silent = settings.muted && !settings.musicOn;
     for (const p of ["btn", "t"]) {
       setBtn(p + "-sound", silent ? ICON.soundoff : ICON.sound, t("btn.soundPop"), silent);
-      el[p + "-sound"].classList.toggle("nomus", !settings.musicOn);
+      el[p + "-sound"].classList.toggle("nomus", !settings.musicOn || audio.paused);
     }
     setBtn("btn-info", ICON.info, t("btn.about"));
     setBtn("btn-look", ICON.look, t("btn.look"));
@@ -35997,11 +36025,17 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     if (!ui.popOpen) toast(tp(settings.musicOn ? "toast.musicOn" : "toast.musicOff"), "", 1200);
     if (ui.panel === "settings") buildSettings();
   }
+  function toggleMusicPause() {
+    ui.musicTouched = true;
+    if (!settings.musicOn) setMusicOn(true);
+    else setMusicPaused(!audio.paused);
+    refreshTop();
+  }
   function skipTrack(d = 1) {
     ui.musicTouched = true;
     const tr = nextTrack(d);
     markDirty();
-    if (!settings.musicOn) setMusicOn(true);
+    if (!settings.musicOn || audio.paused) setMusicOn(true);
     if (!ui.popOpen) showNowPlaying(tr.name);
     refreshTop();
     if (ui.panel === "settings") buildSettings();
@@ -38099,7 +38133,6 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   var actionKind = null;
   var actionObj = null;
   var inter = null;
-  var crouch = false;
   function touchWanted() {
     if (new URLSearchParams(location.search).has("touch")) return true;
     return matchMedia("(hover: none) and (pointer: coarse)").matches;
@@ -38145,6 +38178,19 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     if (actionKind === "use") return actionObj === "basket" ? ["\u{1F9FA}", S.hasBasket ? "tv.drop" : "tv.grab"] : USE[actionObj] || ["\u{1F446}", "tv.use"];
     return ["\u{1F446}", "tv.interact"];
   }
+  var crouchFace = () => input.crouch ? ["\u{1F9CD}", tp("tv.stand")] : ["\u{1F9CE}", tp("tv.crouch")];
+  function toggleCrouch() {
+    input.crouch = !input.crouch;
+    syncCrouch();
+  }
+  function syncCrouch() {
+    const b = $("t-crouch");
+    if (!b) return;
+    const [emoji, label] = crouchFace();
+    b.querySelector(".em").textContent = emoji;
+    b.querySelector("small").textContent = label;
+    b.classList.toggle("hot", input.crouch);
+  }
   var setFace = (id, [emoji, key]) => {
     const b = $(id);
     if (!b) return;
@@ -38155,7 +38201,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     const box3 = $("touch");
     if (!box3) return;
     box3.innerHTML = `<div class="stick" id="t-stick"><span>${tp("hud.move")}</span><i></i></div>
-    ${btn("t-crouch", "crouch", "\u{1F9CE}", tp("tv.crouch"))}
+    ${btn("t-crouch", "crouch", ...crouchFace())}
     <div class="acts">
       ${btn("t-take", "take", "\u{1F446}", tp("tv.interact"))}
       ${btn("t-inspect", "a2", "\u{1F50D}", tp("hud.inspect"))}
@@ -38171,13 +38217,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     });
     press("t-back", () => G.mode === "inspect" ? inter.endInspect(true) : inter.putBackLast());
     press("t-basket", () => G.mode === "inspect" ? inter.endInspect(true) : ui.toggle("basket"));
-    press("t-crouch", () => {
-      crouch = !crouch;
-      crouch ? input.keys.add("KeyC") : input.keys.delete("KeyC");
-      $("t-crouch").classList.toggle("hot", crouch);
-    });
+    press("t-crouch", toggleCrouch);
     refreshTake();
     syncTouchMode();
+    syncCrouch();
   }
   function press(id, fn) {
     const b = $(id);
@@ -38300,6 +38343,8 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
   var $2 = (id) => document.getElementById(id);
   var esc3 = (s) => String(s).replace(/[&<>"]/g, (c2) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c2]);
   var TP = {
+    play: '<svg viewBox="0 0 24 24"><path d="M7.5 5v14l11-7z"/></svg>',
+    pause: '<svg viewBox="0 0 24 24"><rect x="6.5" y="5.5" width="4" height="13" rx="1"/><rect x="13.5" y="5.5" width="4" height="13" rx="1"/></svg>',
     prev: '<svg viewBox="0 0 24 24"><path d="M19 5.5v13l-9-6.5z"/><rect x="5.5" y="5.5" width="3" height="13" rx=".8"/></svg>',
     next: '<svg viewBox="0 0 24 24"><path d="M5 5.5v13l9-6.5z"/><rect x="15.5" y="5.5" width="3" height="13" rx=".8"/></svg>'
   };
@@ -38320,6 +38365,7 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
         toggleSound();
         if (!settings.muted) sfx("pop");
       } else if (a === "music") toggleMusic();
+      else if (a === "pp") toggleMusicPause();
       else if (a === "prev") skipTrack(-1);
       else if (a === "next") skipTrack(1);
       else if (a === "close") closeSoundPop();
@@ -38375,21 +38421,21 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     pop.hidden = true;
     pop.innerHTML = "";
   }
-  var slider = (k, label) => `<div class="vl">${ICON.sound}<input type="range" min="0" max="1" step="0.02" value="${settings[k]}" data-vol="${k}" aria-label="${esc3(label)}"><output>${Math.round(settings[k] * 100)}</output></div>`;
+  var slider = (k, label, icon = ICON.sound, name = "", sub = "") => `<div class="vl">${icon}${name ? `<span class="vlab">${esc3(name)}<small>${esc3(sub)}</small></span>` : ""}<input type="range" min="0" max="1" step="0.02" value="${settings[k]}" data-vol="${k}" aria-label="${esc3(label)}"><output>${Math.round(settings[k] * 100)}</output></div>`;
   var tog = (a, on, label) => `<button class="tog ${on ? "on" : ""}" data-a="${a}" type="button" role="switch" aria-checked="${on}" aria-label="${esc3(label)}"></button>`;
   function render3() {
     const T5 = currentTrack(), fx = !settings.muted, mu = settings.musicOn;
     pop.innerHTML = `<div class="caret"></div><div class="pin">
     <div class="phd"><h3>${esc3(tp("pause.sound"))}</h3><button class="xx" data-a="close" type="button" aria-label="${esc3(tp("pop.close"))}">\u2715</button></div>
     <div class="psec ssec ${fx ? "" : "off"}"><div class="prow"><span class="si">${ICON.sound}</span><div class="sl"><b>${esc3(tp("pause.sfx"))}</b><small>${esc3(tp("pop.sfxSub"))}</small></div>${tog("sfx", fx, tp("pause.sfx"))}</div>
-      <div class="fold"><div>${slider("sfx", tp("pause.sfxVol"))}</div></div></div>
+      <div class="fold"><div>${slider("sfx", tp("pause.sfxVol"), ICON.sound, tp("pop.fx"), tp("pop.fxSub"))}${slider("ambience", tp("pop.ambVol"), ICON.air, tp("pop.amb"), tp("pop.ambSub"))}</div></div></div>
     <div class="psec msec ${mu ? "" : "off"}"><div class="prow"><span class="si">${ICON.music}</span><div class="sl"><b>${esc3(tp("pause.music"))}</b><small class="mstate">${esc3(tp(mu ? "pop.on" : "pop.off"))}</small></div>${tog("music", mu, tp("pause.music"))}</div>
       <div class="fold"><div>
+        ${slider("music", tp("pause.musicVol"))}
         <div class="nowc"><div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
           <div class="nt"><b class="tname">${esc3(T5.name)}</b><small class="tmood">${esc3(tp(T5.moodKey))}</small></div>
-          <button class="tb" data-a="prev" type="button" aria-label="${esc3(tp("btn.prev"))}">${TP.prev}</button><button class="tb" data-a="next" type="button" aria-label="${esc3(tp("btn.next"))}">${TP.next}</button></div>
+          <button class="tb pp" data-a="pp" type="button"></button><button class="tb" data-a="prev" type="button" aria-label="${esc3(tp("btn.prev"))}">${TP.prev}</button><button class="tb" data-a="next" type="button" aria-label="${esc3(tp("btn.next"))}">${TP.next}</button></div>
         <div class="tl">${MUSIC_TRACKS.map((tr, i) => `<button class="tr" data-track="${i}" type="button"><i></i><div>${esc3(tr.name)}<small>${esc3(tp(tr.moodKey))}</small></div></button>`).join("")}</div>
-        ${slider("music", tp("pause.musicVol"))}
       </div></div></div>
     <div class="kh"><span><kbd>N</kbd>${esc3(tp("pause.sfx"))}</span><span><kbd>M</kbd>${esc3(tp("pause.music"))}</span><span><kbd>,</kbd><kbd>.</kbd>${esc3(tp("pop.track"))}</span></div>
   </div>`;
@@ -38407,6 +38453,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     set(".ssec", fx);
     set(".msec", mu);
     pop.querySelector(".mstate").textContent = tp(mu ? "pop.on" : "pop.off");
+    const pp = pop.querySelector(".pp"), paused = audio.paused;
+    pp.innerHTML = paused ? TP.play : TP.pause;
+    pp.setAttribute("aria-label", tp(paused ? "btn.play" : "btn.pause"));
+    pop.querySelector(".nowc").classList.toggle("paused", paused);
     pop.querySelector(".tname").textContent = T5.name;
     pop.querySelector(".tmood").textContent = tp(T5.moodKey);
     pop.querySelectorAll(".tr").forEach((b, i) => {
@@ -38452,11 +38502,12 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
     loadAll();
     settings.muted = true;
     settings.musicOn = false;
-    {
-      const lvl = settings.music >= 0.1 ? settings.music : defaults.music;
-      settings.music = lvl;
-      settings.sfx = lvl;
+    if (settings.levels !== 2) {
+      for (const k of ["sfx", "ambience", "music"]) settings[k] = defaults[k];
+      settings.levels = 2;
+      markDirty();
     }
+    for (const k of ["sfx", "ambience", "music"]) if (!(settings[k] >= 0.1)) settings[k] = defaults[k];
     if (params.get("lang")) settings.lang = params.get("lang");
     if (params.get("q")) settings.quality = params.get("q");
     setLanguageMode(settings.lang);
@@ -38684,6 +38735,10 @@ ${pick(BACK.exp)} ${pick(d.exp)}`, w * 0.06, h * 0.52, w * 0.88, h * 0.16, { fam
         settings.hints = !settings.hints;
         markDirty();
         updateHints();
+        return;
+      }
+      if (code === "KeyC" && (G.mode === "play" || G.mode === "inspect")) {
+        toggleCrouch();
         return;
       }
       if (G.mode === "play" || G.mode === "inspect") interaction.onKey(code);

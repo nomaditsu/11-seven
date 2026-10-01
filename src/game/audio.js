@@ -6,7 +6,7 @@ import { scheduleChipStep, stepSeconds } from './chiptune.js';
 
 export const audio = {
   ctx: null, ready: false,
-  master: null, sfxBus: null, ambBus: null, musBus: null,
+  master: null, sfxBus: null, ambBus: null, musBus: null, paused: false,
   nodes: {}, voices: [], lastVoiceCheck: 0,
   musicOn: false, nextNote: 0, step: 0, musicTimer: 0,
 };
@@ -81,7 +81,7 @@ export function applyVolumes() {
   audio.master.gain.setTargetAtTime(settings.master, t, 0.05);
   audio.sfxBus.gain.setTargetAtTime(settings.muted ? 0 : settings.sfx, t, 0.05);
   audio.ambBus.gain.setTargetAtTime(settings.muted ? 0 : settings.ambience * 0.9, t, 0.05);
-  audio.musBus.gain.setTargetAtTime(settings.musicOn ? settings.music * 0.55 : 0, t, 0.08);
+  audio.musBus.gain.setTargetAtTime(settings.musicOn && !audio.paused ? settings.music * 0.55 : 0, t, 0.08);
   if (settings.muted && 'speechSynthesis' in window) speechSynthesis.cancel();
 }
 
@@ -168,7 +168,7 @@ export const trackCount = () => MUSIC_TRACKS.length;
 export const currentTrack = () => MUSIC_TRACKS[((settings.track % MUSIC_TRACKS.length) + MUSIC_TRACKS.length) % MUSIC_TRACKS.length];
 function scheduleMusic() {
   const c = audio.ctx;
-  if (!audio.ready || !settings.musicOn || settings.music < 0.01) return;
+  if (!audio.ready || !settings.musicOn || audio.paused || settings.music < 0.01) return;
   const T = currentTrack(), sp = stepSeconds(T);
   if (audio.nextNote < c.currentTime - 0.5) audio.nextNote = c.currentTime + 0.08;
   while (audio.nextNote < c.currentTime + 0.3) { scheduleChipStep(c, audio.musBus, T, audio.step++, audio.nextNote); audio.nextNote += sp; }
@@ -185,7 +185,10 @@ export function setTrack(i) {
   return currentTrack();
 }
 export const nextTrack = (d = 1) => setTrack(settings.track + d);
-export function setMusicOn(on) { settings.musicOn = !!on; applyVolumes(); }
+// Pause holds the track where it is (the popover's play / pause button). It is not saved, and the Music switch, a
+// track pick or a skip all clear it, so a paused track never hides behind a switch that reads On.
+export function setMusicPaused(on) { audio.paused = !!on; applyVolumes(); }
+export function setMusicOn(on) { settings.musicOn = !!on; audio.paused = false; applyVolumes(); }
 export function setMuted(on) { settings.muted = !!on; applyVolumes(); }
 // ------------------------------------------------------------------------------------------ speech (browser voices, optional)
 let voices = [];

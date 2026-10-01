@@ -10,6 +10,7 @@ export const input = {
   locked: false,
   unlockedAt: 0,     // when the lock was last released (main.js ignores the Esc that released it)
   touch: false,      // set by the touch layer on phones / tablets (no pointer lock, taps are handled there)
+  crouch: false,     // crouch toggle: C or the touch Crouch button (Ctrl still crouches only while held)
   dragLook: false,   // true once play starts: look while the left button is held
   dragPx: 0,         // how far the current left-button press has moved (px)
   mouseDown: [false, false, false],

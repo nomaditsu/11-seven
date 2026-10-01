@@ -11,7 +11,6 @@ const LOOK_GAIN = 1.5;       // drag pixels -> mouse-movement units
 let actionKind = null;       // 'sku' | 'talk' | 'use' | null  (what the Interact button would do right now)
 let actionObj = null;        // for 'use': the object kind (coffee, atm, stool...)
 let inter = null;
-let crouch = false;
 
 export function touchWanted() {
   if (new URLSearchParams(location.search).has('touch')) return true;
@@ -49,11 +48,19 @@ function takeFace() {
   if (actionKind === 'use') return actionObj === 'basket' ? ['🧺', S.hasBasket ? 'tv.drop' : 'tv.grab'] : USE[actionObj] || ['👆', 'tv.use'];
   return ['👆', 'tv.interact'];
 }
+// Crouch is a toggle (C on a keyboard): while crouched the button offers Stand.
+const crouchFace = () => (input.crouch ? ['🧍', tp('tv.stand')] : ['🧎', tp('tv.crouch')]);
+export function toggleCrouch() { input.crouch = !input.crouch; syncCrouch(); }
+function syncCrouch() {
+  const b = $('t-crouch'); if (!b) return;
+  const [emoji, label] = crouchFace(); b.querySelector('.em').textContent = emoji; b.querySelector('small').textContent = label;
+  b.classList.toggle('hot', input.crouch);
+}
 const setFace = (id, [emoji, key]) => { const b = $(id); if (!b) return; b.querySelector('.em').textContent = emoji; b.querySelector('small').textContent = tp(key); };
 function render() {
   const box = $('touch'); if (!box) return;
   box.innerHTML = `<div class="stick" id="t-stick"><span>${tp('hud.move')}</span><i></i></div>
-    ${btn('t-crouch', 'crouch', '🧎', tp('tv.crouch'))}
+    ${btn('t-crouch', 'crouch', ...crouchFace())}
     <div class="acts">
       ${btn('t-take', 'take', '👆', tp('tv.interact'))}
       ${btn('t-inspect', 'a2', '🔍', tp('hud.inspect'))}
@@ -65,8 +72,8 @@ function render() {
   press('t-inspect', () => { if (G.mode === 'inspect') { inter.hands.flip(); } else inter.inspectKey(); });
   press('t-back', () => (G.mode === 'inspect' ? inter.endInspect(true) : inter.putBackLast()));
   press('t-basket', () => (G.mode === 'inspect' ? inter.endInspect(true) : ui.toggle('basket')));
-  press('t-crouch', () => { crouch = !crouch; crouch ? input.keys.add('KeyC') : input.keys.delete('KeyC'); $('t-crouch').classList.toggle('hot', crouch); });
-  refreshTake(); syncTouchMode();
+  press('t-crouch', toggleCrouch);
+  refreshTake(); syncTouchMode(); syncCrouch();
 }
 function press(id, fn) {
   const b = $(id); if (!b) return;

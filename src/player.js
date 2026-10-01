@@ -56,7 +56,7 @@ export class Player {
       if (down('ArrowLeft', 'KeyA')) ix -= 1;
       if (down('ArrowRight', 'KeyD')) ix += 1;
     }
-    const wantCrouch = active && !this.frozen && down('KeyC', 'ControlLeft', 'ControlRight');
+    const wantCrouch = active && !this.frozen && (input.crouch || down('ControlLeft', 'ControlRight'));
     this.crouchT = damp(this.crouchT, wantCrouch ? 1 : 0, 9, dt);
     const sprint = active && !this.frozen && down('ShiftLeft', 'ShiftRight') && iz < 0 && !wantCrouch;
     this.sprinting = sprint && (ix || iz);

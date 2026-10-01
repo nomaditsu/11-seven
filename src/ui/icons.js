@@ -3,6 +3,7 @@ import { BRAND, BADGE_PATH, ONE_FLAG, ONE_STEM, ONES_AT } from '../gfx/logo11sev
 export const ICON = {
   sound: '<svg viewBox="0 0 24 24"><path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 010 6M18 6.5a8 8 0 010 11"/></svg>',
   soundoff: '<svg viewBox="0 0 24 24"><path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>',
+  air: '<svg viewBox="0 0 24 24"><path d="M3.5 8h11a2.5 2.5 0 10-2.5-2.5M3.5 12h15a2.5 2.5 0 11-2.5 2.5M3.5 16h8a2.5 2.5 0 11-2.5 2.5"/></svg>',
   music: '<svg viewBox="0 0 24 24"><circle class="f" cx="8" cy="17.5" r="3.2"/><path d="M11.2 17.5V4.5c0 3.2 6.3 3 6.3 8"/></svg>',
   next: '<svg viewBox="0 0 24 24"><path class="f" d="M5 5.5v13l9-6.5z"/><path class="f" d="M16 5.5h3v13h-3z"/></svg>',
   prev: '<svg viewBox="0 0 24 24"><path class="f" d="M19 5.5v13l-9-6.5z"/><path class="f" d="M5 5.5h3v13H5z"/></svg>',

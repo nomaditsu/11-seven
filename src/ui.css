@@ -88,9 +88,13 @@ html[data-touch] .ib.look{display:none}
 .soundpop .vl svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--cream);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.soundpop .vl svg .f{fill:var(--cream);stroke:none}
 .soundpop .vl input{flex:1;accent-color:var(--o);height:28px;min-width:0}
 .soundpop .vl output{width:32px;text-align:right;font-weight:500}
+.soundpop .vlab{width:100px;flex:none;line-height:1.15}.soundpop .vlab small{display:block;font-size:11px;color:var(--mutedl)}
 .soundpop .kh{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mutedl)}
 .soundpop .kh kbd{font:700 11px Kanit,sans-serif;background:linear-gradient(#fff,#ececec);color:#15110e;border-radius:5px;padding:1px 6px;margin-right:4px;box-shadow:0 2px 0 #9a9184}
 html[data-touch] .soundpop .kh{display:none}
+.soundpop .nowc.paused .eq i{animation-play-state:paused}
+/* narrow phones: three transport buttons leave the track name too little room, so the bars tile goes */
+@media (max-width:400px){.soundpop .nowc .eq{display:none}.soundpop .nowc{gap:6px;padding-left:12px}.soundpop .nowc .tb{width:38px;height:38px}.soundpop .nowc .nt b{white-space:normal;font-size:17px}}
 @media (prefers-reduced-motion:reduce){.soundpop .fold{transition:none}.soundpop .eq i,.ib.snd .mini i{animation:none;height:70%}}
 
 /* ---------- phone header (portrait phones only; see the 640px block below) ---------- */
@@ -421,7 +425,7 @@ body[data-mode=inspect] #touch .act.take{order:3}
   .soundpop .nowc{margin-top:6px;padding:6px 8px}.soundpop .eq{width:36px;height:36px}.soundpop .nt b{font-size:16px}.soundpop .tb{width:34px;height:34px}
   .soundpop .tl{display:grid;grid-template-columns:1fr 1fr;margin-top:6px}
   .soundpop .tr{min-height:36px;padding:4px 8px;font-size:14px;white-space:nowrap;min-width:0}.soundpop .tr div{overflow:hidden;text-overflow:ellipsis}.soundpop .tr small{display:none}.soundpop .tr i{width:22px;height:22px}
-  .soundpop .vl{margin-top:6px}
+  .soundpop .vl{margin-top:6px}.soundpop .vl:has(.vlab){flex-wrap:wrap;row-gap:0}.soundpop .vlab{width:100%;order:-1;font-size:13px}.soundpop .vlab small{display:none}
 }
 
 /* keep the HUD quiet while a panel or a conversation is open */

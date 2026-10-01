@@ -122,7 +122,14 @@ export const STR_UI = {
   'btn.soundPop': { en: 'Sound and music', th: 'เสียงและเพลง', rom: 'sǐang lɛ́ phleeng' },
   'btn.about': { en: 'About', th: 'เกี่ยวกับเกม', rom: 'gìao-gàp geem' },
   'btn.prev': { en: 'Previous track (,)', th: 'เพลงก่อนหน้า (,)', rom: 'phleeng gɔ̀ɔn nâa (,)' },
-  'pop.sfxSub': { en: 'Store sounds and voices', th: 'เสียงในร้านและเสียงพูด', rom: 'sǐang nai ráan lɛ́ sǐang phûut' },
+  'pop.sfxSub': { en: 'Store sounds, voices and air con', th: 'เสียงในร้าน เสียงพูด และแอร์', rom: 'sǐang nai ráan, sǐang phûut lɛ́ ɛɛ' },
+  'pop.fx': { en: 'Effects', th: 'เอฟเฟกต์', rom: 'éf-fèk' },
+  'pop.fxSub': { en: 'Beeps and voices', th: 'เสียงบี๊บและเสียงพูด', rom: 'sǐang bíip lɛ́ sǐang phûut' },
+  'pop.amb': { en: 'Ambience', th: 'บรรยากาศ', rom: 'ban-yaa-gàat' },
+  'pop.ambSub': { en: 'Air con, fridges, street', th: 'แอร์ ตู้เย็น ถนน', rom: 'ɛɛ, dtûu-yen, thà-nǒn' },
+  'pop.ambVol': { en: 'Ambience volume', th: 'ระดับเสียงบรรยากาศ', rom: 'rá-dàp sǐang ban-yaa-gàat' },
+  'btn.play': { en: 'Play', th: 'เล่น', rom: 'lên' },
+  'btn.pause': { en: 'Pause', th: 'หยุดชั่วคราว', rom: 'yùt chûa-kraao' },
   'pop.on': { en: 'On', th: 'เปิด', rom: 'bpə̀ət' },
   'pop.off': { en: 'Off', th: 'ปิด', rom: 'bpìt' },
   // Mouse look (L or the look button): pointer lock on / off
@@ -152,4 +159,5 @@ export const STR_UI = {
   'tv.use': { en: 'Use', th: 'ใช้', rom: 'chái' },
   'tv.flip': { en: 'Flip', th: 'พลิก', rom: 'plìk' },
   'tv.crouch': { en: 'Crouch', th: 'ย่อ', rom: 'yɔ̂ɔ' },
+  'tv.stand': { en: 'Stand', th: 'ยืน', rom: 'yʉʉn' },
 };

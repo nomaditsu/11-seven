@@ -26,7 +26,7 @@ import { Interaction } from './game/interact.js';
 import { S, count, fmtClock, grantAch, alcoholAllowed } from './game/session.js';
 import { initAudio, updateAudio, sfx, applyVolumes, speakThai, speakGreeting, setMuted, setMusicOn, audio } from './game/audio.js';
 import { talkKey, cleanup as talkCleanup, talkActive } from './game/talk.js';
-import { initTouch, syncTouchMode } from './ui/touch.js';
+import { initTouch, syncTouchMode, toggleCrouch } from './ui/touch.js';
 import { initSoundPop, soundPopOpen, closeSoundPop } from './ui/soundpop.js';
 import { initOffline, showInstallHint } from './core/pwa.js';
 import { checkoutActive, checkoutKey } from './game/checkout.js';
@@ -45,9 +45,11 @@ async function boot() {
   // Every visit starts with sound and music off. Browsers block audio until the first click anyway, so showing them
   // as on made the buttons lie and it took two clicks to hear anything. One click on either button now starts it.
   settings.muted = true; settings.musicOn = false;
-  // Sound effects start at the same volume as the music every session. A saved 0 (a slider left down) made the
-  // door greeting and voices inaudible with no clue why. If music is near 0 too, both go back to the default.
-  { const lvl = settings.music >= 0.1 ? settings.music : defaults.music; settings.music = lvl; settings.sfx = lvl; }
+  // Mix 2 (2026-10-01: effects 75, ambience 30, music 20; the air con was drowning the music) replaces every saved
+  // level once. Before it, effects were re-levelled to the music volume each visit, so no saved level was a real choice.
+  if (settings.levels !== 2) { for (const k of ['sfx', 'ambience', 'music']) settings[k] = defaults[k]; settings.levels = 2; markDirty(); }
+  // A level left near 0 goes back to its default: a saved 0 made the door greeting and voices inaudible with no clue why.
+  for (const k of ['sfx', 'ambience', 'music']) if (!(settings[k] >= 0.1)) settings[k] = defaults[k];
   if (params.get('lang')) settings.lang = params.get('lang');
   if (params.get('q')) settings.quality = params.get('q');
   setLanguageMode(settings.lang);
@@ -208,6 +210,7 @@ async function boot() {
       ui.toggle(toggles[code]); return;
     }
     if (code === 'KeyH') { settings.hints = !settings.hints; markDirty(); updateHints(); return; }
+    if (code === 'KeyC' && (G.mode === 'play' || G.mode === 'inspect')) { toggleCrouch(); return; }   // C = crouch on / off
     if (G.mode === 'play' || G.mode === 'inspect') interaction.onKey(code);
   });
 

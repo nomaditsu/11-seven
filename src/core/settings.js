@@ -11,12 +11,13 @@ export const defaults = {
   invertY: false,
   bob: true,
   master: 0.8,
-  ambience: 0.8,
-  music: 0.7,
+  ambience: 0.3,         // air con, fridge hum and street (the Ambience slider); lower it for a quieter store
+  music: 0.2,
   musicOn: true,         // background chiptune on / off
   track: 0,              // index into MUSIC_TRACKS
   muted: false,          // master mute (everything, including voices)
-  sfx: 0.7,             // same as music: every session re-levels them (see main.js boot)
+  sfx: 0.75,             // beeps and voices (the Effects slider)
+  levels: 0,             // which default mix the saved levels come from (see main.js boot)
   subtitles: true,
   voice: true,
   hints: true,

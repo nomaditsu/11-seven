@@ -9,7 +9,7 @@ import { SKUS } from '../data/skus.js';
 import { QUESTS } from '../data/quests.js';
 import { MUSIC_TRACKS } from '../data/music.js';
 import { ICON, flagsFor, logoSvg } from './icons.js';
-import { applyVolumes, setMuted, setMusicOn, nextTrack, currentTrack } from '../game/audio.js';
+import { audio, applyVolumes, setMuted, setMusicOn, setMusicPaused, nextTrack, currentTrack } from '../game/audio.js';
 import { buildPause, buildControls, buildAbout } from './screens.js';
 
 const $ = (id) => document.getElementById(id);
@@ -123,7 +123,7 @@ export function refreshTop() {
   const silent = settings.muted && !settings.musicOn;
   for (const p of ['btn', 't']) {
     setBtn(p + '-sound', silent ? ICON.soundoff : ICON.sound, t('btn.soundPop'), silent);
-    el[p + '-sound'].classList.toggle('nomus', !settings.musicOn);
+    el[p + '-sound'].classList.toggle('nomus', !settings.musicOn || audio.paused);
   }
   setBtn('btn-info', ICON.info, t('btn.about'));
   setBtn('btn-look', ICON.look, t('btn.look'));
@@ -143,10 +143,15 @@ export function toggleMusic() {
   if (!ui.popOpen) toast(tp(settings.musicOn ? 'toast.musicOn' : 'toast.musicOff'), '', 1200);
   if (ui.panel === 'settings') buildSettings();
 }
+export function toggleMusicPause() {
+  ui.musicTouched = true;
+  if (!settings.musicOn) setMusicOn(true); else setMusicPaused(!audio.paused);
+  refreshTop();
+}
 export function skipTrack(d = 1) {
   ui.musicTouched = true;
   const tr = nextTrack(d); markDirty();
-  if (!settings.musicOn) setMusicOn(true);
+  if (!settings.musicOn || audio.paused) setMusicOn(true);
   if (!ui.popOpen) showNowPlaying(tr.name);
   refreshTop();
   if (ui.panel === 'settings') buildSettings();

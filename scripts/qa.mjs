@@ -156,7 +156,7 @@ await ev(() => window.__sim.setLang('both'));
 ok(await ev(() => document.documentElement.lang) === 'en', 'bilingual mode leads with English');
 await shot('20_both_hud', 2);
 ok(await ev(() => window.__sim.settings.muted === false && window.__sim.settings.musicOn === true), 'after Walk in: sound effects on (for the door greeting) and music on');
-ok(await ev(() => window.__sim.settings.sfx > 0.05 && window.__sim.settings.sfx === window.__sim.settings.music), 'sound-effects volume starts at the music volume');
+ok(await ev(() => { const s = window.__sim.settings; return s.sfx === 0.75 && s.ambience === 0.3 && s.music === 0.2; }), 'levels start at the default mix (effects 75, ambience 30, music 20)');
 await page.keyboard.press('KeyN'); ok(await ev(() => window.__sim.settings.muted) === true, 'N turns sound effects off');
 await page.keyboard.press('KeyN'); ok(await ev(() => window.__sim.settings.muted) === false, 'N turns sound effects on');
 await page.keyboard.press('KeyM'); ok(await ev(() => window.__sim.settings.musicOn) === false, 'M turns the music off');
